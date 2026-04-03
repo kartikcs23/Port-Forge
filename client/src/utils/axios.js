@@ -13,14 +13,21 @@ const api = axios.create({
 });
 
 /**
- * Request interceptor — attach JWT token from localStorage
- * Adds Authorization header with Bearer token if available
+ * Request interceptor â€” attach Clerk JWT token
+ * Fetches token live from Clerk's global instance 
  */
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+  async (config) => {
+    // Use Clerk global object if present
+    if (window.Clerk && window.Clerk.session) {
+      try {
+        const token = await window.Clerk.session.getToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      } catch (err) {
+        console.warn('Failed to get clerk token:', err);
+      }
     }
     return config;
   },
@@ -37,8 +44,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
-      // Dispatch logout event or redirect to login
-      window.location.href = '/login';
+      // Intentionally removed window.location.href = '/login' to stop Clerk redirect loops.
     }
     return Promise.reject(error);
   }

@@ -1,138 +1,60 @@
+@import '@fontsource/bricolage-grotesque/400.css';
+@import '@fontsource/bricolage-grotesque/600.css';
+@import '@fontsource/bricolage-grotesque/800.css';
+@import '@fontsource/dm-sans/400.css';
+@import '@fontsource/dm-sans/500.css';
+@import '@fontsource/dm-sans/700.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-* {
-  @apply box-border;
-}
-
-body {
-  @apply m-0 bg-slate-950;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-#root {
-  @apply min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-gray-100;
-}
-
-/* Animations */
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
+@layer base {
+  body {
+    @apply m-0 bg-background text-ink tracking-tight antialiased selection:bg-accent selection:text-white font-sans;
   }
-  50% {
-    background-position: 100% 50%;
+  
+  html {
+    scroll-behavior: smooth;
   }
-  100% {
-    background-position: 0% 50%;
+  
+  #root {
+    @apply min-h-screen bg-background text-ink;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight leading-none text-ink;
   }
 }
 
-@keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+@layer components {
+  /* Minimal solid button design */
+  .btn-solid {
+    @apply inline-flex items-center justify-center font-bold transition-all duration-200 
+           border border-ink bg-accent text-white px-8 py-3 uppercase tracking-widest text-xs
+           hover:bg-ink shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none;
   }
-  50% {
-    box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+  
+  .btn-outline {
+    @apply inline-flex items-center justify-center font-bold transition-all duration-200 
+           border border-ink bg-surface text-ink px-8 py-3 uppercase tracking-widest text-xs
+           hover:bg-accent hover:text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none;
   }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
-}
-
-@keyframes float-up {
-  0% {
-    transform: translateY(10px);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
+  
+  .card-minimal {
+    @apply border border-ink bg-surface shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] transition-transform duration-300 p-8 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(17,17,17,1)];
   }
 }
 
-@keyframes pulse-ring {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
-}
-
-/* Text Gradients */
-.gradient-text {
-  @apply bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent;
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
-}
-
-/* Glowing Elements */
-.glow {
-  @apply transition-all duration-300;
-  animation: glow 2s ease infinite;
-}
-
-.glow-hover:hover {
-  @apply shadow-xl;
-  box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
-}
-
-/* Card Backgrounds */
-.glass-card {
-  @apply bg-slate-800/40 backdrop-blur-md border border-slate-700/50 rounded-2xl;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-.glass-card-hover {
-  @apply glass-card transition-all duration-300 hover:bg-slate-800/60 hover:border-slate-600/50 hover:shadow-2xl;
-}
-
-/* Buttons */
-.btn-gradient {
-  @apply bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-xl;
-}
-
-.btn-gradient-alt {
-  @apply bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-xl;
-}
-
-.btn-glass {
-  @apply glass-card text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 hover:bg-slate-700/60 active:scale-95;
-}
-
-/* Input Styles */
-.input-glow {
-  @apply bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-500 transition-all duration-300;
-}
-
-.input-glow:focus {
-  @apply outline-none border-blue-500 bg-slate-800/80;
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-}
-
-/* Badge Backgrounds */
-.badge-gradient {
-  @apply inline-block bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 py-2 rounded-full font-semibold text-sm;
-}
-
-/* Floating Animation */
 .float-animation {
-  animation: float-up 0.6s ease-out;
+  animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translateY(20px);
 }
 
-/* Hover Effects */
-.hover-lift {
-  @apply transition-all duration-300 hover:translate-y-[-5px] hover:shadow-2xl;
+@keyframes slideUpFade {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

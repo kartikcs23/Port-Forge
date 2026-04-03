@@ -7,9 +7,15 @@
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": ["portfolio", "generator", "github", "linkedin"],
+  "keywords": [
+    "portfolio",
+    "generator",
+    "github",
+    "linkedin"
+  ],
   "license": "MIT",
   "dependencies": {
+    "@clerk/clerk-sdk-node": "^4.13.23",
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",

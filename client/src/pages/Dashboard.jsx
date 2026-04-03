@@ -1,16 +1,12 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Navbar } from '../components/Navbar';
 import { ProjectCard } from '../components/ProjectCard';
-import { useAuth } from '../hooks/useAuth';
+import { useUser } from '@clerk/clerk-react';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { Loader3D } from '../components/Loader3D';
 
-/**
- * Dashboard — User dashboard (protected)
- * Sync GitHub/LinkedIn, manage projects, generate/publish portfolio
- */
 export const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, isLoaded } = useUser();
   const {
     loading,
     error,
@@ -27,37 +23,52 @@ export const Dashboard = () => {
 
   const [syncStatus, setSyncStatus] = useState('');
   const [lastSynced, setLastSynced] = useState(null);
+  const [githubLink, setGithubLink] = useState('');
+  const [linkedinLink, setLinkedinLink] = useState('');
 
   useEffect(() => {
-    fetchPortfolio();
-    fetchProjects();
-  }, []);
+    if (isLoaded) {
+      fetchPortfolio();
+      fetchProjects();
+    }
+  }, [isLoaded]);
 
   if (loading && !portfolio && projects.length === 0) {
     return <Loader3D message="Loading your dashboard..." />;
   }
 
   const handleSyncGithub = async () => {
+    if (!githubLink) {
+        alert("Please paste your GitHub link or username first!");
+        return;
+    }
     setSyncStatus('syncing-github');
-    const result = await syncGithub();
+    const result = await syncGithub(githubLink);
     if (result.success) {
       setSyncStatus('success');
       setLastSynced(new Date().toLocaleString());
       setTimeout(() => setSyncStatus(''), 3000);
+      fetchProjects(); // refresh projects grid
     } else {
       setSyncStatus('error');
     }
   };
 
   const handleSyncLinkedin = async () => {
+    if (!linkedinLink) {
+        alert("Please paste your LinkedIn link or username first!");
+        return;
+    }
     setSyncStatus('syncing-linkedin');
-    const result = await syncLinkedin();
+    const result = await syncLinkedin(linkedinLink);
     if (result.success) {
       setSyncStatus('success');
       setLastSynced(new Date().toLocaleString());
       setTimeout(() => setSyncStatus(''), 3000);
+      fetchPortfolio(); // reload to show updated bio/name
     } else {
       setSyncStatus('error');
+      setTimeout(() => setSyncStatus(''), 3000);
     }
   };
 
@@ -78,162 +89,157 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen bg-background selection:bg-accent selection:text-white font-sans text-ink">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div className="glass-card p-8 mb-8 border-l-4 border-blue-500">
-          <h1 className="text-4xl font-bold gradient-text mb-2">
-            Welcome back, {user?.name}! 👋
-          </h1>
-          <p className="text-slate-400">Manage your portfolio and sync your data</p>
-        </div>
-
-        {/* Status Messages */}
-        {error && (
-          <div className="bg-red-500/20 border border-red-500/50 backdrop-blur-sm text-red-300 px-4 py-3 rounded-lg mb-4 animate-pulse">
-            ⚠️ {error}
-          </div>
-        )}
-        {syncStatus === 'success' && (
-          <div className="bg-green-500/20 border border-green-500/50 backdrop-blur-sm text-green-300 px-4 py-3 rounded-lg mb-4 animate-pulse">
-            ✨ Operation completed successfully!
-          </div>
-        )}
-
-        {/* Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            {/* Sync Panel */}
-            <div className="glass-card p-6 mb-6 hover-lift">
-              <h2 className="text-2xl font-bold text-slate-100 mb-6 flex items-center gap-2">
-                🔄 Sync Your Data
+      <main className="max-w-7xl mx-auto px-4 py-8 md:py-16 pt-24 md:pt-32">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
+          
+          <div className="lg:col-span-4 space-y-8">
+            <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-ink pb-2">
+                Command Center
               </h2>
-              <div className="space-y-3">
-                <button
-                  onClick={handleSyncGithub}
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-slate-700 to-slate-600 text-white py-3 rounded-lg font-bold hover:from-slate-600 hover:to-slate-500 transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
-                >
-                  <span>🐙</span>
-                  {loading && syncStatus === 'syncing-github'
-                    ? 'Syncing...'
-                    : 'Sync GitHub'}
-                </button>
-                <button
-                  onClick={handleSyncLinkedin}
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-blue-700 to-blue-600 text-white py-3 rounded-lg font-bold hover:from-blue-600 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
-                >
-                  <span>💼</span>
-                  {loading && syncStatus === 'syncing-linkedin'
-                    ? 'Syncing...'
-                    : 'Sync LinkedIn'}
-                </button>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 border-b-2 border-ink pb-1 inline-block">
+                    GitHub Link or Username
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="https://github.com/username"
+                    value={githubLink}
+                    onChange={(e) => setGithubLink(e.target.value)}
+                    className="w-full bg-background border-2 border-ink px-4 py-3 font-sans text-sm font-bold uppercase tracking-wide focus:outline-none focus:ring-none focus:bg-accent focus:text-white transition-colors"
+                  />
+                  <button
+                    onClick={handleSyncGithub}
+                    disabled={loading || !githubLink}
+                    className={`w-full block font-bold uppercase tracking-widest text-xs mt-2 py-3 border-2 border-ink transition-transform hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${syncStatus === 'syncing-github' ? 'bg-ink text-white' : 'bg-surface text-ink'}`}
+                  >
+                    {syncStatus === 'syncing-github' ? 'SYNCING...' : 'SYNC GITHUB'}
+                  </button>
+                </div>
+                  <div className="pt-6">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 border-b-2 border-ink pb-1 inline-block">
+                      LinkedIn Link or Username
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="https://linkedin.com/in/username"
+                      value={linkedinLink}
+                      onChange={(e) => setLinkedinLink(e.target.value)}
+                      className="w-full bg-background border-2 border-ink px-4 py-3 font-sans text-sm font-bold uppercase tracking-wide focus:outline-none focus:ring-none focus:bg-accent focus:text-white transition-colors"
+                    />
+                    <button
+                      onClick={handleSyncLinkedin}
+                      disabled={loading || !linkedinLink}
+                      className={`w-full block font-bold uppercase tracking-widest text-xs mt-2 py-3 border-2 border-ink transition-transform hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${syncStatus === 'syncing-linkedin' ? 'bg-ink text-white' : 'bg-surface text-ink'}`}
+                    >
+                      {syncStatus === 'syncing-linkedin' ? 'SYNCING...' : 'SYNC LINKEDIN'}
+                    </button>
+                  </div>
+                <div className="pt-6 border-t-2 border-ink border-dashed">
+                  <span className="block text-[10px] font-bold uppercase tracking-widest text-muted mb-2">STATUS LOGGER</span>
+                  {error && <div className="text-xs font-bold text-accent uppercase bg-ink text-white p-2 border-2 border-ink mb-2">ERROR: {error}</div>}
+                  {syncStatus === 'success' && <div className="text-xs font-bold text-ink uppercase bg-surface p-2 border-2 border-ink mb-2 shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]">SYNC SUCCESSFUL</div>}
+                  {lastSynced && <div className="text-[10px] font-bold text-ink uppercase">LAST SYNC: {lastSynced}</div>}
+                </div>
               </div>
-              {lastSynced && (
-                <p className="text-xs text-slate-500 mt-4 text-center">
-                  Last synced: {lastSynced}
-                </p>
-              )}
             </div>
 
-            {/* Portfolio Panel */}
-            <div className="glass-card p-6 hover-lift">
-              <h2 className="text-2xl font-bold text-slate-100 mb-6 flex items-center gap-2">
-                📋 Portfolio
+            <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-ink pb-2">
+                Deployment
               </h2>
               {portfolio ? (
-                <>
-                  <div className="mb-4 p-4 bg-gradient-to-r from-slate-700/50 to-slate-600/50 border border-slate-600/50 rounded-lg flex items-center justify-between">
-                    <span className="text-sm font-semibold">Status:</span>
-                    <span
-                      className={`font-bold px-3 py-1 rounded-full text-sm ${
-                        portfolio.published
-                          ? 'bg-green-500/30 text-green-300 border border-green-500/50'
-                          : 'bg-yellow-500/30 text-yellow-300 border border-yellow-500/50'
-                      }`}
-                    >
-                      {portfolio.published ? '✨ Published' : '📝 Draft'}
+                <div className="space-y-4">
+                  <div className="p-3 bg-background border-2 border-ink flex items-center justify-between shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]">
+                    <span className="text-[10px] font-bold uppercase tracking-widest">STATE:</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 border-2 border-ink">
+                      {portfolio.published ? 'LIVE' : 'DRAFT'}
                     </span>
                   </div>
+
                   <button
                     onClick={handleTogglePublish}
                     disabled={loading}
-                    className={`w-full py-3 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 mb-4 ${
-                      portfolio.published
-                        ? 'bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white shadow-lg'
-                        : 'btn-gradient'
-                    }`}
+                    className="w-full font-bold uppercase tracking-widest text-xs py-4 border-2 border-ink transition-transform hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                   >
-                    {portfolio.published ? '🔒 Unpublish' : '🚀 Publish'}
+                    {portfolio.published ? 'Take Offline' : 'Publish to web'}
                   </button>
-                  {portfolio.slug && (
-                    <div className="mb-4">
-                      <p className="text-xs text-slate-500 mb-2 font-semibold">
-                        Your Portfolio URL:
-                      </p>
-                      <input
-                        type="text"
-                        value={`portforge.app/${portfolio.slug}`}
-                        readOnly
-                        className="w-full px-3 py-2 border border-slate-600 rounded-lg bg-slate-800/50 text-slate-300 text-sm font-mono"
-                      />
+
+                  {portfolio.published && portfolio.slug && (
+                    <div className="mt-4 p-4 border-2 border-ink bg-ink text-white">
+                      <span className="block text-[10px] font-bold uppercase tracking-widest mb-1 text-muted">LIVE URL</span>
+                      <div className="flex items-center justify-between gap-2 overflow-hidden border border-white/20 px-2 py-1">
+                        <input
+                          type="text"
+                          readOnly
+                          value={`portforge.app/${portfolio.slug}`}
+                          className="bg-transparent border-none focus:outline-none focus:ring-0 flex-1 text-xs font-sans truncate py-1 selection:bg-accent min-w-0"
+                        />
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(`portforge.app/${portfolio.slug}`);
+                            setSyncStatus('success');
+                            setTimeout(() => setSyncStatus(''), 2000);
+                          }}
+                          className="bg-white text-ink px-3 py-1 font-bold text-[10px] uppercase whitespace-nowrap hover:bg-accent hover:text-white transition-colors"
+                        >
+                          COPY LINK
+                        </button>
+                      </div>
                     </div>
                   )}
-                </>
+                </div>
               ) : (
-                <button
-                  onClick={handleGeneratePortfolio}
-                  disabled={loading}
-                  className="btn-gradient-alt w-full py-4 rounded-lg font-bold text-lg"
-                >
-                  {loading ? '✨ Generating...' : '🎨 Generate Portfolio'}
-                </button>
+                <div className="text-center py-4">
+                  <p className="text-sm font-bold uppercase tracking-widest mb-4">No portfolio generated yet.</p>
+                  <button
+                    onClick={handleGeneratePortfolio}
+                    disabled={loading || projects.length === 0}
+                    className="w-full bg-accent text-white font-bold uppercase tracking-widest text-xs py-4 border-2 border-ink transition-transform hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50"
+                  >
+                    Generate Portfolio
+                  </button>
+                  {projects.length === 0 && (
+                    <p className="text-[10px] font-bold uppercase tracking-widest mt-2 text-accent">Sync repositories first</p>
+                  )}
+                </div>
               )}
             </div>
           </div>
 
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            {/* Projects Section */}
-            <div className="glass-card p-6 hover-lift">
-              <h2 className="text-3xl font-bold text-slate-100 mb-8 flex items-center gap-3">
-                <span>⭐</span>
-                Your Projects ({projects.length})
-              </h2>
-              {projects.length > 0 ? (
-                <div className="grid gap-4">
-                  {projects.map((project) => (
-                    <ProjectCard
-                      key={project._id}
-                      project={project}
-                      onPin={togglePin}
-                      loading={loading}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-16">
-                  <div className="text-6xl mb-4">📦</div>
-                  <p className="text-slate-400 mb-6 text-lg">
-                    No projects found. Sync your GitHub to get started!
-                  </p>
-                  <button
-                    onClick={handleSyncGithub}
-                    disabled={loading}
-                    className="btn-gradient inline-block"
-                  >
-                    🔗 Sync GitHub Now
-                  </button>
+          <div className="lg:col-span-8">
+            <h2 className="text-4xl md:text-5xl font-black font-display uppercase tracking-tighter mb-8 border-b-4 border-ink pb-4">
+              Your Repositories
+            </h2>
+            
+            <div className="space-y-6">
+              {(projects || []).map((project) => (
+                <ProjectCard
+                  key={project.repoId || project._id}
+                  project={project}
+                  onPin={togglePin}
+                  loading={loading}
+                />
+              ))}
+              
+              {projects.length === 0 && !loading && (
+                <div className="border-4 border-ink border-dashed p-12 text-center bg-surface rotate-1 group hover:rotate-0 transition-transform">
+                  <div className="w-16 h-16 bg-background border-2 border-ink flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
+                    <span className="text-2xl">?</span>
+                  </div>
+                  <h3 className="text-xl font-black font-display uppercase tracking-tight mb-2">NO DATABANKS FOUND</h3>
+                  <p className="text-sm font-bold font-sans uppercase tracking-widest text-muted">AWAITING GITHUB SYNCHRONIZATION...</p>
                 </div>
               )}
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

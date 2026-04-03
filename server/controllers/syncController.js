@@ -1,43 +1,41 @@
-const { fetchGitHubProfile, fetchGitHubRepos } = require('../services/githubService');
+﻿const { fetchGitHubProfile, fetchGitHubRepos } = require('../services/githubService');
 const { fetchLinkedInProfile } = require('../services/linkedinService');
 const { scoreAndSort } = require('../services/scoringService');
 const Project = require('../models/Project');
 const Profile = require('../models/Profile');
 const User = require('../models/User');
 
-/**
- * syncGithub — Fetches GitHub profile + repos for the authenticated user,
- * scores the repos, and upserts them into the database.
- *
- * Route: GET /api/sync/github (protected)
- *
- * Note: Requires the user to have a GitHub access token stored.
- * In Phase 1, the token must be passed via the `x-github-token` header.
- * After OAuth is fully wired, the token will come from the OAuth flow.
- */
 const syncGithub = async (req, res) => {
   try {
-    // Get GitHub token from header (temporary) or from user's stored token
-    const githubToken = req.headers['x-github-token'];
-
-    if (!githubToken) {
+    const rawLink = req.query.link || '';
+    if (!rawLink) {
       return res.status(400).json({
         success: false,
-        data: null,
-        message: 'GitHub access token is required. Pass it via x-github-token header.',
+        message: 'A GitHub link or username string is required as a query parameter (?link=...).',
       });
     }
 
-    // Fetch profile and repos from GitHub API
+    let username = rawLink.trim();
+    if (username.toLowerCase().includes('github.com/')) {
+      username = username.toLowerCase().split('github.com/')[1].split('/')[0];
+    } else if (username.includes('/')) {
+        username = username.split('/').pop() || username.split('/')[0];
+    }
+
+    if (!username) {
+        return res.status(400).json({
+          success: false,
+          message: 'Could not parse a valid username from the provided link.',
+        });
+    }
+
     const [githubProfile, githubRepos] = await Promise.all([
-      fetchGitHubProfile(githubToken),
-      fetchGitHubRepos(githubToken),
+      fetchGitHubProfile(username),
+      fetchGitHubRepos(username),
     ]);
 
-    // Score and sort repos
-    const scoredRepos = scoreAndSort(githubRepos);
+    const scoredRepos = await scoreAndSort(githubRepos);
 
-    // Upsert each repo into the Projects collection
     const projectOps = scoredRepos.map((repo) => ({
       updateOne: {
         filter: { userId: req.user._id, repoId: repo.repoId },
@@ -63,7 +61,6 @@ const syncGithub = async (req, res) => {
       await Project.bulkWrite(projectOps);
     }
 
-    // Upsert profile data
     await Profile.findOneAndUpdate(
       { userId: req.user._id },
       {
@@ -77,7 +74,6 @@ const syncGithub = async (req, res) => {
       { upsert: true, new: true }
     );
 
-    // Update user avatar if available
     if (githubProfile.avatar) {
       await User.findByIdAndUpdate(req.user._id, {
         avatar: githubProfile.avatar,
@@ -97,75 +93,56 @@ const syncGithub = async (req, res) => {
     console.error('Sync GitHub error:', error.message);
     res.status(500).json({
       success: false,
-      data: null,
-      message: error.message || 'Failed to sync GitHub data',
+      message: error.message || 'Failed to sync GitHub data. Ensure the profile exists and is public.',
     });
   }
 };
 
-/**
- * syncLinkedin — Fetches LinkedIn profile for the authenticated user
- * and saves it to the Profile collection.
- *
- * Route: GET /api/sync/linkedin (protected)
- */
 const syncLinkedin = async (req, res) => {
   try {
-    const linkedinToken = req.headers['x-linkedin-token'];
-
-    if (!linkedinToken) {
+    const rawLink = req.query.link || '';
+    if (!rawLink) {
       return res.status(400).json({
         success: false,
-        data: null,
-        message: 'LinkedIn access token is required. Pass it via x-linkedin-token header.',
+        message: 'A LinkedIn link or username is required.',
       });
     }
 
-    const linkedinProfile = await fetchLinkedInProfile(linkedinToken);
+    let username = rawLink.trim();
+    if (username.toLowerCase().includes('linkedin.com/in/')) {
+      username = username.toLowerCase().split('linkedin.com/in/')[1].split('/')[0];
+    } else if (username.includes('/')) {
+      username = username.split('/').pop() || username.split('/')[0];
+    }
 
-    // Upsert profile data
+    const { fetchLinkedInProfile } = require('../services/linkedinService');
+    const linkedinData = await fetchLinkedInProfile(username);
+
     await Profile.findOneAndUpdate(
       { userId: req.user._id },
       {
         $set: {
-          userId: req.user._id,
-          bio: linkedinProfile.bio || undefined,
-          location: linkedinProfile.location || undefined,
-          'links.linkedin': linkedinProfile.linkedinUrl,
-        },
-        $addToSet: {
-          skills: { $each: linkedinProfile.skills || [] },
-        },
-        $push: {
-          experience: { $each: linkedinProfile.experience || [] },
-          education: { $each: linkedinProfile.education || [] },
+          'links.linkedin': linkedinData.linkedinUrl,
+          // Merge in bio if not set by GitHub
+          ...(linkedinData.bio ? { bio: linkedinData.bio } : {}),
         },
       },
       { upsert: true, new: true }
     );
 
-    // Update user avatar if not already set
-    if (linkedinProfile.avatar) {
-      await User.findByIdAndUpdate(
-        req.user._id,
-        { $setOnInsert: { avatar: linkedinProfile.avatar } },
-        { upsert: false }
-      );
-    }
-
     res.status(200).json({
       success: true,
-      data: { profile: linkedinProfile },
+      data: linkedinData,
       message: 'Successfully synced LinkedIn profile',
     });
   } catch (error) {
     console.error('Sync LinkedIn error:', error.message);
     res.status(500).json({
       success: false,
-      data: null,
-      message: error.message || 'Failed to sync LinkedIn data',
+      message: error.message || 'Failed to sync LinkedIn.',
     });
   }
 };
 
 module.exports = { syncGithub, syncLinkedin };
+

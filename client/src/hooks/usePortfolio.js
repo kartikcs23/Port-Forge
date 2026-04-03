@@ -71,12 +71,12 @@ export const usePortfolio = () => {
   /**
    * syncGithub — Sync GitHub data
    */
-  const syncGithub = useCallback(async () => {
+  const syncGithub = useCallback(async (link) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get('/api/sync/github');
-      setProjects(response.data.data);
+      const response = await api.get(`/api/sync/github?link=${encodeURIComponent(link)}`);
+      setProjects(response.data.data.topProjects || [])
       return { success: true, data: response.data.data };
     } catch (err) {
       const message = err.response?.data?.message || err.message;
@@ -90,11 +90,11 @@ export const usePortfolio = () => {
   /**
    * syncLinkedin — Sync LinkedIn data
    */
-  const syncLinkedin = useCallback(async () => {
+  const syncLinkedin = useCallback(async (link) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get('/api/sync/linkedin');
+      const response = await api.get(`/api/sync/linkedin?link=${encodeURIComponent(link)}`);
       return { success: true, data: response.data.data };
     } catch (err) {
       const message = err.response?.data?.message || err.message;
@@ -113,8 +113,8 @@ export const usePortfolio = () => {
     setError(null);
     try {
       const response = await api.get('/api/profile/projects');
-      setProjects(response.data.data);
-      return { success: true, data: response.data.data };
+      setProjects(response.data.data.projects || []);
+      return { success: true, data: response.data.data.projects };
     } catch (err) {
       const message = err.response?.data?.message || err.message;
       setError(message);
@@ -136,9 +136,9 @@ export const usePortfolio = () => {
       );
       // Update projects list
       setProjects((prev) =>
-        prev.map((p) => (p._id === projectId ? response.data.data : p))
+        (prev || []).map((p) => (p._id === projectId ? response.data.data.project : p))
       );
-      return { success: true, data: response.data.data };
+      return { success: true, data: response.data.data.project };
     } catch (err) {
       const message = err.response?.data?.message || err.message;
       setError(message);

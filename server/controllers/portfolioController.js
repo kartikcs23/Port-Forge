@@ -80,7 +80,7 @@ const getMyPortfolio = async (req, res) => {
     const portfolio = await Portfolio.findOne({ userId: req.user._id });
 
     if (!portfolio) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         data: null,
         message: 'No portfolio found. Generate one first.',

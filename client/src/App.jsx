@@ -1,7 +1,6 @@
-import React from 'react';
+﻿import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
 
 // Pages
 import { Landing } from './pages/Landing';
@@ -10,38 +9,28 @@ import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { Portfolio } from './pages/Portfolio';
 
-/**
- * App — Main application component with routing
- * Public routes: /, /login, /register, /:slug
- * Protected routes: /dashboard
- */
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-
-          {/* Protected Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route
+          path="/dashboard"
+          element={
+            <>
+              <SignedIn>
                 <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Public Portfolio */}
-          <Route path="/:slug" element={<Portfolio />} />
-
-          {/* Catch-all */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </AuthProvider>
+              </SignedIn>
+              <SignedOut>
+                <RedirectToSignIn redirectUrl="/login" />
+              </SignedOut>
+            </>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
     </Router>
   );
 }

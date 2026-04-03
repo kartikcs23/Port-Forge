@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 /**
- * User Schema — Stores registered user accounts.
+ * User Schema â€” Stores registered user accounts.
  * Passwords are hashed via bcrypt before saving.
  * Supports local auth (email + password) and OAuth (GitHub / LinkedIn).
  */
@@ -22,10 +22,11 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      // Not required — OAuth users won't have a password
+      // Not required â€” OAuth users won't have a password
       minlength: 6,
       select: false, // Never returned in queries by default
     },
+    clerkId: { type: String, default: null },
     githubId: {
       type: String,
       default: null,
@@ -50,7 +51,7 @@ const userSchema = new mongoose.Schema(
 );
 
 /**
- * Pre-save hook — Hash the password before persisting to DB.
+ * Pre-save hook â€” Hash the password before persisting to DB.
  * Only runs if the password field has been modified (or is new).
  */
 userSchema.pre('save', async function (next) {
@@ -62,9 +63,9 @@ userSchema.pre('save', async function (next) {
 });
 
 /**
- * matchPassword — Instance method to compare a candidate password
+ * matchPassword â€” Instance method to compare a candidate password
  * against the stored bcrypt hash.
- * @param {string} candidatePassword — plain-text password to verify
+ * @param {string} candidatePassword â€” plain-text password to verify
  * @returns {boolean} true if passwords match
  */
 userSchema.methods.matchPassword = async function (candidatePassword) {
