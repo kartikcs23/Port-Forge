@@ -8,11 +8,13 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { Portfolio } from './pages/Portfolio';
+import { ProfileEdit } from './pages/ProfileEdit';
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Specific routes first */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -29,6 +31,25 @@ function App() {
             </>
           }
         />
+
+        <Route
+          path="/profile-edit"
+          element={
+            <>
+              <SignedIn>
+                <ProfileEdit />
+              </SignedIn>
+              <SignedOut>
+                <RedirectToSignIn redirectUrl="/login" />
+              </SignedOut>
+            </>
+          }
+        />
+        
+        {/* Dynamic portfolio route - after specific routes */}
+        <Route path="/:slug" element={<Portfolio />} />
+        
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

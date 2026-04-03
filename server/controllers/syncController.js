@@ -123,8 +123,12 @@ const syncLinkedin = async (req, res) => {
       {
         $set: {
           'links.linkedin': linkedinData.linkedinUrl,
-          // Merge in bio if not set by GitHub
-          ...(linkedinData.bio ? { bio: linkedinData.bio } : {}),
+          bio: linkedinData.bio,
+          location: linkedinData.location || '',
+          headline: linkedinData.headline || '',
+          experience: linkedinData.experience || [],
+          education: linkedinData.education || [],
+          skills: linkedinData.skills || [],
         },
       },
       { upsert: true, new: true }

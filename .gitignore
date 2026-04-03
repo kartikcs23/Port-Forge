@@ -4,6 +4,8 @@ node_modules/
 /server/node_modules/
 *.pnp
 .pnp.js
+yarn.lock
+package-lock.json
 
 # Environment variables
 .env
@@ -11,12 +13,16 @@ node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.staging.local
 **/.env
+**/.env.local
+**/.env.*.local
 
 # Build outputs
 dist/
 dist-ssr/
 build/
+*.local
 
 # Logs
 logs
@@ -28,6 +34,38 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # OS files
+.DS_Store
+Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets & API Keys
+*.key
+*.pem
+private_key*
+secrets.json
+credentials.json
 .DS_Store
 .DS_Store?
 *.swp

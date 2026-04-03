@@ -201,14 +201,7 @@ const getPublicPortfolio = async (req, res) => {
       });
     }
 
-    if (!portfolio.published) {
-      return res.status(403).json({
-        success: false,
-        data: null,
-        message: 'This portfolio is not published yet',
-      });
-    }
-
+    // Portfolio is always accessible by slug - no published check needed
     // Increment view count
     portfolio.views += 1;
     await portfolio.save();
@@ -223,20 +216,20 @@ const getPublicPortfolio = async (req, res) => {
     res.status(200).json({
       success: true,
       data: {
-        portfolio: {
-          slug: portfolio.slug,
-          theme: portfolio.theme,
-          views: portfolio.views,
-        },
-        user: user
+        rootUser: user
           ? {
               name: user.name,
               avatar: user.avatar,
               plan: user.plan,
             }
           : null,
+        portfolio: {
+          slug: portfolio.slug,
+          theme: portfolio.theme,
+          views: portfolio.views,
+        },
         profile: profile || null,
-        projects: projects || [],
+        repos: projects || [],
       },
       message: 'Portfolio data retrieved',
     });

@@ -1,12 +1,14 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { Navbar } from '../components/Navbar';
 import { ProjectCard } from '../components/ProjectCard';
+import { useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { Loader3D } from '../components/Loader3D';
 
 export const Dashboard = () => {
-  const { user, isLoaded } = useUser();
+  const navigate = useNavigate();
+  const { isLoaded } = useUser();
   const {
     loading,
     error,
@@ -31,7 +33,7 @@ export const Dashboard = () => {
       fetchPortfolio();
       fetchProjects();
     }
-  }, [isLoaded]);
+  }, [isLoaded, fetchPortfolio, fetchProjects]);
 
   if (loading && !portfolio && projects.length === 0) {
     return <Loader3D message="Loading your dashboard..." />;
@@ -77,6 +79,7 @@ export const Dashboard = () => {
     if (result.success) {
       setSyncStatus('success');
       setTimeout(() => setSyncStatus(''), 3000);
+      fetchPortfolio(); // Refresh portfolio state
     }
   };
 
@@ -85,6 +88,7 @@ export const Dashboard = () => {
     if (result.success) {
       setSyncStatus('success');
       setTimeout(() => setSyncStatus(''), 3000);
+      fetchPortfolio(); // Refresh to get updated portfolio state
     }
   };
 
@@ -96,6 +100,21 @@ export const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
           
           <div className="lg:col-span-4 space-y-8">
+            <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-ink pb-2">
+                Profile Settings
+              </h2>
+              <button
+                onClick={() => navigate('/profile-edit')}
+                className="w-full bg-accent text-white px-6 py-3 font-bold uppercase text-xs border-2 border-accent shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all mb-4"
+              >
+                ✏️ EDIT PROFILE
+              </button>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted text-center">
+                Update your bio, avatar, and contact details
+              </p>
+            </div>
+
             <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
               <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-ink pb-2">
                 Command Center
@@ -170,9 +189,15 @@ export const Dashboard = () => {
                     {portfolio.published ? 'Take Offline' : 'Publish to web'}
                   </button>
 
-                  {portfolio.published && portfolio.slug && (
-                    <div className="mt-4 p-4 border-2 border-ink bg-ink text-white">
-                      <span className="block text-[10px] font-bold uppercase tracking-widest mb-1 text-muted">LIVE URL</span>
+                  {portfolio && portfolio.slug && (
+                    <div className="mt-4 p-4 border-2 border-ink bg-ink text-white space-y-2">
+                      <span className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-muted">LIVE URL</span>
+                      <button
+                        onClick={() => navigate(`/${portfolio.slug}`)}
+                        className="block w-full bg-accent text-ink text-center px-3 py-2 font-bold text-[10px] uppercase hover:bg-white transition-colors border-2 border-accent"
+                      >
+                        VIEW PORTFOLIO
+                      </button>
                       <div className="flex items-center justify-between gap-2 overflow-hidden border border-white/20 px-2 py-1">
                         <input
                           type="text"

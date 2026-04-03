@@ -9,6 +9,8 @@ lerna-debug.log*
 
 # Dependencies
 node_modules
+yarn.lock
+package-lock.json
 
 # Build outputs
 dist
@@ -18,6 +20,21 @@ build
 
 # Environment variables
 .env
+.env.local
+.env.*.local
+.env.prod
+.env.development
+.env.test
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
 .env.local
 .env.*.local
 

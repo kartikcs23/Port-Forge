@@ -17,7 +17,27 @@ const profileSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    intro: {
+      type: String,
+      default: '',
+    },
+    headline: {
+      type: String,
+      default: '',
+    },
     location: {
+      type: String,
+      default: '',
+    },
+    email: {
+      type: String,
+      default: '',
+    },
+    phone: {
+      type: String,
+      default: '',
+    },
+    website: {
       type: String,
       default: '',
     },

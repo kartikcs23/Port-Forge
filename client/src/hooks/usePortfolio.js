@@ -19,8 +19,8 @@ export const usePortfolio = () => {
     setError(null);
     try {
       const response = await api.get('/api/portfolio/mine');
-      setPortfolio(response.data.data);
-      return { success: true, data: response.data.data };
+      setPortfolio(response.data.data.portfolio);
+      return { success: true, data: response.data.data.portfolio };
     } catch (err) {
       const message = err.response?.data?.message || err.message;
       setError(message);
@@ -38,8 +38,8 @@ export const usePortfolio = () => {
     setError(null);
     try {
       const response = await api.post('/api/portfolio/generate');
-      setPortfolio(response.data.data);
-      return { success: true, data: response.data.data };
+      setPortfolio(response.data.data.portfolio);
+      return { success: true, data: response.data.data.portfolio };
     } catch (err) {
       const message = err.response?.data?.message || err.message;
       setError(message);
@@ -57,8 +57,8 @@ export const usePortfolio = () => {
     setError(null);
     try {
       const response = await api.patch('/api/portfolio/publish');
-      setPortfolio(response.data.data);
-      return { success: true, data: response.data.data };
+      setPortfolio(response.data.data.portfolio);
+      return { success: true, data: response.data.data.portfolio };
     } catch (err) {
       const message = err.response?.data?.message || err.message;
       setError(message);
