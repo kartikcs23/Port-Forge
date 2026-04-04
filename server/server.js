@@ -14,6 +14,8 @@ const authRoutes = require('./routes/auth');
 const syncRoutes = require('./routes/sync');
 const portfolioRoutes = require('./routes/portfolio');
 const profileRoutes = require('./routes/profile');
+const insightsRoutes = require('./routes/insights');
+const linkedinRoutes = require('./routes/linkedin');
 
 // Initialize Express app
 const app = express();
@@ -67,6 +69,8 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/sync', syncRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/insights', insightsRoutes);
+app.use('/api/linkedin', linkedinRoutes);
 
 // ========================
 // Health Check

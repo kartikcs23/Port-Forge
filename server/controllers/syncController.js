@@ -1,5 +1,5 @@
 const { fetchGitHubProfile, fetchGitHubRepos } = require('../services/githubService');
-const { fetchLinkedInProfile } = require('../services/linkedinService');
+const { fetchLinkedInProfile, parseLinkedInURL } = require('../services/linkedinService');
 const { scoreAndSort } = require('../services/scoringService');
 const Project = require('../models/Project');
 const Profile = require('../models/Profile');
@@ -100,5 +100,94 @@ const syncGithub = async (req, res) => {
   }
 };
 
-module.exports = { syncGithub };
+const syncLinkedIn = async (req, res) => {
+  try {
+    const rawLink = req.query.link || req.body?.link || '';
+    let linkedinInput = rawLink;
+    let structuredData = null;
+
+    console.log('[syncLinkedIn] Received:', { 
+      rawLink: rawLink.substring(0, 100), 
+      method: req.method,
+      hasBody: !!req.body 
+    });
+
+    // If POST request with structured data, use that directly
+    if (req.body && typeof req.body === 'object' && !req.body.link) {
+      structuredData = req.body;
+      linkedinInput = structuredData.linkedinUrl || '';
+      console.log('[syncLinkedIn] Using POST structured data');
+    }
+
+    if (!linkedinInput && !structuredData) {
+      console.warn('[syncLinkedIn] Empty input - no URL or data provided');
+      return res.status(400).json({
+        success: false,
+        message: 'A LinkedIn profile URL or structured profile data is required.',
+      });
+    }
+
+    // Parse LinkedIn input and extract username
+    console.log('[syncLinkedIn] Calling parseLinkedInURL with:', linkedinInput.substring(0, 100));
+    const { username, structuredData: parsedData } = parseLinkedInURL(linkedinInput || structuredData);
+    
+    console.log('[syncLinkedIn] Parse result:', { username, hasParsedData: !!parsedData, usernameLength: username?.length });
+    
+    if (!username || username.length === 0) {
+      console.error('[syncLinkedIn] Username extraction failed for:', linkedinInput.substring(0, 100));
+      return res.status(400).json({
+        success: false,
+        message: `Failed to extract valid LinkedIn username from: ${linkedinInput.substring(0, 60)}`,
+      });
+    }
+
+    const finalStructuredData = structuredData || parsedData;
+
+    // Fetch and parse real LinkedIn profile data
+    const linkedinProfile = await fetchLinkedInProfile(username, finalStructuredData);
+
+    // Ensure we have proper data structure
+    const profileData = {
+      headline: linkedinProfile.headline || '',
+      summary: linkedinProfile.summary || '',
+      positions: Array.isArray(linkedinProfile.positions) ? linkedinProfile.positions : [],
+      education: Array.isArray(linkedinProfile.education) ? linkedinProfile.education : [],
+      skills: Array.isArray(linkedinProfile.skills) ? linkedinProfile.skills : [],
+      linkedinUrl: linkedinProfile.linkedinUrl || `https://www.linkedin.com/in/${username}`,
+    };
+
+    // Update user profile with LinkedIn data
+    const updatedProfile = await Profile.findOneAndUpdate(
+      { userId: req.user._id },
+      {
+        $set: {
+          userId: req.user._id,
+          headline: profileData.headline || 'LinkedIn Professional',
+          bio: profileData.summary || 'Professional profile',
+          linkedinData: profileData,
+          'links.linkedin': profileData.linkedinUrl,
+        },
+      },
+      { upsert: true, new: true }
+    );
+
+    console.log('[syncLinkedIn] ✅ Successfully synced for username:', username);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        profile: profileData,
+      },
+      message: `Successfully synced LinkedIn profile: ${username}`,
+    });
+  } catch (error) {
+    console.error('[syncLinkedIn] ❌ Error:', error.message, error.stack);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to sync LinkedIn data.',
+    });
+  }
+};
+
+module.exports = { syncGithub, syncLinkedIn };
 
