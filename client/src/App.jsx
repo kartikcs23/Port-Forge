@@ -9,51 +9,91 @@ import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { Portfolio } from './pages/Portfolio';
 import { ProfileEdit } from './pages/ProfileEdit';
+import { Insights } from './pages/Insights';
+import { LinkedInInsights } from './pages/LinkedInInsights';
+
+// Components
+import { Footer } from './components/Footer';
 
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* Specific routes first */}
-        <Route path="/" element={<div className="app-shell"><Landing /></div>} />
-        <Route path="/login" element={<div className="app-shell"><Login /></div>} />
-        <Route path="/register" element={<div className="app-shell"><Register /></div>} />
-        <Route
-          path="/dashboard"
-          element={
-            <div className="app-shell">
-              <SignedIn>
-                <Dashboard />
-              </SignedIn>
-              <SignedOut>
-                <RedirectToSignIn redirectUrl="/login" />
-              </SignedOut>
-            </div>
-          }
-        />
+      <div className="flex flex-col min-h-screen bg-background text-ink">
+        <div className="flex-1">
+          <Routes>
+            {/* Specific routes first */}
+            <Route path="/" element={<Landing />} />
+            <Route path="/login/*" element={<Login />} />
+            <Route path="/register/*" element={<Register />} />
+            <Route
+              path="/dashboard"
+              element={
+                <>
+                  <SignedIn>
+                    <Dashboard />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn redirectUrl="/login" />
+                  </SignedOut>
+                </>
+              }
+            />
 
-        <Route
-          path="/profile-edit"
-          element={
-            <div className="app-shell">
-              <SignedIn>
-                <ProfileEdit />
-              </SignedIn>
-              <SignedOut>
-                <RedirectToSignIn redirectUrl="/login" />
-              </SignedOut>
-            </div>
-          }
-        />
-        
-        {/* Dynamic portfolio route - after specific routes */}
-        <Route path="/:slug" element={<Portfolio />} />
-        
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+            <Route
+              path="/profile-edit"
+              element={
+                <>
+                  <SignedIn>
+                    <ProfileEdit />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn redirectUrl="/login" />
+                  </SignedOut>
+                </>
+              }
+            />
+            
+            <Route
+              path="/insights"
+              element={
+                <>
+                  <SignedIn>
+                    <Insights />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn redirectUrl="/login" />
+                  </SignedOut>
+                </>
+              }
+            />
+            
+            <Route
+              path="/linkedin"
+              element={
+                <>
+                  <SignedIn>
+                    <LinkedInInsights />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn redirectUrl="/login" />
+                  </SignedOut>
+                </>
+              }
+            />
+            
+            {/* Dynamic portfolio route - after specific routes */}
+            <Route path="/:slug" element={<Portfolio />} />
+            
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </div>
+
+        <Footer />
+      </div>
     </Router>
   );
 }
+      
 
 export default App;
