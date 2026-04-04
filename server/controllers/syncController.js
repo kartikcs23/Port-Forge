@@ -1,4 +1,4 @@
-﻿const { fetchGitHubProfile, fetchGitHubRepos } = require('../services/githubService');
+const { fetchGitHubProfile, fetchGitHubRepos } = require('../services/githubService');
 const { fetchLinkedInProfile } = require('../services/linkedinService');
 const { scoreAndSort } = require('../services/scoringService');
 const Project = require('../models/Project');
@@ -66,6 +66,8 @@ const syncGithub = async (req, res) => {
       {
         $set: {
           userId: req.user._id,
+          name: githubProfile.name || '',
+          avatar: githubProfile.avatar || '',
           bio: githubProfile.bio,
           location: githubProfile.location,
           'links.github': githubProfile.githubUrl,
@@ -98,55 +100,5 @@ const syncGithub = async (req, res) => {
   }
 };
 
-const syncLinkedin = async (req, res) => {
-  try {
-    const rawLink = req.query.link || '';
-    if (!rawLink) {
-      return res.status(400).json({
-        success: false,
-        message: 'A LinkedIn link or username is required.',
-      });
-    }
-
-    let username = rawLink.trim();
-    if (username.toLowerCase().includes('linkedin.com/in/')) {
-      username = username.toLowerCase().split('linkedin.com/in/')[1].split('/')[0];
-    } else if (username.includes('/')) {
-      username = username.split('/').pop() || username.split('/')[0];
-    }
-
-    const { fetchLinkedInProfile } = require('../services/linkedinService');
-    const linkedinData = await fetchLinkedInProfile(username);
-
-    await Profile.findOneAndUpdate(
-      { userId: req.user._id },
-      {
-        $set: {
-          'links.linkedin': linkedinData.linkedinUrl,
-          bio: linkedinData.bio,
-          location: linkedinData.location || '',
-          headline: linkedinData.headline || '',
-          experience: linkedinData.experience || [],
-          education: linkedinData.education || [],
-          skills: linkedinData.skills || [],
-        },
-      },
-      { upsert: true, new: true }
-    );
-
-    res.status(200).json({
-      success: true,
-      data: linkedinData,
-      message: 'Successfully synced LinkedIn profile',
-    });
-  } catch (error) {
-    console.error('Sync LinkedIn error:', error.message);
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to sync LinkedIn.',
-    });
-  }
-};
-
-module.exports = { syncGithub, syncLinkedin };
+module.exports = { syncGithub };
 

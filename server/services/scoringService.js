@@ -87,8 +87,8 @@ const scoreProject = async (project) => {
     score += 5;
   }
 
-  // Clamp to 0-100
-  return Math.min(100, Math.max(0, score));
+  // Clamp to 0-10
+  return Math.min(10, Math.max(0, Math.round(score / 10)));
 };
 
 const scoreAndSort = async (projects) => {

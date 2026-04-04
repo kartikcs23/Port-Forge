@@ -13,6 +13,14 @@ const profileSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    name: {
+      type: String,
+      default: '',
+    },
+    avatar: {
+      type: String,
+      default: '',
+    },
     bio: {
       type: String,
       default: '',

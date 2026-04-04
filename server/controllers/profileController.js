@@ -38,9 +38,11 @@ const getMyProfile = async (req, res) => {
  */
 const updateProfile = async (req, res) => {
   try {
-    const { bio, location, experience, education, skills, links } = req.body;
+    const { name, avatar, bio, location, experience, education, skills, links } = req.body;
 
     const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (avatar !== undefined) updateData.avatar = avatar;
     if (bio !== undefined) updateData.bio = bio;
     if (location !== undefined) updateData.location = location;
     if (experience !== undefined) updateData.experience = experience;

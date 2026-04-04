@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 /**
  * Brutalist Custom ProjectCard component
@@ -6,10 +6,10 @@
 export const ProjectCard = ({ project, onPin, loading }) => {
   return (
     <div className="bg-background border-2 border-ink p-6 hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] transition-transform hover:-translate-y-1 relative group">
-      
+
       {/* Activity Badge */}
       <div className="absolute -top-3 -right-3 bg-accent text-white border-2 border-ink px-3 py-1 font-bold text-xs uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] rotate-3 group-hover:rotate-6 transition-transform">
-        SCORE {project.score || 0}
+        SCORE {project.score || 0} / 10
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
@@ -23,7 +23,7 @@ export const ProjectCard = ({ project, onPin, loading }) => {
           <p className="text-muted font-sans text-sm line-clamp-2 max-w-2xl leading-relaxed mb-4">
             {project.description || 'No description provided.'}
           </p>
-          
+
           <div className="flex flex-wrap gap-2 mb-4">
             {project.topics?.slice(0, 4).map((topic, i) => (
               <span key={i} className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 bg-surface border border-ink text-ink">

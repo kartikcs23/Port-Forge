@@ -88,14 +88,14 @@ export const usePortfolio = () => {
   }, []);
 
   /**
-   * syncLinkedin — Sync LinkedIn data
+   * updateProfileData — Manually update profile fields
    */
-  const syncLinkedin = useCallback(async (link) => {
+  const updateProfileData = useCallback(async (profileData) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get(`/api/sync/linkedin?link=${encodeURIComponent(link)}`);
-      return { success: true, data: response.data.data };
+      const response = await api.put('/api/profile/update', profileData);
+      return { success: true, data: response.data.data.profile };
     } catch (err) {
       const message = err.response?.data?.message || err.message;
       setError(message);
@@ -106,7 +106,7 @@ export const usePortfolio = () => {
   }, []);
 
   /**
-   * fetchProjects — Get user's projects
+   * fetchProjects — Get current user's projects
    */
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -131,14 +131,31 @@ export const usePortfolio = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.patch(
-        `/api/profile/projects/${projectId}/pin`
+      const response = await api.patch(`/api/profile/projects/${projectId}/pin`);
+      // Update local state instead of re-fetching everything
+      setProjects((prev) => 
+        prev.map((p) => (p._id === projectId ? { ...p, isPinned: !p.isPinned } : p))
       );
-      // Update projects list
-      setProjects((prev) =>
-        (prev || []).map((p) => (p._id === projectId ? response.data.data.project : p))
-      );
-      return { success: true, data: response.data.data.project };
+      return { success: true, data: response.data.data };
+    } catch (err) {
+      const message = err.response?.data?.message || err.message;
+      setError(message);
+      return { success: false, message };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * updateTheme — Update portfolio theme
+   */
+  const updateTheme = useCallback(async (theme) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.put('/api/portfolio/update', { theme });
+      setPortfolio(response.data.data.portfolio);
+      return { success: true, data: response.data.data.portfolio };
     } catch (err) {
       const message = err.response?.data?.message || err.message;
       setError(message);
@@ -157,8 +174,9 @@ export const usePortfolio = () => {
     generatePortfolio,
     togglePublish,
     syncGithub,
-    syncLinkedin,
     fetchProjects,
     togglePin,
+    updateTheme,
+    updateProfileData,
   };
 };
