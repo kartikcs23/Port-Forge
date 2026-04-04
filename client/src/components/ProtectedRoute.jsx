@@ -1,7 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Loader3D } from './Loader3D';
 
 /**
  * ProtectedRoute — Wrapper for routes that require authentication
@@ -11,9 +10,6 @@ import { Loader3D } from './Loader3D';
 export const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) {
-    return <Loader3D message="Authenticating..." />;
-  }
-
+  // Remove loading check - let content render normally
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };

@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
-import { Loader3D } from '../components/Loader3D';
+import { EntryLoader } from '../components/EntryLoader';
 
 export const Landing = () => {
-  const [loading, setLoading] = useState(true);
+  const [pageLoaded, setPageLoaded] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 800);
+    // Show entry loader on every visit to home page
+    const timer = setTimeout(() => {
+      setPageLoaded(true);
+    }, 3500); // Show entry loader for 3.5 seconds
+
     return () => clearTimeout(timer);
   }, []);
 
-  if (loading) {
-    return <Loader3D message="Loading PortForge..." />;
+  // Show entry loader on every page load
+  if (!pageLoaded) {
+    return <EntryLoader onComplete={() => setPageLoaded(true)} />;
   }
 
   return (
@@ -20,12 +25,12 @@ export const Landing = () => {
       <Navbar />
 
       <section className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-32 mt-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        
+
         <div className="text-left relative z-10">
           <div className="inline-block border-2 border-ink px-4 py-1 mb-8 bg-surface shadow-brutal font-bold text-xs uppercase tracking-widest text-accent float-animation">
             PortForge Beta is Live
           </div>
-          
+
           <h1 className="text-6xl sm:text-7xl md:text-8xl font-black mb-6 float-animation leading-[0.9]">
             <span className="block text-ink">BUILD</span>
             <span className="block text-ink">A PRO PORTFOLIO.</span>

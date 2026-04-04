@@ -9,6 +9,9 @@ import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { Portfolio } from './pages/Portfolio';
 import { ProfileEdit } from './pages/ProfileEdit';
+import { About } from './pages/About';
+import { Contact } from './pages/Contact';
+import { Privacy } from './pages/Privacy';
 
 function App() {
   return (
@@ -18,6 +21,9 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/privacy" element={<Privacy />} />
         <Route
           path="/dashboard"
           element={
@@ -45,10 +51,10 @@ function App() {
             </>
           }
         />
-        
+
         {/* Dynamic portfolio route - after specific routes */}
         <Route path="/:slug" element={<Portfolio />} />
-        
+
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import api from '../utils/axios';
-import { Loader3D } from '../components/Loader3D';
 
 export const Portfolio = () => {
   const { slug } = useParams();
@@ -27,7 +26,7 @@ export const Portfolio = () => {
     fetchPublicPortfolio();
   }, [slug]);
 
-  if (loading) return <Loader3D message="Reconstructing profile..." />;
+  // Remove loading check - let content render normally
   if (error) {
     return (
       <div className="min-h-screen bg-background text-ink font-sans flex flex-col items-center justify-center p-4">

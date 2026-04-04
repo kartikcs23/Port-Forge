@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import api from '../utils/axios';
 import { Navbar } from '../components/Navbar';
-import { Loader3D } from '../components/Loader3D';
 
 export const ProfileEdit = () => {
   const navigate = useNavigate();
@@ -127,7 +126,7 @@ export const ProfileEdit = () => {
     }
   };
 
-  if (loading) return <Loader3D message="Loading profile..." />;
+  // Remove loading check - let content render normally
 
   return (
     <div className="min-h-screen bg-background text-ink font-sans">
