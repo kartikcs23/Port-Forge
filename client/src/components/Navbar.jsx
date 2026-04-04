@@ -73,6 +73,24 @@ export const Navbar = () => {
             ) : (
               <>
                 <Link
+                  to="/about"
+                  className="text-ink hover:text-accent transition-colors border-b-2 border-transparent hover:border-accent pb-1"
+                >
+                  About
+                </Link>
+                <Link
+                  to="/contact"
+                  className="text-ink hover:text-accent transition-colors border-b-2 border-transparent hover:border-accent pb-1"
+                >
+                  Contact
+                </Link>
+                <Link
+                  to="/privacy"
+                  className="text-ink hover:text-accent transition-colors border-b-2 border-transparent hover:border-accent pb-1"
+                >
+                  Privacy
+                </Link>
+                <Link
                   to="/login"
                   className="text-ink hover:text-accent transition-colors border-b-2 border-transparent hover:border-accent pb-1"
                 >

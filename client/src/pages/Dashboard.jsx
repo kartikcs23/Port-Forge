@@ -4,7 +4,6 @@ import { ProjectCard } from '../components/ProjectCard';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { usePortfolio } from '../hooks/usePortfolio';
-import { Loader3D } from '../components/Loader3D';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -34,9 +33,7 @@ export const Dashboard = () => {
     }
   }, [isLoaded, fetchPortfolio, fetchProjects]);
 
-  if (loading && !portfolio && projects.length === 0) {
-    return <Loader3D message="Loading your dashboard..." />;
-  }
+  // Remove loading check - let content render normally
 
   const handleSyncGithub = async () => {
     if (!githubLink) {

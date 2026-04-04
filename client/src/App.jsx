@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
 
@@ -9,6 +9,9 @@ import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { Portfolio } from './pages/Portfolio';
 import { ProfileEdit } from './pages/ProfileEdit';
+import { About } from './pages/About';
+import { Contact } from './pages/Contact';
+import { Privacy } from './pages/Privacy';
 import { Insights } from './pages/Insights';
 import { LinkedInInsights } from './pages/LinkedInInsights';
 
@@ -25,6 +28,9 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login/*" element={<Login />} />
             <Route path="/register/*" element={<Register />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route
               path="/dashboard"
               element={
