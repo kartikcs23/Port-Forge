@@ -1,0 +1,26 @@
+{
+  "profile": {
+    "First Name": "Jane",
+    "Last Name": "Doe",
+    "Headline": "Full Stack Developer",
+    "Summary": "Building web apps."
+  },
+  "positions": [
+    {
+      "Title": "Software Engineer",
+      "Company": "Example Inc",
+      "Start Date": "2023-01-01"
+    }
+  ],
+  "education": [
+    {
+      "School Name": "Example University",
+      "Degree": "BSc CS",
+      "Start Date": "2019-09-01"
+    }
+  ],
+  "skills": [
+    {"Name": "JavaScript"},
+    {"Name": "React"}
+  ]
+}
