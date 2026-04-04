@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
 
@@ -15,34 +15,34 @@ function App() {
     <Router>
       <Routes>
         {/* Specific routes first */}
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<div className="app-shell"><Landing /></div>} />
+        <Route path="/login" element={<div className="app-shell"><Login /></div>} />
+        <Route path="/register" element={<div className="app-shell"><Register /></div>} />
         <Route
           path="/dashboard"
           element={
-            <>
+            <div className="app-shell">
               <SignedIn>
                 <Dashboard />
               </SignedIn>
               <SignedOut>
                 <RedirectToSignIn redirectUrl="/login" />
               </SignedOut>
-            </>
+            </div>
           }
         />
 
         <Route
           path="/profile-edit"
           element={
-            <>
+            <div className="app-shell">
               <SignedIn>
                 <ProfileEdit />
               </SignedIn>
               <SignedOut>
                 <RedirectToSignIn redirectUrl="/login" />
               </SignedOut>
-            </>
+            </div>
           }
         />
         

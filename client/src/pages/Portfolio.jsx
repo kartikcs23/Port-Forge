@@ -3,7 +3,10 @@ import { useParams, Navigate } from 'react-router-dom';
 import api from '../utils/axios';
 import { Loader3D } from '../components/Loader3D';
 import { BrutalistTheme } from '../components/themes/BrutalistTheme';
-import { MinimalistTheme } from '../components/themes/MinimalistTheme';
+import { EgyptianTheme } from '../components/themes/EgyptianTheme';
+import { SpaceTheme } from '../components/themes/SpaceTheme';
+import { TokyoTheme } from '../components/themes/TokyoTheme';
+import { MedicalTheme } from '../components/themes/MedicalTheme';
 
 export const Portfolio = () => {
   const { slug } = useParams();
@@ -49,9 +52,22 @@ export const Portfolio = () => {
   const theme = portfolio?.theme || 'brutalist';
 
   // Render the selected theme
-  if (theme === 'minimalist') {
-    return <MinimalistTheme rootUser={rootUser} profile={profile} repos={repos} />;
+  if (theme === 'egyptian') {
+    return <EgyptianTheme rootUser={rootUser} profile={profile} repos={repos} />;
+  }
+  
+  if (theme === 'space') {
+    return <SpaceTheme rootUser={rootUser} profile={profile} repos={repos} />;
   }
 
+  if (theme === 'tokyo') {
+    return <TokyoTheme rootUser={rootUser} profile={profile} repos={repos} />;
+  }
+
+  if (theme === 'medical') {
+    return <MedicalTheme rootUser={rootUser} profile={profile} repos={repos} />;
+  }
+
+  // Fallback to Brutalist
   return <BrutalistTheme rootUser={rootUser} profile={profile} repos={repos} />;
 };

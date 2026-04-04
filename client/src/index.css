@@ -10,20 +10,26 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  .app-shell {
     @apply m-0 bg-background text-ink tracking-tight antialiased selection:bg-accent selection:text-white font-sans;
+    min-h: 100vh;
+
+    #root {
+      @apply min-h-screen bg-background text-ink;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      @apply font-display tracking-tight leading-none text-ink;
+    }
+    
+    p {
+      @apply text-ink/80;
+    }
   }
-  
+
+  /* Reset for Portfolio outside the app shell */
   html {
     scroll-behavior: smooth;
-  }
-  
-  #root {
-    @apply min-h-screen bg-background text-ink;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight leading-none text-ink;
   }
 }
 

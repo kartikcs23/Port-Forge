@@ -134,24 +134,64 @@ export const Dashboard = () => {
               <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-ink pb-2">
                 Portfolio Theme
               </h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <button
                   onClick={() => updateTheme('brutalist')}
-                  className={`p-4 border-2 border-ink transition-all ${portfolio?.theme === 'brutalist' || !portfolio?.theme ? 'bg-accent text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]' : 'bg-background hover:bg-surface'}`}
+                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'brutalist' || !portfolio?.theme ? 'bg-accent text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
                 >
-                  <span className="block text-[10px] font-black uppercase tracking-widest">Theme 1</span>
-                  <span className="block text-xs font-bold uppercase mt-1">Brutalist</span>
+                  <div className="text-left">
+                    <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">ARCHITECT</span>
+                    <span className="block text-sm font-bold uppercase mt-1">Brutalist</span>
+                  </div>
+                  <div className="text-xl">🏢</div>
                 </button>
+                
                 <button
-                  onClick={() => updateTheme('minimalist')}
-                  className={`p-4 border-2 border-ink transition-all ${portfolio?.theme === 'minimalist' ? 'bg-accent text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]' : 'bg-background hover:bg-surface'}`}
+                  onClick={() => updateTheme('egyptian')}
+                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'egyptian' ? 'bg-[#c5a021] text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
                 >
-                  <span className="block text-[10px] font-black uppercase tracking-widest">Theme 2</span>
-                  <span className="block text-xs font-bold uppercase mt-1">Minimalist</span>
+                  <div className="text-left">
+                    <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">MINIMALIST</span>
+                    <span className="block text-sm font-bold uppercase mt-1">Luxor</span>
+                  </div>
+                  <div className="text-xl">🏺</div>
+                </button>
+
+                <button
+                  onClick={() => updateTheme('space')}
+                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'space' ? 'bg-[#8b5cf6] text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
+                >
+                  <div className="text-left">
+                    <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">FUTURISTIC</span>
+                    <span className="block text-sm font-bold uppercase mt-1">Nebula</span>
+                  </div>
+                  <div className="text-xl">🛰️</div>
+                </button>
+
+                <button
+                  onClick={() => updateTheme('tokyo')}
+                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'tokyo' ? 'bg-[#ff006e] text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
+                >
+                  <div className="text-left">
+                    <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">CYBERPUNK</span>
+                    <span className="block text-sm font-bold uppercase mt-1">Tokyo</span>
+                  </div>
+                  <div className="text-xl">🌃</div>
+                </button>
+
+                <button
+                  onClick={() => updateTheme('medical')}
+                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'medical' ? 'bg-[#0891b2] text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
+                >
+                  <div className="text-left">
+                    <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">MEDICAL</span>
+                    <span className="block text-sm font-bold uppercase mt-1">Asclepius</span>
+                  </div>
+                  <div className="text-xl">🩺</div>
                 </button>
               </div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted mt-4 text-center">
-                Select your base style
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted mt-6 text-center">
+                Select your digital signature
               </p>
             </div>
 
