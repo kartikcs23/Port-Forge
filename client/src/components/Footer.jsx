@@ -47,17 +47,17 @@ export const Footer = () => {
             <h3 className="text-sm font-black uppercase tracking-widest text-white mb-4 border-b-2 border-accent pb-2">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors">
+                <a href="/privacy" className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors">
                   Privacy
                 </a>
               </li>
               <li>
-                <a href="#" className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors">
-                  Terms
+                <a href="/about" className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors">
+                  About
                 </a>
               </li>
               <li>
-                <a href="#" className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors">
+                <a href="/contact" className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors">
                   Contact
                 </a>
               </li>
