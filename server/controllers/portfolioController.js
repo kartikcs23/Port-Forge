@@ -210,7 +210,7 @@ const getPublicPortfolio = async (req, res) => {
     const [user, profile, projects] = await Promise.all([
       User.findById(portfolio.userId),
       Profile.findOne({ userId: portfolio.userId }),
-      Project.find({ userId: portfolio.userId }).sort({ score: -1 }),
+      Project.find({ userId: portfolio.userId }).sort({ score: -1 }).limit(5),
     ]);
 
     res.status(200).json({

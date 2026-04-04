@@ -1,6 +1,7 @@
-﻿import React from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser, useClerk } from '@clerk/clerk-react';
+import { motion } from 'framer-motion';
 
 export const Navbar = () => {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -12,20 +13,36 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-background border-b-2 border-ink">
+    <motion.nav
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+      className="sticky top-0 z-50 bg-background border-b-2 border-ink"
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          
-          <Link
-            to="/"
-            className="flex items-center space-x-3 font-black text-2xl text-ink hover:text-accent transition-colors duration-200 uppercase tracking-widest"
-          >
-            <div className="w-6 h-6 bg-accent border-2 border-ink shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] flex items-center justify-center -rotate-12">
-            </div>
-            <span>PORTFORGE</span>
-          </Link>
 
-          <div className="hidden md:ml-6 md:flex md:items-center md:space-x-8 text-sm font-bold uppercase tracking-widest font-sans">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <Link
+              to="/"
+              className="flex items-center space-x-3 font-black text-2xl text-ink hover:text-accent transition-colors duration-200 uppercase tracking-widest"
+            >
+              <div className="w-6 h-6 bg-accent border-2 border-ink shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] flex items-center justify-center -rotate-12">
+              </div>
+              <span>PORTFORGE</span>
+            </Link>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="hidden md:ml-6 md:flex md:items-center md:space-x-8 text-sm font-bold uppercase tracking-widest font-sans"
+          >
             {isLoaded && isSignedIn ? (
               <>
                 <Link
@@ -34,7 +51,6 @@ export const Navbar = () => {
                 >
                   Dashboard
                 </Link>
-                {/* Fallback slug display or profile link if you build one out later */}
                 <button
                   onClick={handleLogout}
                   className="btn-outline ml-4 !px-6 !py-2"
@@ -58,9 +74,9 @@ export const Navbar = () => {
                 </Link>
               </>
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
-    </nav>
+    </motion.nav>
   );
 };

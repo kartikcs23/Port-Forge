@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navbar } from '../components/Navbar';
 import { ProjectCard } from '../components/ProjectCard';
 import { useNavigate } from 'react-router-dom';
@@ -18,15 +18,14 @@ export const Dashboard = () => {
     generatePortfolio,
     togglePublish,
     syncGithub,
-    syncLinkedin,
     fetchProjects,
     togglePin,
+    updateTheme,
   } = usePortfolio();
 
   const [syncStatus, setSyncStatus] = useState('');
   const [lastSynced, setLastSynced] = useState(null);
   const [githubLink, setGithubLink] = useState('');
-  const [linkedinLink, setLinkedinLink] = useState('');
 
   useEffect(() => {
     if (isLoaded) {
@@ -41,8 +40,8 @@ export const Dashboard = () => {
 
   const handleSyncGithub = async () => {
     if (!githubLink) {
-        alert("Please paste your GitHub link or username first!");
-        return;
+      alert("Please paste your GitHub link or username first!");
+      return;
     }
     setSyncStatus('syncing-github');
     const result = await syncGithub(githubLink);
@@ -53,24 +52,6 @@ export const Dashboard = () => {
       fetchProjects(); // refresh projects grid
     } else {
       setSyncStatus('error');
-    }
-  };
-
-  const handleSyncLinkedin = async () => {
-    if (!linkedinLink) {
-        alert("Please paste your LinkedIn link or username first!");
-        return;
-    }
-    setSyncStatus('syncing-linkedin');
-    const result = await syncLinkedin(linkedinLink);
-    if (result.success) {
-      setSyncStatus('success');
-      setLastSynced(new Date().toLocaleString());
-      setTimeout(() => setSyncStatus(''), 3000);
-      fetchPortfolio(); // reload to show updated bio/name
-    } else {
-      setSyncStatus('error');
-      setTimeout(() => setSyncStatus(''), 3000);
     }
   };
 
@@ -98,7 +79,7 @@ export const Dashboard = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-8 md:py-16 pt-24 md:pt-32">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
-          
+
           <div className="lg:col-span-4 space-y-8">
             <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
               <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-ink pb-2">
@@ -140,25 +121,6 @@ export const Dashboard = () => {
                     {syncStatus === 'syncing-github' ? 'SYNCING...' : 'SYNC GITHUB'}
                   </button>
                 </div>
-                  <div className="pt-6">
-                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 border-b-2 border-ink pb-1 inline-block">
-                      LinkedIn Link or Username
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="https://linkedin.com/in/username"
-                      value={linkedinLink}
-                      onChange={(e) => setLinkedinLink(e.target.value)}
-                      className="w-full bg-background border-2 border-ink px-4 py-3 font-sans text-sm font-bold uppercase tracking-wide focus:outline-none focus:ring-none focus:bg-accent focus:text-white transition-colors"
-                    />
-                    <button
-                      onClick={handleSyncLinkedin}
-                      disabled={loading || !linkedinLink}
-                      className={`w-full block font-bold uppercase tracking-widest text-xs mt-2 py-3 border-2 border-ink transition-transform hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${syncStatus === 'syncing-linkedin' ? 'bg-ink text-white' : 'bg-surface text-ink'}`}
-                    >
-                      {syncStatus === 'syncing-linkedin' ? 'SYNCING...' : 'SYNC LINKEDIN'}
-                    </button>
-                  </div>
                 <div className="pt-6 border-t-2 border-ink border-dashed">
                   <span className="block text-[10px] font-bold uppercase tracking-widest text-muted mb-2">STATUS LOGGER</span>
                   {error && <div className="text-xs font-bold text-accent uppercase bg-ink text-white p-2 border-2 border-ink mb-2">ERROR: {error}</div>}
@@ -166,6 +128,31 @@ export const Dashboard = () => {
                   {lastSynced && <div className="text-[10px] font-bold text-ink uppercase">LAST SYNC: {lastSynced}</div>}
                 </div>
               </div>
+            </div>
+
+            <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-ink pb-2">
+                Portfolio Theme
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => updateTheme('brutalist')}
+                  className={`p-4 border-2 border-ink transition-all ${portfolio?.theme === 'brutalist' || !portfolio?.theme ? 'bg-accent text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]' : 'bg-background hover:bg-surface'}`}
+                >
+                  <span className="block text-[10px] font-black uppercase tracking-widest">Theme 1</span>
+                  <span className="block text-xs font-bold uppercase mt-1">Brutalist</span>
+                </button>
+                <button
+                  onClick={() => updateTheme('minimalist')}
+                  className={`p-4 border-2 border-ink transition-all ${portfolio?.theme === 'minimalist' ? 'bg-accent text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]' : 'bg-background hover:bg-surface'}`}
+                >
+                  <span className="block text-[10px] font-black uppercase tracking-widest">Theme 2</span>
+                  <span className="block text-xs font-bold uppercase mt-1">Minimalist</span>
+                </button>
+              </div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted mt-4 text-center">
+                Select your base style
+              </p>
             </div>
 
             <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
@@ -241,7 +228,7 @@ export const Dashboard = () => {
             <h2 className="text-4xl md:text-5xl font-black font-display uppercase tracking-tighter mb-8 border-b-4 border-ink pb-4">
               Your Repositories
             </h2>
-            
+
             <div className="space-y-6">
               {(projects || []).map((project) => (
                 <ProjectCard
@@ -251,7 +238,7 @@ export const Dashboard = () => {
                   loading={loading}
                 />
               ))}
-              
+
               {projects.length === 0 && !loading && (
                 <div className="border-4 border-ink border-dashed p-12 text-center bg-surface rotate-1 group hover:rotate-0 transition-transform">
                   <div className="w-16 h-16 bg-background border-2 border-ink flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">

@@ -45,16 +45,3 @@
     @apply border border-ink bg-surface shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] transition-transform duration-300 p-8 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(17,17,17,1)];
   }
 }
-
-.float-animation {
-  animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-@keyframes slideUpFade {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
