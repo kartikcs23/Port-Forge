@@ -5,30 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { 
-  Layout, 
-  User, 
-  Shield, 
-  ExternalLink, 
-  Github, 
-  Linkedin, 
-  Mail, 
-  Globe, 
-  Star, 
-  GitFork, 
-  Ghost, 
-  Rocket, 
-  Cpu, 
-  Activity, 
-  Palmtree,
-  Plus,
-  RefreshCw,
-  Search,
-  Filter,
-  Trash2,
-  Eye,
-  Settings,
   Pencil,
-  Building2
+  RefreshCw,
+  Building2,
+  Palmtree,
+  Rocket,
+  Cpu, 
+  Activity
 } from 'lucide-react';
 
 export const Dashboard = () => {
@@ -139,7 +122,7 @@ export const Dashboard = () => {
                     disabled={loading || !githubLink}
                     className={`w-full flex items-center justify-center gap-2 font-bold uppercase tracking-widest text-xs mt-2 py-3 border-2 border-ink transition-transform hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${syncStatus === 'syncing-github' ? 'bg-ink text-white' : 'bg-surface text-ink'}`}
                   >
-                    {syncStatus === 'syncing-github' ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Github className="w-4 h-4" />}
+                    {syncStatus === 'syncing-github' ? <RefreshCw className="w-4 h-4 animate-spin" /> : <span>⚙️</span>}
                     {syncStatus === 'syncing-github' ? 'SYNCING...' : 'SYNC GITHUB'}
                   </button>
                 </div>

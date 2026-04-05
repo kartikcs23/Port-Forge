@@ -1,23 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Github, 
-  Linkedin, 
-  Mail, 
-  ExternalLink, 
-  Star, 
-  GitFork, 
-  MapPin, 
-  GraduationCap, 
-  Briefcase, 
-  Download,
-  Send,
-  Code,
-  Server,
-  Wrench,
-  ChevronRight,
-  Menu,
-  X
-} from 'lucide-react';
 
 /* ═══════════════════════════════════════════════════════════
    BRUTALIST THEME — Raw Editorial Portfolio
@@ -132,14 +113,14 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
             ))}
             <a href="#contact"
                className="bg-accent text-white border-[3px] border-ink px-6 py-2.5 font-black text-[11px] uppercase tracking-[0.3em] shadow-[5px_5px_0px_0px_#111] hover:translate-x-1 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#111] transition-all no-underline flex items-center gap-2">
-              <Send className="w-3 h-3" /> Hire Me
+              ✉️ Hire Me
             </a>
           </div>
 
           {/* Mobile toggle */}
           <button onClick={() => setMenuOpen(!menuOpen)}
                   className="md:hidden border-[3px] border-ink p-2 bg-white shadow-[3px_3px_0_0_#111]">
-            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {menuOpen ? '✕' : '☰'}
           </button>
         </div>
 
@@ -198,7 +179,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
                 {links.github && (
                   <a href={links.github} target="_blank" rel="noreferrer"
                      className="bg-accent text-white border-[4px] border-ink px-10 py-4 font-black text-sm uppercase tracking-[0.3em] shadow-[8px_8px_0px_0px_#111] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all no-underline flex items-center gap-2">
-                    <Github className="w-4 h-4" /> GitHub
+                    🔗 GitHub
                   </a>
                 )}
               </div>
@@ -251,7 +232,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
               <p className="text-xl font-bold leading-relaxed text-ink/70">{intro}</p>
               {location && (
                 <div className="flex items-center gap-4">
-                  <MapPin className="w-5 h-5 text-accent" />
+                  <span className="text-lg">📍</span>
                   <span className="font-black text-sm uppercase tracking-[0.3em] opacity-50">{location}</span>
                 </div>
               )}
@@ -285,8 +266,8 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
               <div className="mt-12 space-y-3">
                 {email && (
                   <a href={`mailto:${email}`} className="flex items-center gap-4 group no-underline">
-                    <div className="w-10 h-10 bg-ink flex items-center justify-center group-hover:bg-accent transition-colors">
-                      <Mail className="w-4 h-4 text-white" />
+                    <div className="w-10 h-10 bg-ink flex items-center justify-center group-hover:bg-accent transition-colors text-white text-lg">
+                      ✉️
                     </div>
                     <span className="font-black text-sm text-ink/60 group-hover:text-accent transition-colors">{email}</span>
                   </a>

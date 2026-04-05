@@ -5,7 +5,6 @@ import api from '../utils/axios';
 export const Portfolio = () => {
   const { slug } = useParams();
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -19,8 +18,6 @@ export const Portfolio = () => {
         }
       } catch (err) {
         setError(err.response?.data?.message || err.message || 'Portfolio not found or unavailable.');
-      } finally {
-        setLoading(false);
       }
     };
     fetchPublicPortfolio();

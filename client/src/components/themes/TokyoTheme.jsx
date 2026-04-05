@@ -1,27 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Github, 
-  Linkedin, 
-  Mail, 
-  ExternalLink, 
-  Star, 
-  GitFork, 
-  MapPin, 
-  Cpu, 
-  Rocket, 
-  Activity, 
-  ChevronRight, 
-  Download, 
-  Send,
-  Code,
-  Server,
-  Wrench,
-  Terminal,
-  Database,
-  Globe,
-  Menu,
-  X
-} from 'lucide-react';
 
 /* ═══════════════════════════════════════════════════════
    TOKYO THEME — Neon Cyberpunk Portfolio (Blue Edition)
@@ -184,19 +161,19 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
                 {l.label}
               </a>
             ))}
-            <a href="#contact" style={{ fontFamily:MONO, fontSize:11, fontWeight:700, letterSpacing:'0.3em',
-              textTransform:'uppercase', padding:'10px 24px', background:ACCENT, color:'#fff', textDecoration:'none',
-              boxShadow:`0 0 20px ${ACCENT}40`, transition:'all 0.3s', display:'flex', alignItems:'center', gap:8 }}
+              <span style={{ fontFamily:MONO, fontSize:11, fontWeight:700, letterSpacing:'0.3em',
+                textTransform:'uppercase', padding:'10px 24px', background:ACCENT, color:'#fff', textDecoration:'none',
+                boxShadow:`0 0 20px ${ACCENT}40`, transition:'all 0.3s', display:'flex', alignItems:'center', gap:8 }}
               onMouseEnter={e=>{ e.currentTarget.style.background=SECONDARY; e.currentTarget.style.boxShadow=`0 0 20px ${SECONDARY}50`; }}
               onMouseLeave={e=>{ e.currentTarget.style.background=ACCENT; e.currentTarget.style.boxShadow=`0 0 20px ${ACCENT}40`; }}>
-              <Send className="w-3 h-3" /> Hire Me
-            </a>
+              📧 Hire Me
+            </span>
           </div>
 
           {/* Mobile */}
           <button onClick={()=>setMenuOpen(!menuOpen)} className="md:hidden"
                   style={{ background:'none', border:`1px solid ${ACCENT}40`, padding:'8px 10px', cursor:'pointer', color:'#fff' }}>
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {menuOpen ? '✕' : '☰'}
           </button>
         </div>
 
@@ -246,7 +223,7 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
               boxShadow:`0 0 30px ${ACCENT}40`, transition:'all 0.3s', display:'flex', alignItems:'center', gap:10 }}
               onMouseEnter={e=>{ e.currentTarget.style.background=SECONDARY; e.currentTarget.style.boxShadow=`0 0 30px ${SECONDARY}50`; }}
               onMouseLeave={e=>{ e.currentTarget.style.background=ACCENT; e.currentTarget.style.boxShadow=`0 0 30px ${ACCENT}40`; }}>
-              View Projects <ChevronRight className="w-4 h-4" />
+              View Projects →
             </a>
             <a href="#contact" style={{ fontFamily:MONO, fontSize:12, fontWeight:700, letterSpacing:'0.35em',
               textTransform:'uppercase', padding:'16px 40px', border:`1px solid rgba(255,255,255,0.2)`,
@@ -262,7 +239,7 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
                    display:'flex', alignItems:'center', gap:10 }}
                 onMouseEnter={e=>{ e.currentTarget.style.boxShadow=`0 0 20px ${SECONDARY}40`; e.currentTarget.style.background=`${SECONDARY}10`; }}
                 onMouseLeave={e=>{ e.currentTarget.style.boxShadow='none'; e.currentTarget.style.background='transparent'; }}>
-                <Github className="w-4 h-4" /> GitHub
+                🔗 GitHub
               </a>
             )}
           </div>
@@ -288,7 +265,7 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
             <p style={{ fontSize:18, lineHeight:1.8, color:'rgba(255,255,255,0.75)', marginBottom:32 }}>{intro}</p>
             {location&&(
               <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:32 }}>
-                <MapPin className="w-5 h-5 text-accent" />
+                <span style={{ fontSize:'18px' }}>📍</span>
                 <span style={{ fontFamily:MONO, fontSize:11, letterSpacing:'0.35em', textTransform:'uppercase', color:ACCENT }}>{location}</span>
               </div>
             )}
@@ -345,7 +322,7 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:28 }}>
                   <NeonTag color={ACCENT}>{repo.language||'Code'}</NeonTag>
                   <div style={{ display:'flex', alignItems:'center', gap:8, fontFamily:MONO, fontSize:11, color:ACCENT }}>
-                    <Star className="w-3.5 h-3.5" /> <span>{repo.stars||0}</span>
+                    ⭐ <span>{repo.stars||0}</span>
                   </div>
                 </div>
                 <h3 style={{ fontFamily:SANS, fontSize:22, fontWeight:900, letterSpacing:'-0.03em', marginBottom:12, color:'#fff' }}>
@@ -360,7 +337,7 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
                        style={{ fontFamily:MONO, fontSize:10, fontWeight:700, letterSpacing:'0.4em',
                          textTransform:'uppercase', color:ACCENT, textDecoration:'none', display:'flex', alignItems:'center', gap:8 }}
                        onMouseEnter={e=>e.currentTarget.style.textShadow=`0 0 12px ${ACCENT}`}>
-                      <Github className="w-3.5 h-3.5" /> Source
+                      🔗 Source
                     </a>
                   )}
                 </div>
@@ -375,13 +352,13 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
         <SectionHead tag="03 // Skills" title="Tech Stack" sub="Core Capabilities" color={SECONDARY} />
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))', gap:32 }}>
           {[
-            { label:'Frontend', icon:<Code className="w-5 h-5" />, color:HIGHLIGHT, items:cat.fe.length>0?cat.fe:['React','Next.js','Tailwind'] },
-            { label:'Backend', icon:<Server className="w-5 h-5" />, color:SECONDARY, items:cat.be.length>0?cat.be:['Node.js','Express','MongoDB'] },
-            { label:'Infrastructure', icon:<Wrench className="w-5 h-5" />, color:ACCENT, items:cat.tl.length>0?cat.tl:['Git','Docker','AWS'] },
+            { label:'Frontend', icon:'🜠', color:HIGHLIGHT, items:cat.fe.length>0?cat.fe:['React','Next.js','Tailwind'] },
+            { label:'Backend', icon:'🖥️', color:SECONDARY, items:cat.be.length>0?cat.be:['Node.js','Express','MongoDB'] },
+            { label:'Infrastructure', icon:'🔧', color:ACCENT, items:cat.tl.length>0?cat.tl:['Git','Docker','AWS'] },
           ].map(category=>(
             <NeonCard key={category.label} color={category.color}>
               <div style={{ padding:'24px', borderBottom:`1px solid rgba(255,255,255,0.08)`, display:'flex', alignItems:'center', gap:16 }}>
-                <div style={{ color:category.color }}>{category.icon}</div>
+                <span style={{ fontSize:'28px' }}>{category.icon}</span>
                 <span style={{ fontFamily:MONO, fontSize:12, fontWeight:700, letterSpacing:'0.4em', textTransform:'uppercase', color:category.color }}>{category.label}</span>
               </div>
               <div style={{ padding:32 }}>
