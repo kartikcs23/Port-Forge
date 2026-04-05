@@ -112,19 +112,15 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
               </a>
             ))}
             <a href="#contact"
-               className="bg-accent text-white border-[3px] border-ink px-6 py-2.5 font-black text-[11px] uppercase tracking-[0.3em] shadow-[5px_5px_0px_0px_#111] hover:translate-x-1 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#111] transition-all no-underline">
-              Hire Me
+               className="bg-accent text-white border-[3px] border-ink px-6 py-2.5 font-black text-[11px] uppercase tracking-[0.3em] shadow-[5px_5px_0px_0px_#111] hover:translate-x-1 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#111] transition-all no-underline flex items-center gap-2">
+              ✉️ Hire Me
             </a>
           </div>
 
           {/* Mobile toggle */}
           <button onClick={() => setMenuOpen(!menuOpen)}
                   className="md:hidden border-[3px] border-ink p-2 bg-white shadow-[3px_3px_0_0_#111]">
-            <div className="w-6 flex flex-col gap-1.5">
-              {[0,1,2].map(i => (
-                <div key={i} className={`h-[2px] bg-ink transition-all duration-300 ${menuOpen && i === 0 ? 'rotate-45 translate-y-[7px]' : ''} ${menuOpen && i === 1 ? 'opacity-0' : ''} ${menuOpen && i === 2 ? '-rotate-45 -translate-y-[7px]' : ''}`} />
-              ))}
-            </div>
+            {menuOpen ? '✕' : '☰'}
           </button>
         </div>
 
@@ -173,8 +169,8 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
               {/* CTAs */}
               <div className="flex flex-wrap gap-5 pt-4">
                 <a href="#projects"
-                   className="bg-ink text-white border-[4px] border-ink px-10 py-4 font-black text-sm uppercase tracking-[0.3em] shadow-[8px_8px_0px_0px_#0055FF] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all no-underline">
-                  View Projects
+                   className="bg-ink text-white border-[4px] border-ink px-10 py-4 font-black text-sm uppercase tracking-[0.3em] shadow-[8px_8px_0px_0px_#0055FF] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all no-underline flex items-center gap-2">
+                  View Projects <ChevronRight className="w-4 h-4" />
                 </a>
                 <a href="#contact"
                    className="bg-white text-ink border-[4px] border-ink px-10 py-4 font-black text-sm uppercase tracking-[0.3em] shadow-[8px_8px_0px_0px_#111] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all no-underline">
@@ -182,8 +178,8 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
                 </a>
                 {links.github && (
                   <a href={links.github} target="_blank" rel="noreferrer"
-                     className="bg-yellow-400 text-ink border-[4px] border-ink px-10 py-4 font-black text-sm uppercase tracking-[0.3em] shadow-[8px_8px_0px_0px_#111] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all no-underline">
-                    GitHub ↗
+                     className="bg-accent text-white border-[4px] border-ink px-10 py-4 font-black text-sm uppercase tracking-[0.3em] shadow-[8px_8px_0px_0px_#111] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all no-underline flex items-center gap-2">
+                    🔗 GitHub
                   </a>
                 )}
               </div>
@@ -217,7 +213,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
                   )}
                 </div>
                 {/* Decorative square */}
-                <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-yellow-400 border-[4px] border-ink z-0" />
+                <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-accent border-[4px] border-ink z-0 opacity-20" />
               </div>
             </div>
           </div>
@@ -236,9 +232,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
               <p className="text-xl font-bold leading-relaxed text-ink/70">{intro}</p>
               {location && (
                 <div className="flex items-center gap-4">
-                  <div className="w-5 h-5 bg-ink flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white" />
-                  </div>
+                  <span className="text-lg">📍</span>
                   <span className="font-black text-sm uppercase tracking-[0.3em] opacity-50">{location}</span>
                 </div>
               )}
@@ -262,7 +256,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
               <div className="flex flex-wrap gap-3">
                 {(skills.length > 0 ? skills.slice(0, 16) : ['React', 'Node.js', 'TypeScript', 'MongoDB', 'Docker', 'AWS', 'GraphQL', 'Python', 'PostgreSQL', 'Redis', 'Next.js', 'Tailwind']).map((s, i) => (
                   <span key={s}
-                        className={`px-4 py-2 font-black text-xs uppercase tracking-[0.2em] border-[3px] border-ink shadow-[3px_3px_0_0_#111] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0_0_#111] transition-all cursor-default ${i % 4 === 0 ? 'bg-accent text-white' : i % 4 === 1 ? 'bg-yellow-400 text-ink' : i % 4 === 2 ? 'bg-ink text-white' : 'bg-white text-ink'}`}>
+                        className={`px-4 py-2 font-black text-xs uppercase tracking-[0.2em] border-[3px] border-ink shadow-[3px_3px_0_0_#111] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0_0_#111] transition-all cursor-default ${i % 3 === 0 ? 'bg-accent text-white' : i % 3 === 1 ? 'bg-ink text-white' : 'bg-white text-ink'}`}>
                     {s}
                   </span>
                 ))}
@@ -272,8 +266,8 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
               <div className="mt-12 space-y-3">
                 {email && (
                   <a href={`mailto:${email}`} className="flex items-center gap-4 group no-underline">
-                    <div className="w-10 h-10 bg-ink flex items-center justify-center group-hover:bg-accent transition-colors">
-                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    <div className="w-10 h-10 bg-ink flex items-center justify-center group-hover:bg-accent transition-colors text-white text-lg">
+                      ✉️
                     </div>
                     <span className="font-black text-sm text-ink/60 group-hover:text-accent transition-colors">{email}</span>
                   </a>
@@ -317,7 +311,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
                   {/* Top row */}
                   <div className="flex justify-between items-start mb-6">
                     <span className="font-black text-[10px] uppercase tracking-[0.4em] text-accent">{repo.language || 'Project'}</span>
-                    <div className="bg-yellow-400 border-[3px] border-ink px-3 py-1 font-black text-xs -rotate-3 shadow-[3px_3px_0_0_#111]">
+                    <div className="bg-accent text-white border-[3px] border-ink px-3 py-1 font-black text-xs -rotate-3 shadow-[3px_3px_0_0_#111]">
                       QS: {repo.score}/10
                     </div>
                   </div>
@@ -344,9 +338,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
                     {repo.repoUrl && (
                       <a href={repo.repoUrl} target="_blank" rel="noreferrer"
                          className="bg-ink text-white border-[3px] border-ink p-3 hover:bg-accent transition-colors shadow-[4px_4px_0_0_#0055FF] no-underline">
-                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.011-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.292c0-6.627-5.373-12-12-12z" />
-                        </svg>
+                        <Github className="w-5 h-5" />
                       </a>
                     )}
                   </div>
@@ -375,13 +367,13 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
       ══════════════════════════════════════ */}
       <section id="skills" className="relative z-10 py-32 border-b-[6px] border-ink bg-white">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <SectionStamp color="bg-yellow-400" rotate="rotate-1">Skills_Stack</SectionStamp>
+          <SectionStamp color="bg-accent text-white" rotate="rotate-1">Skills_Stack</SectionStamp>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { label: 'Frontend', icon: '◈', items: categorized.frontend.length > 0 ? categorized.frontend : ['React', 'TypeScript', 'Tailwind CSS', 'Next.js', 'HTML/CSS', 'Redux'], accent: 'bg-accent text-white' },
-              { label: 'Backend', icon: '◉', items: categorized.backend.length > 0 ? categorized.backend : ['Node.js', 'Express', 'MongoDB', 'PostgreSQL', 'Python', 'GraphQL'], accent: 'bg-ink text-white' },
-              { label: 'Tools', icon: '◎', items: categorized.tools.length > 0 ? categorized.tools : ['Git', 'Docker', 'AWS', 'CI/CD', 'Linux', 'Figma'], accent: 'bg-yellow-400 text-ink' },
+              { label: 'Frontend', icon: <Code className="w-6 h-6" />, items: categorized.frontend.length > 0 ? categorized.frontend : ['React', 'TypeScript', 'Tailwind CSS', 'Next.js', 'HTML/CSS', 'Redux'], accent: 'bg-accent text-white' },
+              { label: 'Backend', icon: <Server className="w-6 h-6" />, items: categorized.backend.length > 0 ? categorized.backend : ['Node.js', 'Express', 'MongoDB', 'PostgreSQL', 'Python', 'GraphQL'], accent: 'bg-ink text-white' },
+              { label: 'Tools', icon: <Wrench className="w-6 h-6" />, items: categorized.tools.length > 0 ? categorized.tools : ['Git', 'Docker', 'AWS', 'CI/CD', 'Linux', 'Figma'], accent: 'bg-white text-ink' },
             ].map(cat => (
               <div key={cat.label} className="border-[6px] border-ink bg-background shadow-[10px_10px_0_0_#111]">
                 {/* Header */}
@@ -452,7 +444,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
 
       {/* Education (if exists) */}
       {education.length > 0 && (
-        <section className="relative z-10 py-24 border-b-[6px] border-ink bg-yellow-400">
+        <section className="relative z-10 py-24 border-b-[6px] border-ink bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-12">
             <SectionStamp color="bg-ink text-white" rotate="-rotate-1" extraClass="text-white">
               <span className="text-white">Education_Log</span>
@@ -485,10 +477,8 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
               <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none">Download<br/>Resume_</h2>
             </div>
             <a href="/resume.pdf" download
-               className="bg-ink text-white border-[4px] border-ink px-12 py-6 font-black text-sm uppercase tracking-[0.4em] shadow-[8px_8px_0px_0px_#0055FF] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all no-underline flex items-center gap-4">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-              </svg>
+               className="bg-ink text-white border-[4px] border-ink px-12 py-6 font-black text-sm uppercase tracking-[0.4em] shadow-[8px_8px_0px_0px_#221 83% 53%] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all no-underline flex items-center gap-4">
+              <Download className="w-5 h-5" />
               Get_.PDF
             </a>
           </div>
@@ -575,8 +565,8 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
                           className="w-full border-[4px] border-ink px-5 py-4 font-black text-sm bg-background focus:border-accent outline-none resize-none transition-colors shadow-[4px_4px_0_0_#111] placeholder:text-ink/30" />
               </div>
               <button type="submit"
-                      className="w-full bg-ink text-white border-[4px] border-ink py-5 font-black text-sm uppercase tracking-[0.4em] shadow-[8px_8px_0px_0px_#0055FF] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all hover:bg-accent">
-                Send_Message_ →
+                      className="w-full bg-ink text-white border-[4px] border-ink py-5 font-black text-sm uppercase tracking-[0.4em] shadow-[8px_8px_0px_0px_#221 83% 53%] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all hover:bg-accent flex items-center justify-center gap-2">
+                Send_Message_ <Send className="w-4 h-4" />
               </button>
             </form>
           </div>

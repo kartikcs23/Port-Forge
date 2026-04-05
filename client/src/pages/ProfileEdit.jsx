@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import api from '../utils/axios';
@@ -7,7 +7,6 @@ import { Navbar } from '../components/Navbar';
 export const ProfileEdit = () => {
   const navigate = useNavigate();
   const { user, isLoaded } = useUser();
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null);
 
@@ -30,13 +29,7 @@ export const ProfileEdit = () => {
     },
   });
 
-  useEffect(() => {
-    if (isLoaded) {
-      fetchProfile();
-    }
-  }, [isLoaded]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const res = await api.get('/api/profile/me');
       if (res.data.success) {
@@ -65,10 +58,14 @@ export const ProfileEdit = () => {
       }
     } catch (error) {
       console.error('Failed to fetch profile:', error);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (isLoaded) {
+      fetchProfile();
+    }
+  }, [isLoaded, fetchProfile]);
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];

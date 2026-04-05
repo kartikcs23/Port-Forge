@@ -4,32 +4,83 @@
 @import '@fontsource/dm-sans/400.css';
 @import '@fontsource/dm-sans/500.css';
 @import '@fontsource/dm-sans/700.css';
+@import "@fontsource-variable/geist";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  .app-shell {
-    @apply m-0 bg-background text-ink tracking-tight antialiased selection:bg-accent selection:text-white font-sans;
-    min-h: 100vh;
-
-    #root {
-      @apply min-h-screen bg-background text-ink;
-    }
-    
-    h1, h2, h3, h4, h5, h6 {
-      @apply font-display tracking-tight leading-none text-ink;
-    }
-    
-    p {
-      @apply text-ink/80;
-    }
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 50.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 221 83% 53%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --border: 240 5.9% 10.1%;
+    --input: 240 5.9% 90.1%;
+    --ring: 221 83% 53%;
+    --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
   }
 
-  /* Reset for Portfolio outside the app shell */
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 65.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 221 83% 53%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --border: 240 3.7% 85.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 221 83% 53%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+
+  body {
+    @apply m-0 tracking-tight antialiased selection:bg-accent selection:text-ink font-sans bg-background text-foreground transition-colors duration-300;
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
+  }
+
   html {
     scroll-behavior: smooth;
+    @apply font-sans;
+  }
+
+  #root {
+    @apply min-h-screen bg-background text-ink;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight leading-none text-ink font-black uppercase;
   }
 }
 
@@ -37,17 +88,30 @@
   /* Minimal solid button design */
   .btn-solid {
     @apply inline-flex items-center justify-center font-bold transition-all duration-200 
-           border border-ink bg-accent text-white px-8 py-3 uppercase tracking-widest text-xs
-           hover:bg-ink shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none;
+           border border-ink bg-accent text-accent-foreground px-8 py-3 uppercase tracking-widest text-xs
+           hover:bg-ink hover:text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none;
   }
-  
+
   .btn-outline {
     @apply inline-flex items-center justify-center font-bold transition-all duration-200 
-           border border-ink bg-surface text-ink px-8 py-3 uppercase tracking-widest text-xs
-           hover:bg-accent hover:text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none;
+           border border-ink bg-background text-ink px-8 py-3 uppercase tracking-widest text-xs
+           hover:bg-accent hover:text-accent-foreground shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none;
   }
-  
+
   .card-minimal {
-    @apply border border-ink bg-surface shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] transition-transform duration-300 p-8 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(17,17,17,1)];
+    @apply border border-ink bg-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] transition-transform duration-300 p-8 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(17,17,17,1)];
   }
 }
+
+.float-animation {
+  animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes slideUpFade {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

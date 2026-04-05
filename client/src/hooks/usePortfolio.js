@@ -128,21 +128,18 @@ export const usePortfolio = () => {
    * togglePin — Toggle project pinned status
    */
   const togglePin = useCallback(async (projectId) => {
-    setLoading(true);
     setError(null);
     try {
       const response = await api.patch(`/api/profile/projects/${projectId}/pin`);
       // Update local state instead of re-fetching everything
       setProjects((prev) => 
-        prev.map((p) => (p._id === projectId ? { ...p, isPinned: !p.isPinned } : p))
+        prev.map((p) => (p._id === projectId ? { ...p, pinned: !p.pinned } : p))
       );
       return { success: true, data: response.data.data };
     } catch (err) {
       const message = err.response?.data?.message || err.message;
       setError(message);
       return { success: false, message };
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -150,8 +147,6 @@ export const usePortfolio = () => {
    * updateTheme — Update portfolio theme
    */
   const updateTheme = useCallback(async (theme) => {
-    setLoading(true);
-    setError(null);
     try {
       const response = await api.put('/api/portfolio/update', { theme });
       setPortfolio(response.data.data.portfolio);
@@ -160,8 +155,6 @@ export const usePortfolio = () => {
       const message = err.response?.data?.message || err.message;
       setError(message);
       return { success: false, message };
-    } finally {
-      setLoading(false);
     }
   }, []);
 
