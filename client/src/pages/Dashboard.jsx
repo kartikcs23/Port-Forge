@@ -4,6 +4,32 @@ import { ProjectCard } from '../components/ProjectCard';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { usePortfolio } from '../hooks/usePortfolio';
+import { 
+  Layout, 
+  User, 
+  Shield, 
+  ExternalLink, 
+  Github, 
+  Linkedin, 
+  Mail, 
+  Globe, 
+  Star, 
+  GitFork, 
+  Ghost, 
+  Rocket, 
+  Cpu, 
+  Activity, 
+  Palmtree,
+  Plus,
+  RefreshCw,
+  Search,
+  Filter,
+  Trash2,
+  Eye,
+  Settings,
+  Pencil,
+  Building2
+} from 'lucide-react';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -32,8 +58,6 @@ export const Dashboard = () => {
       fetchProjects();
     }
   }, [isLoaded, fetchPortfolio, fetchProjects]);
-
-  // Remove loading check - let content render normally
 
   const handleSyncGithub = async () => {
     if (!githubLink) {
@@ -84,9 +108,9 @@ export const Dashboard = () => {
               </h2>
               <button
                 onClick={() => navigate('/profile-edit')}
-                className="w-full bg-accent text-white px-6 py-3 font-bold uppercase text-xs border-2 border-accent shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all mb-4"
+                className="w-full bg-accent text-white px-6 py-3 font-bold uppercase text-xs border-2 border-accent shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all mb-4 flex items-center justify-center gap-2"
               >
-                ✏️ EDIT PROFILE
+                <Pencil className="w-4 h-4" /> EDIT PROFILE
               </button>
               <p className="text-xs font-bold uppercase tracking-widest text-muted text-center">
                 Update your bio, avatar, and contact details
@@ -113,8 +137,9 @@ export const Dashboard = () => {
                   <button
                     onClick={handleSyncGithub}
                     disabled={loading || !githubLink}
-                    className={`w-full block font-bold uppercase tracking-widest text-xs mt-2 py-3 border-2 border-ink transition-transform hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${syncStatus === 'syncing-github' ? 'bg-ink text-white' : 'bg-surface text-ink'}`}
+                    className={`w-full flex items-center justify-center gap-2 font-bold uppercase tracking-widest text-xs mt-2 py-3 border-2 border-ink transition-transform hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${syncStatus === 'syncing-github' ? 'bg-ink text-white' : 'bg-surface text-ink'}`}
                   >
+                    {syncStatus === 'syncing-github' ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Github className="w-4 h-4" />}
                     {syncStatus === 'syncing-github' ? 'SYNCING...' : 'SYNC GITHUB'}
                   </button>
                 </div>
@@ -140,51 +165,51 @@ export const Dashboard = () => {
                     <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">ARCHITECT</span>
                     <span className="block text-sm font-bold uppercase mt-1">Brutalist</span>
                   </div>
-                  <div className="text-xl">🏢</div>
+                  <Building2 className="w-5 h-5" />
                 </button>
                 
                 <button
                   onClick={() => updateTheme('egyptian')}
-                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'egyptian' ? 'bg-[#c5a021] text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
+                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'egyptian' ? 'bg-accent text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
                 >
                   <div className="text-left">
                     <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">MINIMALIST</span>
                     <span className="block text-sm font-bold uppercase mt-1">Luxor</span>
                   </div>
-                  <div className="text-xl">🏺</div>
+                  <Palmtree className={`w-5 h-5 ${portfolio?.theme === 'egyptian' ? 'text-white' : 'text-accent'}`} />
                 </button>
 
                 <button
                   onClick={() => updateTheme('space')}
-                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'space' ? 'bg-[#8b5cf6] text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
+                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'space' ? 'bg-accent text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
                 >
                   <div className="text-left">
                     <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">FUTURISTIC</span>
                     <span className="block text-sm font-bold uppercase mt-1">Nebula</span>
                   </div>
-                  <div className="text-xl">🛰️</div>
+                  <Rocket className={`w-5 h-5 ${portfolio?.theme === 'space' ? 'text-white' : 'text-accent'}`} />
                 </button>
 
                 <button
                   onClick={() => updateTheme('tokyo')}
-                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'tokyo' ? 'bg-[#ff006e] text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
+                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'tokyo' ? 'bg-accent text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
                 >
                   <div className="text-left">
                     <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">CYBERPUNK</span>
                     <span className="block text-sm font-bold uppercase mt-1">Tokyo</span>
                   </div>
-                  <div className="text-xl">🌃</div>
+                  <Cpu className={`w-5 h-5 ${portfolio?.theme === 'tokyo' ? 'text-white' : 'text-accent'}`} />
                 </button>
 
                 <button
                   onClick={() => updateTheme('medical')}
-                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'medical' ? 'bg-[#0891b2] text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
+                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'medical' ? 'bg-accent text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
                 >
                   <div className="text-left">
                     <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">MEDICAL</span>
                     <span className="block text-sm font-bold uppercase mt-1">Asclepius</span>
                   </div>
-                  <div className="text-xl">🩺</div>
+                  <Activity className={`w-5 h-5 ${portfolio?.theme === 'medical' ? 'text-white' : 'text-accent'}`} />
                 </button>
               </div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted mt-6 text-center">
