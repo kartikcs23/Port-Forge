@@ -14,6 +14,7 @@ const authRoutes = require('./routes/auth');
 const syncRoutes = require('./routes/sync');
 const portfolioRoutes = require('./routes/portfolio');
 const profileRoutes = require('./routes/profile');
+const adminRoutes = require('./routes/admin');
 
 // Initialize Express app
 const app = express();
@@ -67,6 +68,7 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/sync', syncRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/admin', adminRoutes);
 
 // ========================
 // Health Check

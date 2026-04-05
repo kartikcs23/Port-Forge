@@ -2,11 +2,13 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser, useClerk } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
+import { useAdmin } from '../hooks/useAdmin';
 
 export const Navbar = () => {
   const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useClerk();
   const navigate = useNavigate();
+  const { isAdmin } = useAdmin();
 
   const handleLogout = () => {
     signOut(() => navigate('/'));
@@ -51,6 +53,14 @@ export const Navbar = () => {
                 >
                   Dashboard
                 </Link>
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="text-red-600 hover:text-red-700 transition-colors border-b-2 border-transparent hover:border-red-600 pb-1 font-black"
+                  >
+                    Admin
+                  </Link>
+                )}
                 <button
                   onClick={handleLogout}
                   className="btn-outline ml-4 !px-6 !py-2"
@@ -77,6 +87,18 @@ export const Navbar = () => {
                   className="text-ink hover:text-accent transition-colors border-b-2 border-transparent hover:border-accent pb-1"
                 >
                   Privacy
+                </Link>
+                <Link
+                  to="/faq"
+                  className="text-ink hover:text-accent transition-colors border-b-2 border-transparent hover:border-accent pb-1"
+                >
+                  FAQ
+                </Link>
+                <Link
+                  to="/notifications"
+                  className="text-ink hover:text-accent transition-colors border-b-2 border-transparent hover:border-accent pb-1"
+                >
+                  Notifications
                 </Link>
                 <Link
                   to="/login"
