@@ -103,50 +103,6 @@ const getMyPortfolio = async (req, res) => {
 };
 
 /**
- * updatePortfolio — Updates portfolio settings (theme, customDomain, etc.)
- *
- * Route: PUT /api/portfolio/update (protected)
- * Body: { theme?, customDomain? }
- */
-const updatePortfolio = async (req, res) => {
-  try {
-    const { theme, customDomain } = req.body;
-
-    const portfolio = await Portfolio.findOneAndUpdate(
-      { userId: req.user._id },
-      {
-        $set: {
-          ...(theme && { theme }),
-          ...(customDomain !== undefined && { customDomain }),
-        },
-      },
-      { new: true }
-    );
-
-    if (!portfolio) {
-      return res.status(404).json({
-        success: false,
-        data: null,
-        message: 'No portfolio found to update',
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: { portfolio },
-      message: 'Portfolio updated',
-    });
-  } catch (error) {
-    console.error('Update portfolio error:', error.message);
-    res.status(500).json({
-      success: false,
-      data: null,
-      message: 'Failed to update portfolio',
-    });
-  }
-};
-
-/**
  * togglePublish — Toggles the published status of the user's portfolio.
  *
  * Route: PATCH /api/portfolio/publish (protected)
@@ -159,7 +115,7 @@ const togglePublish = async (req, res) => {
       return res.status(404).json({
         success: false,
         data: null,
-        message: 'No portfolio found',
+        message: 'No portfolio found. Generate one first.',
       });
     }
 
@@ -246,7 +202,6 @@ const getPublicPortfolio = async (req, res) => {
 module.exports = {
   generatePortfolio,
   getMyPortfolio,
-  updatePortfolio,
   togglePublish,
   getPublicPortfolio,
 };

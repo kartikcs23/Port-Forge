@@ -15,7 +15,6 @@ export const EntryLoader = ({ onComplete }) => {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(progressTimer);
-          setTimeout(() => onComplete?.(), 500);
           return 100;
         }
         return prev + 2;
@@ -26,7 +25,14 @@ export const EntryLoader = ({ onComplete }) => {
       clearTimeout(timer);
       clearInterval(progressTimer);
     };
-  }, [onComplete]);
+  }, []);
+
+  useEffect(() => {
+    if (progress === 100) {
+      const timer = setTimeout(() => onComplete?.(), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [progress, onComplete]);
 
   return (
     <div className="fixed inset-0 bg-background z-50 flex flex-col items-center justify-center overflow-hidden">
