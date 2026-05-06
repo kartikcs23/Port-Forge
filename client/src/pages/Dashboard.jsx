@@ -1,17 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
 import { ProjectCard } from '../components/ProjectCard';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { usePortfolio } from '../hooks/usePortfolio';
-import { 
+import { useResume } from '../hooks/useResume';
+import {
   Pencil,
   RefreshCw,
   Building2,
   Palmtree,
   Rocket,
-  Cpu, 
-  Activity
+  Cpu,
+  Activity,
+  FileUp,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  X,
 } from 'lucide-react';
 
 export const Dashboard = () => {
@@ -31,9 +37,22 @@ export const Dashboard = () => {
     updateTheme,
   } = usePortfolio();
 
+  const {
+    loading: resumeLoading,
+    error: resumeError,
+    extractedData,
+    successMessage,
+    uploadResume,
+    reset: resetResume,
+  } = useResume();
+
   const [syncStatus, setSyncStatus] = useState('');
   const [lastSynced, setLastSynced] = useState(null);
   const [githubLink, setGithubLink] = useState('');
+  const [resumeFile, setResumeFile] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (isLoaded) {
@@ -53,9 +72,38 @@ export const Dashboard = () => {
       setSyncStatus('success');
       setLastSynced(new Date().toLocaleString());
       setTimeout(() => setSyncStatus(''), 3000);
-      fetchProjects(); // refresh projects grid
+      fetchProjects();
     } else {
       setSyncStatus('error');
+    }
+  };
+
+  const handleResumeUpload = async () => {
+    if (!resumeFile) return;
+    const result = await uploadResume(resumeFile);
+    if (result.success) {
+      setShowPreview(true);
+      fetchPortfolio(); // refresh portfolio if it existed
+    }
+  };
+
+  const handleFileDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type === 'application/pdf') {
+      setResumeFile(file);
+      resetResume();
+      setShowPreview(false);
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setResumeFile(file);
+      resetResume();
+      setShowPreview(false);
     }
   };
 
@@ -100,6 +148,161 @@ export const Dashboard = () => {
               </p>
             </div>
 
+            {/* ── Resume Upload Card ── */}
+            <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+              <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-ink pb-2 flex items-center gap-2">
+                <FileUp className="w-5 h-5" /> Resume Upload
+              </h2>
+
+              {/* Dropzone */}
+              <div
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleFileDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`relative border-2 border-dashed border-ink p-6 text-center cursor-pointer transition-all ${
+                  isDragging ? 'bg-accent/10 border-accent' : 'bg-background hover:bg-surface'
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+                {resumeFile ? (
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="text-left">
+                      <span className="block text-[10px] font-bold uppercase tracking-widest text-muted mb-1">SELECTED FILE</span>
+                      <span className="text-sm font-bold truncate max-w-[180px] block">{resumeFile.name}</span>
+                      <span className="text-[10px] font-bold text-muted">{(resumeFile.size / 1024).toFixed(0)} KB</span>
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setResumeFile(null); resetResume(); setShowPreview(false); }}
+                      className="p-1 border-2 border-ink hover:bg-ink hover:text-white transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <FileUp className="w-8 h-8 mx-auto mb-2 text-muted" />
+                    <p className="text-xs font-bold uppercase tracking-widest">Drop PDF here or click to browse</p>
+                    <p className="text-[10px] font-bold text-muted mt-1">Max 5 MB</p>
+                  </>
+                )}
+              </div>
+
+              {/* Upload button */}
+              <button
+                onClick={handleResumeUpload}
+                disabled={!resumeFile || resumeLoading}
+                className={`w-full mt-3 flex items-center justify-center gap-2 font-bold uppercase tracking-widest text-xs py-3 border-2 border-ink transition-all hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-40 ${
+                  resumeLoading ? 'bg-ink text-white' : 'bg-surface text-ink'
+                }`}
+              >
+                {resumeLoading
+                  ? <><RefreshCw className="w-4 h-4 animate-spin" /> PARSING...</>
+                  : <><FileUp className="w-4 h-4" /> UPLOAD &amp; PARSE</>}
+              </button>
+
+              {/* Error */}
+              {resumeError && (
+                <div className="mt-3 text-xs font-bold text-white uppercase bg-ink p-2 border-2 border-ink">
+                  ERROR: {resumeError}
+                </div>
+              )}
+
+              {/* Success + Preview toggle */}
+              {successMessage && (
+                <div className="mt-3">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase p-2 border-2 border-ink bg-background shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]">
+                    <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+                    <span className="flex-1">{successMessage}</span>
+                    <button onClick={() => setShowPreview(!showPreview)} className="ml-auto">
+                      {showPreview ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+                  </div>
+
+                  {/* Extracted data preview */}
+                  {showPreview && extractedData && (
+                    <div className="border-2 border-t-0 border-ink p-4 bg-background space-y-4">
+
+                      {extractedData.name && (
+                        <div>
+                          <span className="block text-[9px] font-black uppercase tracking-widest text-muted mb-1">NAME DETECTED</span>
+                          <span className="text-sm font-bold">{extractedData.name}</span>
+                        </div>
+                      )}
+
+                      {extractedData.email && (
+                        <div>
+                          <span className="block text-[9px] font-black uppercase tracking-widest text-muted mb-1">EMAIL</span>
+                          <span className="text-xs font-bold">{extractedData.email}</span>
+                        </div>
+                      )}
+
+                      {extractedData.skills?.length > 0 && (
+                        <div>
+                          <span className="block text-[9px] font-black uppercase tracking-widest text-muted mb-2">SKILLS FOUND ({extractedData.skills.length})</span>
+                          <div className="flex flex-wrap gap-1">
+                            {extractedData.skills.slice(0, 20).map((skill) => (
+                              <span key={skill} className="text-[9px] font-black uppercase px-2 py-1 border-2 border-ink bg-surface shadow-[1px_1px_0px_0px_rgba(17,17,17,1)]">
+                                {skill}
+                              </span>
+                            ))}
+                            {extractedData.skills.length > 20 && (
+                              <span className="text-[9px] font-black uppercase px-2 py-1 border-2 border-ink bg-accent text-white">
+                                +{extractedData.skills.length - 20} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {extractedData.experience?.length > 0 && (
+                        <div>
+                          <span className="block text-[9px] font-black uppercase tracking-widest text-muted mb-2">EXPERIENCE ({extractedData.experience.length} entries)</span>
+                          {extractedData.experience.map((exp, i) => (
+                            <div key={i} className="text-xs font-bold mb-1 border-l-2 border-ink pl-2">
+                              {exp.company}{exp.role ? ` — ${exp.role}` : ''}
+                              {exp.startDate && <span className="text-muted ml-1 font-normal">{exp.startDate} – {exp.endDate || 'Present'}</span>}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {extractedData.education?.length > 0 && (
+                        <div>
+                          <span className="block text-[9px] font-black uppercase tracking-widest text-muted mb-2">EDUCATION ({extractedData.education.length} entries)</span>
+                          {extractedData.education.map((edu, i) => (
+                            <div key={i} className="text-xs font-bold mb-1 border-l-2 border-ink pl-2">
+                              {edu.institution}{edu.degree ? ` — ${edu.degree}` : ''}
+                              {edu.year && <span className="text-muted ml-1 font-normal">{edu.year}</span>}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {(extractedData.links?.github || extractedData.links?.linkedin) && (
+                        <div>
+                          <span className="block text-[9px] font-black uppercase tracking-widest text-muted mb-1">LINKS FOUND</span>
+                          {extractedData.links.github && <div className="text-[10px] font-bold truncate">{extractedData.links.github}</div>}
+                          {extractedData.links.linkedin && <div className="text-[10px] font-bold truncate">{extractedData.links.linkedin}</div>}
+                        </div>
+                      )}
+
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted border-t-2 border-ink pt-3">
+                        Data saved to your profile. Visit Profile Settings to review.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* ── Command Center ── */}
             <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
               <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-ink pb-2">
                 Command Center
