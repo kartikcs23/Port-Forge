@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Navbar } from '../components/Navbar';
 import { useInsights } from '../hooks/useInsights';
 import { Loader3D } from '../components/Loader3D';
+import { ContributionHeatmap } from '../components/ContributionHeatmap';
 
 export const Insights = () => {
   const { loading, error, data, fetchInsights } = useInsights();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showAllProjects, setShowAllProjects] = useState(false);
 
   useEffect(() => {
     // Auto-load insights on mount
@@ -29,11 +31,35 @@ export const Insights = () => {
 
   const projectScores = data?.analysis?.projectScores || [];
   const badges = data?.analysis?.badges || {};
-  const timeline = data?.analysis?.timeline || [];
-  const similarity = data?.analysis?.similarity || [];
+  const timelineEvents = data?.analysis?.timeline || [];
   const features = data?.analysis?.features || {};
   const githubProfile = data?.github?.profile || {};
   const linkedinData = data?.linkedin || {};
+  const contributions = data?.github?.contributions || [];
+
+  const badgeDescriptions = {
+    'Night Owl': '10+ commits after midnight',
+    'Polyglot': '5+ programming languages',
+    'Bug Slayer': 'Closed 10+ issues',
+    'Project Hopper': 'Contributed to 8+ repos',
+  };
+
+  const badgeStyles = {
+    'Night Owl': 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white',
+    'Polyglot': 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white',
+    'Bug Slayer': 'bg-gradient-to-r from-rose-500 to-orange-500 text-white',
+    'Project Hopper': 'bg-gradient-to-r from-sky-500 to-cyan-500 text-white',
+  };
+
+  const badgeIcons = {
+    'Night Owl': '🌙',
+    'Polyglot': '🧠',
+    'Bug Slayer': '🛡️',
+    'Project Hopper': '🚀',
+  };
+
+  const projectLimit = 8;
+  const visibleProjects = showAllProjects ? projectScores : projectScores.slice(0, projectLimit);
 
   // Calculate profile completion
   const profileCompleteness = {
@@ -80,6 +106,166 @@ export const Insights = () => {
           </div>
         ) : (
           <section className="space-y-8">
+            <ContributionHeatmap contributions={contributions} />
+
+            {/* Project Scores */}
+            <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6 border-b-2 border-ink pb-4">
+                <div>
+                  <h2 className="text-2xl font-black uppercase tracking-tight">Project Score</h2>
+                  <p className="text-muted font-sans text-sm mt-1">
+                    Difficulty tiering for recruiters and automated evaluation.
+                  </p>
+                </div>
+                <div className="text-xs font-bold uppercase tracking-widest text-muted">
+                  Easy · Normal · Hard
+                </div>
+              </div>
+
+              {projectScores.length === 0 ? (
+                <p className="text-muted font-sans text-sm">No project scoring data available yet.</p>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {visibleProjects.map((project) => {
+                      const scorePercent = Math.round(project.score * 100);
+                      return (
+                        <div key={project.name} className="border-2 border-ink bg-background p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="text-sm font-black uppercase tracking-tight">{project.name}</div>
+                            <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 border-2 ${
+                              project.difficulty === 'Hard'
+                                ? 'border-ink bg-ink text-white'
+                                : project.difficulty === 'Normal'
+                                  ? 'border-accent bg-accent text-white'
+                                  : 'border-ink bg-surface text-ink'
+                            }`}>
+                              {project.difficulty}
+                            </span>
+                          </div>
+                          <div className="mt-3 flex items-center justify-between text-xs font-bold uppercase tracking-widest text-muted">
+                            <span>Score</span>
+                            <span>{scorePercent}</span>
+                          </div>
+                          <div className="mt-2 h-2 border-2 border-ink bg-surface">
+                            <div
+                              className="h-full bg-accent"
+                              style={{ width: `${Math.min(100, Math.max(5, scorePercent))}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {projectScores.length > projectLimit && (
+                    <button
+                      onClick={() => setShowAllProjects((prev) => !prev)}
+                      className="mt-4 border-2 border-ink px-4 py-2 font-black uppercase tracking-widest text-xs"
+                    >
+                      {showAllProjects ? 'Show fewer projects' : `Show all projects (${projectScores.length})`}
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Badges */}
+            <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6 border-b-2 border-ink pb-4">
+                <div>
+                  <h2 className="text-2xl font-black uppercase tracking-tight">GitHub Badges</h2>
+                  <p className="text-muted font-sans text-sm mt-1">
+                    Achievement badges based on real activity.
+                  </p>
+                </div>
+                <div className="text-xs font-bold uppercase tracking-widest text-muted">
+                  Activity based
+                </div>
+              </div>
+
+              {badges.badges?.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {badges.badges.map((badge) => (
+                    <div
+                      key={badge}
+                      className={`border-2 border-ink p-4 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] ${
+                        badgeStyles[badge] || 'bg-background'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{badgeIcons[badge] || '🏅'}</span>
+                        <div className="text-sm font-black uppercase tracking-widest">{badge}</div>
+                      </div>
+                      <div className="text-xs mt-2">{badgeDescriptions[badge]}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted font-sans text-sm">No badges unlocked yet. Keep pushing commits!</p>
+              )}
+
+              {badges.metrics && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+                  {[
+                    { label: 'Night Commits', value: badges.metrics.nightCommits || 0 },
+                    { label: 'Closed Issues', value: badges.metrics.closedIssues || 0 },
+                    { label: 'Languages', value: badges.metrics.languageCount || 0 },
+                    { label: 'Active Repos', value: badges.metrics.repoCount || 0 },
+                  ].map((metric) => (
+                    <div key={metric.label} className="border-2 border-ink bg-surface p-3 text-center">
+                      <div className="text-xl font-black text-accent">{metric.value}</div>
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-muted mt-1">{metric.label}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Timeline */}
+            <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6 border-b-2 border-ink pb-4">
+                <div>
+                  <h2 className="text-2xl font-black uppercase tracking-tight">Coding Timeline</h2>
+                  <p className="text-muted font-sans text-sm mt-1">
+                    Auto-generated journey from commits and repo milestones.
+                  </p>
+                </div>
+                <div className="text-xs font-bold uppercase tracking-widest text-muted">
+                  Scrollable
+                </div>
+              </div>
+
+              {timelineEvents.length === 0 ? (
+                <p className="text-muted font-sans text-sm">No timeline events available yet.</p>
+              ) : (
+                <div className="max-h-[420px] overflow-y-auto pr-2 space-y-4">
+                  {timelineEvents.map((event, idx) => {
+                    const date = new Date(event.date);
+                    const label = isNaN(date.getTime()) ? event.date : date.toISOString().split('T')[0];
+                    return (
+                      <div key={`${event.date}-${idx}`} className="flex items-start gap-4">
+                        <div className="flex flex-col items-center">
+                          <span className="w-3 h-3 bg-accent border-2 border-ink" />
+                          {idx < timelineEvents.length - 1 && (
+                            <span className="w-[2px] flex-1 bg-ink/30 min-h-[24px]" />
+                          )}
+                        </div>
+                        <div className="flex-1 border-2 border-ink bg-background p-4">
+                          <div className="text-xs font-bold uppercase tracking-widest text-muted">{label}</div>
+                          <div className="text-sm font-black uppercase tracking-tight mt-1">{event.title}</div>
+                          {event.source && (
+                            <div className="text-[10px] font-bold uppercase tracking-widest text-muted mt-2">
+                              {event.source}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             {/* Portfolio Overview */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6">
@@ -226,89 +412,6 @@ export const Insights = () => {
               </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 space-y-8">
-                {/* Project Scoring */}
-                <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6">
-                  <h2 className="text-2xl font-black uppercase tracking-tight mb-4 border-b-2 border-ink pb-2">Project Scoring</h2>
-                  {projectScores.length === 0 ? (
-                    <p className="text-muted text-sm">No projects scored yet.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {projectScores.map((item) => (
-                        <div key={item.name} className="border-2 border-ink bg-background p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                          <div>
-                            <div className="text-xs font-bold uppercase tracking-widest text-muted">{item.difficulty}</div>
-                            <div className="text-xl font-black uppercase">{item.name}</div>
-                            <div className="text-xs font-bold uppercase tracking-widest text-muted mt-1">
-                              Stars {item.signals.stars}, Commits {item.signals.commits}, Languages {item.signals.langCount}
-                            </div>
-                          </div>
-                          <div className="text-3xl font-black text-accent">{item.score}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Timeline */}
-                <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6">
-                  <h2 className="text-2xl font-black uppercase tracking-tight mb-4 border-b-2 border-ink pb-2">Timeline</h2>
-                  {timeline.length === 0 ? (
-                    <p className="text-muted text-sm">No timeline events yet.</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {timeline.map((event, idx) => (
-                        <div key={`${event.date}-${idx}`} className="border-2 border-ink bg-background p-4">
-                          <div className="text-xs font-bold uppercase tracking-widest text-muted">{event.date} / {event.source}</div>
-                          <div className="text-lg font-bold mt-1">{event.title}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-8">
-                {/* Badges */}
-                <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6">
-                  <h2 className="text-2xl font-black uppercase tracking-tight mb-4 border-b-2 border-ink pb-2">Badges</h2>
-                  {badges.badges && badges.badges.length === 0 ? (
-                    <p className="text-muted text-sm">No badges earned yet. Keep contributing!</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {badges.badges && badges.badges.map((badge) => (
-                        <div key={badge} className="border-2 border-ink bg-background p-4">
-                          <div className="text-lg font-black uppercase">{badge}</div>
-                          <div className="text-xs font-bold uppercase tracking-widest text-muted mt-1">Achievement Unlocked</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Similarity */}
-                <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6">
-                  <h2 className="text-2xl font-black uppercase tracking-tight mb-4 border-b-2 border-ink pb-2">Similarity</h2>
-                  {similarity.length === 0 ? (
-                    <div className="border-2 border-ink bg-background p-4">
-                      <p className="text-sm font-sans text-muted">
-                        Upload a candidate dataset to enable "Find similar developers".
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {similarity.slice(0, 5).map((dev, idx) => (
-                        <div key={`${dev.username}-${idx}`} className="border-2 border-ink bg-background p-4 flex justify-between items-center">
-                          <div className="font-bold uppercase">{dev.username}</div>
-                          <div className="text-accent font-black">{(dev.score * 100).toFixed(0)}%</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
           </section>
         )}
       </main>

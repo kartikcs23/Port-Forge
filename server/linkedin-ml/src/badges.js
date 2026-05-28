@@ -1,4 +1,8 @@
-function countClosedIssues(issues) {
+function countClosedIssues(issues, issueStats) {
+  if (issueStats && Number.isFinite(issueStats.closed)) {
+    return Number(issueStats.closed);
+  }
+  if (typeof issues === 'number') return issues;
   return (issues || []).filter((i) => i.state === 'closed').length;
 }
 
@@ -12,8 +16,17 @@ function countNightCommits(commits) {
 function uniqueLanguages(repos) {
   const set = new Set();
   (repos || []).forEach((repo) => {
-    const langMap = repo.languages || {};
-    Object.keys(langMap).forEach((lang) => set.add(lang));
+    if (Array.isArray(repo.languages)) {
+      repo.languages.forEach((lang) => lang && set.add(lang));
+      return;
+    }
+    if (repo.languages && typeof repo.languages === 'object') {
+      Object.keys(repo.languages).forEach((lang) => set.add(lang));
+      return;
+    }
+    if (repo.language) {
+      set.add(repo.language);
+    }
   });
   return set.size;
 }
@@ -22,9 +35,10 @@ function assignBadges(github) {
   const repos = github.repos || [];
   const commits = github.commits || [];
   const issues = github.issues || [];
+  const issueStats = github.issueStats || {};
 
   const nightCommits = countNightCommits(commits);
-  const closedIssues = countClosedIssues(issues);
+  const closedIssues = countClosedIssues(issues, issueStats);
   const languageCount = uniqueLanguages(repos);
   const repoCount = repos.filter((r) => !r.isFork && !r.isEmpty).length;
 

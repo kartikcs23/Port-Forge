@@ -1,16 +1,49 @@
 function vectorize(github) {
   const repos = github.repos || [];
+  const contributions = github.contributions || [];
   const languageTotals = {};
+  const topicTotals = {};
+  const weekdayTotals = {};
 
   repos.forEach((repo) => {
-    const langMap = repo.languages || {};
-    Object.keys(langMap).forEach((lang) => {
-      languageTotals[lang] = (languageTotals[lang] || 0) + Number(langMap[lang] || 0);
+    if (Array.isArray(repo.languages)) {
+      repo.languages.forEach((lang) => {
+        if (!lang) return;
+        languageTotals[lang] = (languageTotals[lang] || 0) + 1;
+      });
+    } else if (repo.languages && typeof repo.languages === 'object') {
+      Object.keys(repo.languages).forEach((lang) => {
+        languageTotals[lang] = (languageTotals[lang] || 0) + Number(repo.languages[lang] || 0);
+      });
+    } else if (repo.language) {
+      languageTotals[repo.language] = (languageTotals[repo.language] || 0) + 1;
+    }
+
+    (repo.topics || []).forEach((topic) => {
+      if (!topic) return;
+      topicTotals[topic] = (topicTotals[topic] || 0) + 1;
     });
   });
 
-  const keys = Object.keys(languageTotals).sort();
-  const vector = keys.map((k) => languageTotals[k]);
+  contributions.forEach((entry) => {
+    if (!entry?.date) return;
+    const day = new Date(entry.date).getUTCDay();
+    weekdayTotals[day] = (weekdayTotals[day] || 0) + Number(entry.count || 0);
+  });
+
+  const keys = [
+    ...Object.keys(languageTotals).map((key) => `lang:${key}`),
+    ...Object.keys(topicTotals).map((key) => `topic:${key}`),
+    ...Object.keys(weekdayTotals).map((key) => `day:${key}`)
+  ].sort();
+
+  const vector = keys.map((key) => {
+    if (key.startsWith('lang:')) return languageTotals[key.slice(5)] || 0;
+    if (key.startsWith('topic:')) return topicTotals[key.slice(6)] || 0;
+    if (key.startsWith('day:')) return weekdayTotals[key.slice(4)] || 0;
+    return 0;
+  });
+
   return { keys, vector };
 }
 
