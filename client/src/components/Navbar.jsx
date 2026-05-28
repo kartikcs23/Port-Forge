@@ -53,7 +53,6 @@ export const Navbar = () => {
                 >
                   Dashboard
                 </Link>
-<<<<<<< HEAD
                 {isAdmin && (
                   <Link
                     to="/admin"
@@ -62,20 +61,6 @@ export const Navbar = () => {
                     Admin
                   </Link>
                 )}
-=======
-                <Link
-                  to="/insights"
-                  className="text-ink hover:text-accent transition-colors border-b-2 border-transparent hover:border-accent pb-1"
-                >
-                  GitHub
-                </Link>
-                <Link
-                  to="/linkedin"
-                  className="text-ink hover:text-accent transition-colors border-b-2 border-transparent hover:border-accent pb-1"
-                >
-                  LinkedIn
-                </Link>
->>>>>>> e98525deaafe2fffaece4b6f15200f5bbd7942d4
                 <button
                   onClick={handleLogout}
                   className="btn-outline ml-4 !px-6 !py-2"
