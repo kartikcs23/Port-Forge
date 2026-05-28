@@ -15,6 +15,7 @@ const syncRoutes = require('./routes/sync');
 const portfolioRoutes = require('./routes/portfolio');
 const profileRoutes = require('./routes/profile');
 const adminRoutes = require('./routes/admin');
+const resumeRoutes = require('./routes/resume');
 
 // Initialize Express app
 const app = express();
@@ -69,6 +70,7 @@ app.use('/api/sync', syncRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/resume', resumeRoutes);
 
 // ========================
 // Health Check

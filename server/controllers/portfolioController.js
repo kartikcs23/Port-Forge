@@ -199,9 +199,55 @@ const getPublicPortfolio = async (req, res) => {
   }
 };
 
+/**
+ * updatePortfolio — Updates mutable fields on the user's portfolio (theme, etc.)
+ *
+ * Route: PUT /api/portfolio/update (protected)
+ */
+const updatePortfolio = async (req, res) => {
+  try {
+    const allowedFields = ['theme', 'customDomain'];
+    const updates = {};
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
+
+    const portfolio = await Portfolio.findOneAndUpdate(
+      { userId: req.user._id },
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+
+    if (!portfolio) {
+      return res.status(404).json({
+        success: false,
+        data: null,
+        message: 'No portfolio found. Generate one first.',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: { portfolio },
+      message: 'Portfolio updated',
+    });
+  } catch (error) {
+    console.error('Update portfolio error:', error.message);
+    res.status(500).json({
+      success: false,
+      data: null,
+      message: 'Failed to update portfolio',
+    });
+  }
+};
+
 module.exports = {
   generatePortfolio,
   getMyPortfolio,
   togglePublish,
+  updatePortfolio,
   getPublicPortfolio,
 };

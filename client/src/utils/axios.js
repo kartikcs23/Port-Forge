@@ -13,12 +13,20 @@ const api = axios.create({
 });
 
 /**
- * Request interceptor â€” attach Clerk JWT token
- * Fetches token live from Clerk's global instance 
+ * Request interceptor - attach Clerk JWT token
+ * Waits up to 3s for Clerk session to hydrate (avoids 401s on fast initial requests)
  */
 api.interceptors.request.use(
   async (config) => {
-    // Use Clerk global object if present
+    // Wait up to 3s for Clerk session to be initialised
+    if (window.Clerk) {
+      let attempts = 0;
+      while (!window.Clerk.session && attempts < 15) {
+        await new Promise((r) => setTimeout(r, 200));
+        attempts++;
+      }
+    }
+
     if (window.Clerk && window.Clerk.session) {
       try {
         const token = await window.Clerk.session.getToken();
@@ -26,7 +34,7 @@ api.interceptors.request.use(
           config.headers.Authorization = `Bearer ${token}`;
         }
       } catch (err) {
-        console.warn('Failed to get clerk token:', err);
+        console.warn('Failed to get Clerk token:', err);
       }
     }
     return config;
@@ -35,8 +43,8 @@ api.interceptors.request.use(
 );
 
 /**
- * Response interceptor — handle auth errors
- * On 401 Unauthorized: clear token, redirect to login
+ * Response interceptor - handle auth errors
+ * On 401 Unauthorized: clear any stale local tokens
  */
 api.interceptors.response.use(
   (response) => response,
@@ -44,7 +52,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
-      // Intentionally removed window.location.href = '/login' to stop Clerk redirect loops.
+      // Intentionally NOT redirecting to avoid Clerk redirect loops.
     }
     return Promise.reject(error);
   }

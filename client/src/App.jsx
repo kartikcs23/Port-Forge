@@ -15,6 +15,8 @@ import { Privacy } from './pages/Privacy';
 import { FAQ } from './pages/FAQ';
 import { Notifications } from './pages/Notifications';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { Insights } from './pages/Insights';
+import { LinkedInInsights } from './pages/LinkedInInsights';
 
 function App() {
   return (
@@ -49,6 +51,34 @@ function App() {
             <>
               <SignedIn>
                 <ProfileEdit />
+              </SignedIn>
+              <SignedOut>
+                <RedirectToSignIn redirectUrl="/login" />
+              </SignedOut>
+            </>
+          }
+        />
+
+        <Route
+          path="/insights"
+          element={
+            <>
+              <SignedIn>
+                <Insights />
+              </SignedIn>
+              <SignedOut>
+                <RedirectToSignIn redirectUrl="/login" />
+              </SignedOut>
+            </>
+          }
+        />
+
+        <Route
+          path="/linkedin"
+          element={
+            <>
+              <SignedIn>
+                <LinkedInInsights />
               </SignedIn>
               <SignedOut>
                 <RedirectToSignIn redirectUrl="/login" />
