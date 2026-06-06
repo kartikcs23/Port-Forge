@@ -4,6 +4,7 @@ const {
   generatePortfolio,
   getMyPortfolio,
   togglePublish,
+  updatePortfolio,
   getPublicPortfolio,
   updatePortfolio,
 } = require('../controllers/portfolioController');

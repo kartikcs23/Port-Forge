@@ -2,6 +2,8 @@ const Portfolio = require('../models/Portfolio');
 const Profile = require('../models/Profile');
 const Project = require('../models/Project');
 const User = require('../models/User');
+const { findSimilarDevelopers } = require('../linkedin-ml/src/similarity');
+const { fetchGitHubContributions } = require('../services/githubService');
 
 /**
  * generateSlug — Creates a URL-friendly slug from the user's name.
@@ -247,6 +249,7 @@ module.exports = {
   generatePortfolio,
   getMyPortfolio,
   togglePublish,
+  updatePortfolio,
   getPublicPortfolio,
   updatePortfolio,
 };

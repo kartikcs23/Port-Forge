@@ -15,6 +15,8 @@ import { Privacy } from './pages/Privacy';
 import { FAQ } from './pages/FAQ';
 import { Notifications } from './pages/Notifications';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { Insights } from './pages/Insights';
+import { LinkedInInsights } from './pages/LinkedInInsights';
 
 const AuthGate = ({ children }) => {
   const isDev = localStorage.getItem('isDeveloperMode') === 'true';
@@ -61,6 +63,34 @@ function App() {
             <AuthGate>
               <ProfileEdit />
             </AuthGate>
+          }
+        />
+
+        <Route
+          path="/insights"
+          element={
+            <>
+              <SignedIn>
+                <Insights />
+              </SignedIn>
+              <SignedOut>
+                <RedirectToSignIn redirectUrl="/login" />
+              </SignedOut>
+            </>
+          }
+        />
+
+        <Route
+          path="/linkedin"
+          element={
+            <>
+              <SignedIn>
+                <LinkedInInsights />
+              </SignedIn>
+              <SignedOut>
+                <RedirectToSignIn redirectUrl="/login" />
+              </SignedOut>
+            </>
           }
         />
 

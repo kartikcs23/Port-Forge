@@ -1,17 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
 import { ProjectCard } from '../components/ProjectCard';
 import { useNavigate } from 'react-router-dom';
 import { useAppUser } from '../hooks/useAppUser';
 import { usePortfolio } from '../hooks/usePortfolio';
-import { 
+import { useResume } from '../hooks/useResume';
+import {
   Pencil,
   RefreshCw,
   Building2,
   Palmtree,
   Rocket,
-  Cpu, 
-  Activity
+  Cpu,
+  Activity,
+  FileUp,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  X,
 } from 'lucide-react';
 
 export const Dashboard = () => {
@@ -31,9 +37,22 @@ export const Dashboard = () => {
     updateTheme,
   } = usePortfolio();
 
+  const {
+    loading: resumeLoading,
+    error: resumeError,
+    extractedData,
+    successMessage,
+    uploadResume,
+    reset: resetResume,
+  } = useResume();
+
   const [syncStatus, setSyncStatus] = useState('');
   const [lastSynced, setLastSynced] = useState(null);
   const [githubLink, setGithubLink] = useState('');
+  const [resumeFile, setResumeFile] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (isLoaded) {
@@ -53,9 +72,38 @@ export const Dashboard = () => {
       setSyncStatus('success');
       setLastSynced(new Date().toLocaleString());
       setTimeout(() => setSyncStatus(''), 3000);
-      fetchProjects(); // refresh projects grid
+      fetchProjects();
     } else {
       setSyncStatus('error');
+    }
+  };
+
+  const handleResumeUpload = async () => {
+    if (!resumeFile) return;
+    const result = await uploadResume(resumeFile);
+    if (result.success) {
+      setShowPreview(true);
+      fetchPortfolio(); // refresh portfolio if it existed
+    }
+  };
+
+  const handleFileDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type === 'application/pdf') {
+      setResumeFile(file);
+      resetResume();
+      setShowPreview(false);
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setResumeFile(file);
+      resetResume();
+      setShowPreview(false);
     }
   };
 

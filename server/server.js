@@ -4,10 +4,12 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
+const path = require('path');
 const connectDB = require('./config/db');
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -15,6 +17,8 @@ const syncRoutes = require('./routes/sync');
 const portfolioRoutes = require('./routes/portfolio');
 const profileRoutes = require('./routes/profile');
 const adminRoutes = require('./routes/admin');
+const resumeRoutes = require('./routes/resume');
+const insightsRoutes = require('./routes/insights');
 
 // Initialize Express app
 const app = express();
@@ -69,6 +73,8 @@ app.use('/api/sync', syncRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/resume', resumeRoutes);
+app.use('/api/insights', insightsRoutes);
 
 // ========================
 // Health Check
