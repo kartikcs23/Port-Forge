@@ -31,9 +31,41 @@ const projectSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    language: {
+      type: String,
+      default: '',
+    },
     languages: {
       type: [String],
       default: [],
+    },
+    topics: {
+      type: [String],
+      default: [],
+    },
+    readmeLength: {
+      type: Number,
+      default: 0,
+    },
+    totalCommits: {
+      type: Number,
+      default: 0,
+    },
+    isFork: {
+      type: Boolean,
+      default: false,
+    },
+    isEmpty: {
+      type: Boolean,
+      default: false,
+    },
+    githubCreatedAt: {
+      type: Date,
+      default: null,
+    },
+    githubUpdatedAt: {
+      type: Date,
+      default: null,
     },
     score: {
       type: Number,

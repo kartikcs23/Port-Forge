@@ -6,6 +6,7 @@ const {
   togglePublish,
   updatePortfolio,
   getPublicPortfolio,
+  getSimilarDevelopers,
 } = require('../controllers/portfolioController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -16,6 +17,7 @@ const { protect } = require('../middleware/authMiddleware');
  * GET    /api/portfolio/mine      → [protected] Get own portfolio
  * PATCH  /api/portfolio/publish   → [protected] Toggle published status
  * PUT    /api/portfolio/update    → [protected] Update portfolio fields (theme, etc.)
+ * GET    /api/portfolio/:slug/similar → [PUBLIC] Find similar developers
  * GET    /api/portfolio/:slug     → [PUBLIC] Fetch full portfolio + increment views
  */
 
@@ -23,6 +25,7 @@ router.post('/generate', protect, generatePortfolio);
 router.get('/mine', protect, getMyPortfolio);
 router.patch('/publish', protect, togglePublish);
 router.put('/update', protect, updatePortfolio); // Must be before /:slug
+router.get('/:slug/similar', getSimilarDevelopers);
 router.get('/:slug', getPublicPortfolio); // Public route — no auth required
 
 module.exports = router;

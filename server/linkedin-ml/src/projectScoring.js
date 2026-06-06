@@ -10,7 +10,14 @@ function scoreProject(repo) {
   const commits = Number(repo.totalCommits || 0);
   const readmeLength = Number(repo.readmeLength || 0);
   const topicsCount = Array.isArray(repo.topics) ? repo.topics.length : 0;
-  const langCount = repo.languages ? Object.keys(repo.languages).length : 0;
+  let langCount = 0;
+  if (Array.isArray(repo.languages)) {
+    langCount = repo.languages.length;
+  } else if (repo.languages && typeof repo.languages === 'object') {
+    langCount = Object.keys(repo.languages).length;
+  } else if (repo.language) {
+    langCount = 1;
+  }
 
   const score =
     normalize(stars, 0, 200) * 0.25 +
@@ -42,7 +49,7 @@ function scoreProject(repo) {
 function scoreProjects(github) {
   const repos = github.repos || [];
   return repos
-    .filter((r) => !r.isFork && !r.isEmpty)
+    .filter((r) => !r.isEmpty)
     .map(scoreProject)
     .sort((a, b) => b.score - a.score);
 }

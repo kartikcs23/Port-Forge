@@ -2,6 +2,8 @@ const Portfolio = require('../models/Portfolio');
 const Profile = require('../models/Profile');
 const Project = require('../models/Project');
 const User = require('../models/User');
+const { findSimilarDevelopers } = require('../linkedin-ml/src/similarity');
+const { fetchGitHubContributions } = require('../services/githubService');
 
 /**
  * generateSlug — Creates a URL-friendly slug from the user's name.
@@ -200,6 +202,135 @@ const getPublicPortfolio = async (req, res) => {
 };
 
 /**
+ * getSimilarDevelopers — Finds similar developers for a public portfolio.
+ *
+ * Route: GET /api/portfolio/:slug/similar (PUBLIC)
+ */
+const getSimilarDevelopers = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const portfolio = await Portfolio.findOne({ slug });
+
+    if (!portfolio) {
+      return res.status(404).json({
+        success: false,
+        data: null,
+        message: 'Portfolio not found',
+      });
+    }
+
+    const [baseUser, baseProfile, baseProjects] = await Promise.all([
+      User.findById(portfolio.userId),
+      Profile.findOne({ userId: portfolio.userId }),
+      Project.find({ userId: portfolio.userId }),
+    ]);
+
+    const extractGithubUsername = (profile, user) => {
+      const githubUrl = profile?.links?.github || '';
+      const match = githubUrl.match(/github\.com\/([^/]+)/i);
+      return match?.[1] || user?.username || '';
+    };
+
+    const buildGithubFromProjects = (projects) =>
+      (projects || []).map((project) => ({
+        name: project.name,
+        languages: project.languages?.length
+          ? project.languages
+          : project.language
+            ? [project.language]
+            : [],
+        topics: project.topics || [],
+        isFork: project.isFork || false,
+        isEmpty: project.isEmpty || false,
+      }));
+
+    const baseUsername = extractGithubUsername(baseProfile, baseUser);
+    if (!baseUsername) {
+      return res.status(200).json({
+        success: true,
+        data: { matches: [] },
+        message: 'No GitHub username available for similarity matching.',
+      });
+    }
+
+    const [baseContributions, candidatePortfolios] = await Promise.all([
+      fetchGitHubContributions(baseUsername),
+      Portfolio.find({ _id: { $ne: portfolio._id }, published: true }).limit(12),
+    ]);
+
+    const candidates = await Promise.all(
+      candidatePortfolios.map(async (candidate) => {
+        const [user, profile, projects] = await Promise.all([
+          User.findById(candidate.userId),
+          Profile.findOne({ userId: candidate.userId }),
+          Project.find({ userId: candidate.userId }),
+        ]);
+
+        const username = extractGithubUsername(profile, user);
+        if (!username) return null;
+
+        const contributions = await fetchGitHubContributions(username);
+
+        return {
+          username,
+          slug: candidate.slug,
+          name: profile?.name || user?.name || username,
+          avatar: profile?.avatar || user?.avatar || '',
+          githubUrl: profile?.links?.github || '',
+          repos: buildGithubFromProjects(projects),
+          contributions,
+        };
+      })
+    );
+
+    const filteredCandidates = candidates.filter(Boolean);
+    const candidateGithub = filteredCandidates.map((candidate) => ({
+      profile: { username: candidate.username },
+      repos: candidate.repos,
+      contributions: candidate.contributions,
+    }));
+
+    const similar = findSimilarDevelopers(
+      {
+        profile: { username: baseUsername },
+        repos: buildGithubFromProjects(baseProjects),
+        contributions: baseContributions,
+      },
+      candidateGithub
+    );
+
+    const byUsername = new Map(filteredCandidates.map((candidate) => [candidate.username, candidate]));
+    const matches = similar
+      .map((match) => {
+        const candidate = byUsername.get(match.username);
+        if (!candidate) return null;
+        return {
+          username: candidate.username,
+          name: candidate.name,
+          slug: candidate.slug,
+          avatar: candidate.avatar,
+          githubUrl: candidate.githubUrl,
+          score: match.score,
+        };
+      })
+      .filter(Boolean);
+
+    res.status(200).json({
+      success: true,
+      data: { matches },
+      message: 'Similar developers retrieved',
+    });
+  } catch (error) {
+    console.error('Get similar developers error:', error.message);
+    res.status(500).json({
+      success: false,
+      data: null,
+      message: 'Failed to retrieve similar developers',
+    });
+  }
+};
+
+/**
  * updatePortfolio — Updates mutable fields on the user's portfolio (theme, etc.)
  *
  * Route: PUT /api/portfolio/update (protected)
@@ -250,4 +381,5 @@ module.exports = {
   togglePublish,
   updatePortfolio,
   getPublicPortfolio,
+  getSimilarDevelopers,
 };

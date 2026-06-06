@@ -23,6 +23,13 @@ function buildFeatures({ github, linkedin }) {
   const languages = {};
 
   repos.forEach((repo) => {
+    if (Array.isArray(repo.languages)) {
+      repo.languages.forEach((lang) => {
+        if (!lang) return;
+        languages[lang] = (languages[lang] || 0) + 1;
+      });
+      return;
+    }
     const langMap = repo.languages || {};
     Object.keys(langMap).forEach((lang) => {
       languages[lang] = (languages[lang] || 0) + Number(langMap[lang] || 0);
