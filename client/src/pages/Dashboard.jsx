@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navbar } from '../components/Navbar';
 import { ProjectCard } from '../components/ProjectCard';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '@clerk/clerk-react';
+import { useAppUser } from '../hooks/useAppUser';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { 
   Pencil,
@@ -16,7 +16,7 @@ import {
 
 export const Dashboard = () => {
   const navigate = useNavigate();
-  const { isLoaded } = useUser();
+  const { isLoaded } = useAppUser();
   const {
     loading,
     error,
@@ -78,36 +78,36 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background selection:bg-accent selection:text-white font-sans text-ink">
+    <div className="min-h-screen bg-background selection:bg-accent selection:text-white font-sans text-foreground">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 py-8 md:py-16 pt-24 md:pt-32">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
 
           <div className="lg:col-span-4 space-y-8">
-            <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
-              <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-ink pb-2">
+            <div className="bg-card border-2 border-border shadow-[6px_6px_0px_0px_#141822] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_#141822]">
+              <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-border pb-2">
                 Profile Settings
               </h2>
               <button
                 onClick={() => navigate('/profile-edit')}
-                className="w-full bg-accent text-white px-6 py-3 font-bold uppercase text-xs border-2 border-accent shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all mb-4 flex items-center justify-center gap-2"
+                className="w-full bg-accent text-white px-6 py-3 font-bold uppercase text-xs border-2 border-accent shadow-[4px_4px_0px_0px_#141822] hover:shadow-[6px_6px_0px_0px_#141822] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all mb-4 flex items-center justify-center gap-2"
               >
-                <Pencil className="w-4 h-4" /> EDIT PROFILE
+                <Pencil className="w-4 h-4" /> EDIT CONTENT
               </button>
-              <p className="text-xs font-bold uppercase tracking-widest text-muted text-center">
-                Update your bio, avatar, and contact details
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground text-center">
+                Update profile details, skills, timeline, and project visibility
               </p>
             </div>
 
-            <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
-              <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-ink pb-2">
+            <div className="bg-card border-2 border-border shadow-[6px_6px_0px_0px_#141822] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_#141822]">
+              <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-border pb-2">
                 Command Center
               </h2>
 
               <div className="space-y-6">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 border-b-2 border-ink pb-1 inline-block">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 border-b-2 border-border pb-1 inline-block">
                     GitHub Link or Username
                   </label>
                   <input
@@ -115,34 +115,34 @@ export const Dashboard = () => {
                     placeholder="https://github.com/username"
                     value={githubLink}
                     onChange={(e) => setGithubLink(e.target.value)}
-                    className="w-full bg-background border-2 border-ink px-4 py-3 font-sans text-sm font-bold uppercase tracking-wide focus:outline-none focus:ring-none focus:bg-accent focus:text-white transition-colors"
+                    className="w-full bg-background text-white border-2 border-border px-4 py-3 font-sans text-sm font-bold uppercase tracking-wide focus:outline-none focus:ring-none focus:bg-accent focus:text-white transition-colors"
                   />
                   <button
                     onClick={handleSyncGithub}
                     disabled={loading || !githubLink}
-                    className={`w-full flex items-center justify-center gap-2 font-bold uppercase tracking-widest text-xs mt-2 py-3 border-2 border-ink transition-transform hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${syncStatus === 'syncing-github' ? 'bg-ink text-white' : 'bg-surface text-ink'}`}
+                    className={`w-full flex items-center justify-center gap-2 font-bold uppercase tracking-widest text-xs mt-2 py-3 border-2 border-border transition-transform hover:shadow-[4px_4px_0px_0px_#141822] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${syncStatus === 'syncing-github' ? 'bg-primary text-white' : 'bg-secondary text-foreground'}`}
                   >
                     {syncStatus === 'syncing-github' ? <RefreshCw className="w-4 h-4 animate-spin" /> : <span>⚙️</span>}
                     {syncStatus === 'syncing-github' ? 'SYNCING...' : 'SYNC GITHUB'}
                   </button>
                 </div>
-                <div className="pt-6 border-t-2 border-ink border-dashed">
-                  <span className="block text-[10px] font-bold uppercase tracking-widest text-muted mb-2">STATUS LOGGER</span>
-                  {error && <div className="text-xs font-bold text-accent uppercase bg-ink text-white p-2 border-2 border-ink mb-2">ERROR: {error}</div>}
-                  {syncStatus === 'success' && <div className="text-xs font-bold text-ink uppercase bg-surface p-2 border-2 border-ink mb-2 shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]">SYNC SUCCESSFUL</div>}
-                  {lastSynced && <div className="text-[10px] font-bold text-ink uppercase">LAST SYNC: {lastSynced}</div>}
+                <div className="pt-6 border-t-2 border-border border-dashed">
+                  <span className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">STATUS LOGGER</span>
+                  {error && <div className="text-xs font-bold text-destructive uppercase bg-destructive/10 p-2 border-2 border-destructive mb-2">ERROR: {error}</div>}
+                  {syncStatus === 'success' && <div className="text-xs font-bold text-primary uppercase bg-primary/10 p-2 border-2 border-primary mb-2 shadow-[2px_2px_0px_0px_#141822]">SYNC SUCCESSFUL</div>}
+                  {lastSynced && <div className="text-[10px] font-bold text-muted-foreground uppercase">LAST SYNC: {lastSynced}</div>}
                 </div>
               </div>
             </div>
 
-            <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
-              <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-ink pb-2">
+            <div className="bg-card border-2 border-border shadow-[6px_6px_0px_0px_#141822] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_#141822]">
+              <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-border pb-2">
                 Portfolio Theme
               </h2>
               <div className="grid grid-cols-1 gap-4">
                 <button
                   onClick={() => updateTheme('brutalist')}
-                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'brutalist' || !portfolio?.theme ? 'bg-accent text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
+                  className={`p-4 border-2 ${portfolio?.theme === 'brutalist' || !portfolio?.theme ? 'border-accent bg-accent text-white shadow-[4px_4px_0px_0px_#141822] translate-x-[-2px] translate-y-[-2px]' : 'border-border bg-background hover:bg-secondary/50 text-foreground'}`}
                 >
                   <div className="text-left">
                     <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">ARCHITECT</span>
@@ -153,7 +153,7 @@ export const Dashboard = () => {
                 
                 <button
                   onClick={() => updateTheme('egyptian')}
-                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'egyptian' ? 'bg-accent text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
+                  className={`p-4 border-2 ${portfolio?.theme === 'egyptian' ? 'border-accent bg-accent text-white shadow-[4px_4px_0px_0px_#141822] translate-x-[-2px] translate-y-[-2px]' : 'border-border bg-background hover:bg-secondary/50 text-foreground'}`}
                 >
                   <div className="text-left">
                     <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">MINIMALIST</span>
@@ -164,7 +164,7 @@ export const Dashboard = () => {
 
                 <button
                   onClick={() => updateTheme('space')}
-                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'space' ? 'bg-accent text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
+                  className={`p-4 border-2 ${portfolio?.theme === 'space' ? 'border-accent bg-accent text-white shadow-[4px_4px_0px_0px_#141822] translate-x-[-2px] translate-y-[-2px]' : 'border-border bg-background hover:bg-secondary/50 text-foreground'}`}
                 >
                   <div className="text-left">
                     <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">FUTURISTIC</span>
@@ -175,7 +175,7 @@ export const Dashboard = () => {
 
                 <button
                   onClick={() => updateTheme('tokyo')}
-                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'tokyo' ? 'bg-accent text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
+                  className={`p-4 border-2 ${portfolio?.theme === 'tokyo' ? 'border-accent bg-accent text-white shadow-[4px_4px_0px_0px_#141822] translate-x-[-2px] translate-y-[-2px]' : 'border-border bg-background hover:bg-secondary/50 text-foreground'}`}
                 >
                   <div className="text-left">
                     <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">CYBERPUNK</span>
@@ -186,7 +186,7 @@ export const Dashboard = () => {
 
                 <button
                   onClick={() => updateTheme('medical')}
-                  className={`p-4 border-2 border-ink flex items-center justify-between transition-all ${portfolio?.theme === 'medical' ? 'bg-accent text-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-background hover:bg-surface'}`}
+                  className={`p-4 border-2 ${portfolio?.theme === 'medical' ? 'border-accent bg-accent text-white shadow-[4px_4px_0px_0px_#141822] translate-x-[-2px] translate-y-[-2px]' : 'border-border bg-background hover:bg-secondary/50 text-foreground'}`}
                 >
                   <div className="text-left">
                     <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">MEDICAL</span>
@@ -195,20 +195,20 @@ export const Dashboard = () => {
                   <Activity className={`w-5 h-5 ${portfolio?.theme === 'medical' ? 'text-white' : 'text-accent'}`} />
                 </button>
               </div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted mt-6 text-center">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-6 text-center">
                 Select your digital signature
               </p>
             </div>
 
-            <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
-              <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-ink pb-2">
+            <div className="bg-card border-2 border-border shadow-[6px_6px_0px_0px_#141822] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_#141822]">
+              <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-border pb-2">
                 Deployment
               </h2>
               {portfolio ? (
                 <div className="space-y-4">
-                  <div className="p-3 bg-background border-2 border-ink flex items-center justify-between shadow-[2px_2px_0px_0px_rgba(17,17,17,1)]">
-                    <span className="text-[10px] font-bold uppercase tracking-widest">STATE:</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 border-2 border-ink">
+                  <div className="p-3 bg-background border-2 border-border flex items-center justify-between shadow-[2px_2px_0px_0px_#141822]">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">STATE:</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 border-2 border-border">
                       {portfolio.published ? 'LIVE' : 'DRAFT'}
                     </span>
                   </div>
@@ -216,26 +216,26 @@ export const Dashboard = () => {
                   <button
                     onClick={handleTogglePublish}
                     disabled={loading}
-                    className="w-full font-bold uppercase tracking-widest text-xs py-4 border-2 border-ink transition-transform hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                    className="w-full font-bold uppercase tracking-widest text-xs py-4 border-2 border-border bg-secondary text-foreground transition-transform hover:shadow-[4px_4px_0px_0px_#141822] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                   >
                     {portfolio.published ? 'Take Offline' : 'Publish to web'}
                   </button>
 
                   {portfolio && portfolio.slug && (
-                    <div className="mt-4 p-4 border-2 border-ink bg-ink text-white space-y-2">
-                      <span className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-muted">LIVE URL</span>
+                    <div className="mt-4 p-4 border-2 border-border bg-background text-white space-y-2">
+                      <span className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-muted-foreground">LIVE URL</span>
                       <button
                         onClick={() => navigate(`/${portfolio.slug}`)}
-                        className="block w-full bg-accent text-ink text-center px-3 py-2 font-bold text-[10px] uppercase hover:bg-white transition-colors border-2 border-accent"
+                        className="block w-full bg-accent text-white text-center px-3 py-2 font-bold text-[10px] uppercase hover:bg-white hover:text-ink transition-colors border-2 border-accent"
                       >
                         VIEW PORTFOLIO
                       </button>
-                      <div className="flex items-center justify-between gap-2 overflow-hidden border border-white/20 px-2 py-1">
+                      <div className="flex items-center justify-between gap-2 overflow-hidden border border-border px-2 py-1 bg-card">
                         <input
                           type="text"
                           readOnly
                           value={`portforge.app/${portfolio.slug}`}
-                          className="bg-transparent border-none focus:outline-none focus:ring-0 flex-1 text-xs font-sans truncate py-1 selection:bg-accent min-w-0"
+                          className="bg-transparent border-none focus:outline-none focus:ring-0 flex-1 text-xs font-sans truncate py-1 selection:bg-accent min-w-0 text-white"
                         />
                         <button
                           onClick={() => {
@@ -243,7 +243,7 @@ export const Dashboard = () => {
                             setSyncStatus('success');
                             setTimeout(() => setSyncStatus(''), 2000);
                           }}
-                          className="bg-white text-ink px-3 py-1 font-bold text-[10px] uppercase whitespace-nowrap hover:bg-accent hover:text-white transition-colors"
+                          className="bg-secondary text-foreground px-3 py-1 font-bold text-[10px] uppercase whitespace-nowrap hover:bg-accent hover:text-white transition-colors border border-border"
                         >
                           COPY LINK
                         </button>
@@ -257,7 +257,7 @@ export const Dashboard = () => {
                   <button
                     onClick={handleGeneratePortfolio}
                     disabled={loading || projects.length === 0}
-                    className="w-full bg-accent text-white font-bold uppercase tracking-widest text-xs py-4 border-2 border-ink transition-transform hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50"
+                    className="w-full bg-accent text-white font-bold uppercase tracking-widest text-xs py-4 border-2 border-accent transition-transform hover:shadow-[4px_4px_0px_0px_#141822] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50"
                   >
                     Generate Portfolio
                   </button>
@@ -270,7 +270,7 @@ export const Dashboard = () => {
           </div>
 
           <div className="lg:col-span-8">
-            <h2 className="text-4xl md:text-5xl font-black font-display uppercase tracking-tighter mb-8 border-b-4 border-ink pb-4">
+            <h2 className="text-4xl md:text-5xl font-black font-display uppercase tracking-tighter mb-8 border-b-4 border-border pb-4">
               Your Repositories
             </h2>
 
@@ -285,12 +285,12 @@ export const Dashboard = () => {
               ))}
 
               {projects.length === 0 && !loading && (
-                <div className="border-4 border-ink border-dashed p-12 text-center bg-surface rotate-1 group hover:rotate-0 transition-transform">
-                  <div className="w-16 h-16 bg-background border-2 border-ink flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
-                    <span className="text-2xl">?</span>
+                <div className="border-4 border-border border-dashed p-12 text-center bg-card rotate-1 group hover:rotate-0 transition-transform">
+                  <div className="w-16 h-16 bg-background border-2 border-border flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_#141822]">
+                    <span className="text-2xl text-white">?</span>
                   </div>
-                  <h3 className="text-xl font-black font-display uppercase tracking-tight mb-2">NO DATABANKS FOUND</h3>
-                  <p className="text-sm font-bold font-sans uppercase tracking-widest text-muted">AWAITING GITHUB SYNCHRONIZATION...</p>
+                  <h3 className="text-xl font-black font-display uppercase tracking-tight mb-2 text-white">NO DATABANKS FOUND</h3>
+                  <p className="text-sm font-bold font-sans uppercase tracking-widest text-muted-foreground">AWAITING GITHUB SYNCHRONIZATION...</p>
                 </div>
               )}
             </div>

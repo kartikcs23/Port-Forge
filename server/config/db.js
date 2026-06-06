@@ -11,7 +11,7 @@ const connectDB = async () => {
     console.log(`✅ MongoDB connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`❌ MongoDB connection error: ${error.message}`);
-    process.exit(1);
+    console.warn('⚠️  Server will continue without DB — ensure MongoDB is running or update MONGO_URI in .env');
   }
 };
 

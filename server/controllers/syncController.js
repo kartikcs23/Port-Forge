@@ -48,6 +48,7 @@ const syncGithub = async (req, res) => {
             stars: repo.stars,
             forks: repo.forks,
             languages: repo.languages,
+            language: repo.language || repo.languages?.[0] || '',
             score: repo.score,
             repoUrl: repo.repoUrl,
             updatedAt: repo.updatedAt,

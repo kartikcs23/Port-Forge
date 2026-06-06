@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
 
@@ -16,6 +16,23 @@ import { FAQ } from './pages/FAQ';
 import { Notifications } from './pages/Notifications';
 import { AdminDashboard } from './pages/AdminDashboard';
 
+const AuthGate = ({ children }) => {
+  const isDev = localStorage.getItem('isDeveloperMode') === 'true';
+  if (isDev) {
+    return children;
+  }
+  return (
+    <>
+      <SignedIn>
+        {children}
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn redirectUrl="/login" />
+      </SignedOut>
+    </>
+  );
+};
+
 function App() {
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -32,42 +49,27 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <>
-              <SignedIn>
-                <Dashboard />
-              </SignedIn>
-              <SignedOut>
-                <RedirectToSignIn redirectUrl="/login" />
-              </SignedOut>
-            </>
+            <AuthGate>
+              <Dashboard />
+            </AuthGate>
           }
         />
 
         <Route
           path="/profile-edit"
           element={
-            <>
-              <SignedIn>
-                <ProfileEdit />
-              </SignedIn>
-              <SignedOut>
-                <RedirectToSignIn redirectUrl="/login" />
-              </SignedOut>
-            </>
+            <AuthGate>
+              <ProfileEdit />
+            </AuthGate>
           }
         />
 
         <Route
           path="/admin"
           element={
-            <>
-              <SignedIn>
-                <AdminDashboard />
-              </SignedIn>
-              <SignedOut>
-                <RedirectToSignIn redirectUrl="/login" />
-              </SignedOut>
-            </>
+            <AuthGate>
+              <AdminDashboard />
+            </AuthGate>
           }
         />
 

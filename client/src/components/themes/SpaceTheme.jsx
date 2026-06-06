@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ProjectVisual } from './ProjectVisual';
 
 /* ═══════════════════════════════════════════════════════════
    HUD COMPONENT LIBRARY
@@ -15,26 +17,33 @@ const HUDCorner = ({ pos }) => {
   );
 };
 
-const HUDCard = ({ children, className = '', glowColor = '#22d3ee' }) => (
-  <div className={`group relative rounded-sm overflow-hidden transition-all duration-500 ${className}`}
-       style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.06)' }}>
-    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-         style={{ background: `radial-gradient(circle at 0% 0%, ${glowColor}08 0%, transparent 60%)` }} />
-    <HUDCorner pos="tl" />
-    <HUDCorner pos="tr" />
-    <HUDCorner pos="bl" />
-    <HUDCorner pos="br" />
-    {children}
-  </div>
-);
+const HUDCard = ({ children, className = '', glowColor = '#22d3ee', onClick, layoutId }) => {
+  const CardContainer = layoutId ? motion.div : 'div';
+  return (
+    <CardContainer
+      layoutId={layoutId}
+      onClick={onClick}
+      className={`group relative rounded-sm overflow-hidden transition-all duration-500 ${className}`}
+      style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.06)' }}
+    >
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+           style={{ background: `radial-gradient(circle at 0% 0%, ${glowColor}08 0%, transparent 60%)` }} />
+      <HUDCorner pos="tl" />
+      <HUDCorner pos="tr" />
+      <HUDCorner pos="bl" />
+      <HUDCorner pos="br" />
+      {children}
+    </CardContainer>
+  );
+};
 
 const NeonDot = ({ color = '#22d3ee', className = '' }) => (
   <div className={`w-2 h-2 rounded-full animate-pulse ${className}`}
        style={{ backgroundColor: color, boxShadow: `0 0 10px ${color}, 0 0 20px ${color}40` }} />
 );
 
-const GlowLine = ({ className = '' }) => (
-  <div className={`h-[1px] bg-gradient-to-r from-transparent via-[#22d3ee]/40 to-transparent ${className}`} />
+const GlowLine = ({ className = '', style = {} }) => (
+  <div className={`h-[1px] bg-gradient-to-r from-transparent via-[#22d3ee]/40 to-transparent ${className}`} style={style} />
 );
 
 /* ═══════════════════════════════════════════════════════════
@@ -89,7 +98,6 @@ const useContactForm = () => {
   const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
   const onSubmit = e => {
     e.preventDefault();
-    // In a real app this would POST to an API
     setSent(true);
     setTimeout(() => setSent(false), 4000);
     setForm({ name: '', email: '', message: '' });
@@ -104,6 +112,7 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const [selectedProject, setSelectedProject] = useState(null);
   const { form, sent, onChange, onSubmit } = useContactForm();
 
   const name = profile?.name || rootUser?.name || 'Developer';
@@ -143,13 +152,39 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
       {/* Nebula Image */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <img src="/assets/themes/space_bg.png" alt=""
-             className="w-full h-full object-cover opacity-25"
+             className="w-full h-full object-cover opacity-20"
              style={{ transform: `scale(1.05) translateY(${scrollY * 0.02}px)`, transition: 'transform 0.1s linear' }} />
         <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 50%, transparent 0%, rgba(0,0,5,0.7) 100%)' }} />
         <div className="absolute inset-0 bg-gradient-to-b from-[#000005] via-transparent to-[#000005]" />
       </div>
 
-      {/* Starfield Layer 1 — slow */}
+      {/* Cosmic Morphing Background Shape */}
+      <div className="fixed inset-0 pointer-events-none z-[1] opacity-30 flex items-center justify-center overflow-hidden">
+        <svg className="w-[80vw] h-[80vw] max-w-[900px] max-h-[900px]" viewBox="0 0 200 200">
+          <defs>
+            <radialGradient id="nebulaGradient" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.25" />
+              <stop offset="60%" stopColor="#22d3ee" stopOpacity="0.1" />
+              <stop offset="100%" stopColor="#000" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <path fill="url(#nebulaGradient)">
+            <animate
+              attributeName="d"
+              dur="25s"
+              repeatCount="indefinite"
+              values="
+                M 100,20 C 140,20 180,60 180,100 C 180,140 140,180 100,180 C 60,180 20,140 20,100 C 20,60 60,20 100,20 Z;
+                M 100,30 C 130,45 170,55 170,100 C 170,145 135,170 100,170 C 55,170 30,135 30,100 C 30,55 70,15 100,30 Z;
+                M 100,15 C 150,15 160,70 160,100 C 160,135 150,165 100,165 C 50,165 40,120 40,100 C 40,65 50,15 100,15 Z;
+                M 100,20 C 140,20 180,60 180,100 C 180,140 140,180 100,180 C 60,180 20,140 20,100 C 20,60 60,20 100,20 Z
+              "
+            />
+          </path>
+        </svg>
+      </div>
+
+      {/* Starfield Layer 1 */}
       <div className="fixed inset-0 pointer-events-none z-[1] opacity-30"
            style={{ backgroundImage: 'radial-gradient(1px 1px at var(--x, 25%) var(--y, 35%), #fff, transparent), radial-gradient(1px 1px at 80% 60%, #fff, transparent), radial-gradient(1.5px 1.5px at 15% 75%, #fff, transparent), radial-gradient(1px 1px at 60% 20%, #fff, transparent), radial-gradient(1px 1px at 45% 85%, #fff, transparent)', backgroundSize: '600px 600px', animation: 'drift 120s linear infinite' }} />
 
@@ -223,7 +258,12 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
       <section id="hero" className="relative z-10 min-h-screen flex flex-col justify-center px-6 md:px-12 pt-24">
         <div className="max-w-7xl mx-auto w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-            <div className="lg:col-span-8">
+            <motion.div 
+              className="lg:col-span-8"
+              initial={{ opacity: 0, x: -100 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            >
               {/* Eyebrow */}
               <div className="flex items-center gap-4 mb-10">
                 <div className="h-[1px] w-16" style={{ background: 'linear-gradient(90deg, transparent, #22d3ee)' }} />
@@ -285,19 +325,70 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
-            {/* Hero Visual — Orbiting Core */}
+            {/* Hero Visual — Morphing Orbiting Core */}
             <div className="lg:col-span-4 hidden lg:flex justify-center items-center">
               <div className="relative w-64 h-64">
-                {/* Orbiting Ring 1 */}
-                <div className="absolute inset-0 rounded-full" style={{ border: '1.5px dashed rgba(34,211,238,0.15)', animation: 'spin-slow 30s linear infinite' }} />
-                {/* Orbiting Ring 2 */}
-                <div className="absolute inset-8 rounded-full" style={{ border: '1px dashed rgba(139,92,246,0.25)', animation: 'spin-slow 20s linear infinite reverse' }} />
+                {/* Shape Morphing HUD vector */}
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 200">
+                  <defs>
+                    <linearGradient id="hudGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.8" />
+                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.8" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    fill="none"
+                    stroke="url(#hudGlow)"
+                    strokeWidth="1.5"
+                    strokeDasharray="6 6"
+                    className="origin-center"
+                    style={{ animation: 'spin-slow 40s linear infinite' }}
+                  >
+                    <animate
+                      attributeName="d"
+                      dur="10s"
+                      repeatCount="indefinite"
+                      values="
+                        M 100, 20 A 80,80 0 1,1 99.9,20 Z;
+                        M 100, 30 A 70,70 0 1,1 99.9,30 Z;
+                        M 100, 15 A 85,85 0 1,1 99.9,15 Z;
+                        M 100, 20 A 80,80 0 1,1 99.9,20 Z
+                      "
+                    />
+                  </path>
+                  <path
+                    fill="none"
+                    stroke="#22d3ee"
+                    strokeWidth="1"
+                    className="origin-center opacity-40"
+                    style={{ animation: 'spin-slow 25s linear infinite reverse' }}
+                  >
+                    <animate
+                      attributeName="d"
+                      dur="15s"
+                      repeatCount="indefinite"
+                      values="
+                        M 100, 40 C 130,40 160,70 160,100 C 160,130 130,160 100,160 C 70,160 40,130 40,100 C 40,70 70,40 100,40 Z;
+                        M 100, 45 C 135,35 155,65 155,100 C 155,135 135,155 100,155 C 65,155 45,135 45,100 C 45,65 65,45 100,45 Z;
+                        M 100, 35 C 125,45 165,75 165,100 C 165,125 125,165 100,165 C 75,165 35,125 35,100 C 35,75 75,35 100,35 Z;
+                        M 100, 40 C 130,40 160,70 160,100 C 160,130 130,160 100,160 C 70,160 40,130 40,100 C 40,70 70,40 100,40 Z
+                      "
+                    />
+                  </path>
+                  {/* Crosshair accents */}
+                  <line x1="100" y1="10" x2="100" y2="25" stroke="#22d3ee" strokeWidth="1.5" />
+                  <line x1="100" y1="175" x2="100" y2="190" stroke="#22d3ee" strokeWidth="1.5" />
+                  <line x1="10" y1="100" x2="25" y2="100" stroke="#22d3ee" strokeWidth="1.5" />
+                  <line x1="175" y1="100" x2="190" y2="100" stroke="#22d3ee" strokeWidth="1.5" />
+                </svg>
+
                 {/* Core */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-16 h-16 rounded-full" style={{ background: '#fff', boxShadow: '0 0 40px #fff, 0 0 80px rgba(34,211,238,0.4), 0 0 120px rgba(139,92,246,0.2)' }} />
                 </div>
+
                 {/* Orbit Dot */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1"
                      style={{ animation: 'spin-slow 30s linear infinite', transformOrigin: '50% 128px' }}>
@@ -306,7 +397,7 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
 
                 {/* HUD Label */}
                 <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-center">
-                  <span className="font-mono text-[10px] tracking-[0.5em] uppercase text-[#22d3ee] opacity-60">Core_Active</span>
+                  <span className="font-mono text-[10px] tracking-[0.5em] uppercase text-[#22d3ee] opacity-60">System_Syncing</span>
                 </div>
               </div>
             </div>
@@ -321,9 +412,16 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
       </section>
 
       {/* ═══════════════════════════════════════════════
-          02. ABOUT SECTION
+          02. ABOUT SECTION — With horizontal swipe reveal
       ═══════════════════════════════════════════════ */}
-      <section id="about" className="relative z-10 py-48 px-6 md:px-12">
+      <motion.section 
+        id="about" 
+        className="relative z-10 py-48 px-6 md:px-12"
+        initial={{ opacity: 0, x: -100 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className="max-w-7xl mx-auto">
           <SectionHeader label="01 // About" title="The Story" subtitle="Background, specialization & approach" />
 
@@ -381,15 +479,22 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ═══════════════════════════════════════════════
-          03. PROJECTS SECTION (Main Focus)
+          03. PROJECTS SECTION — With horizontal swipe reveal & layout transition
       ═══════════════════════════════════════════════ */}
-      <section id="projects" className="relative z-10 py-48 px-6 md:px-12"
-               style={{ background: 'linear-gradient(to bottom, transparent, rgba(34,211,238,0.02) 50%, transparent)' }}>
+      <motion.section 
+        id="projects" 
+        className="relative z-10 py-48 px-6 md:px-12"
+        style={{ background: 'linear-gradient(to bottom, transparent, rgba(34,211,238,0.02) 50%, transparent)' }}
+        initial={{ opacity: 0, x: -100 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className="max-w-7xl mx-auto">
-          <SectionHeader label="02 // Projects" title="Deployments" subtitle="Engineering solutions built for scale and precision" />
+          <SectionHeader label="02 // Projects" title="Deployments" subtitle="Engineering solutions built for scale and precision (Click to expand)" />
 
           {/* Tech Stack Filter */}
           {techTags.length > 1 && (
@@ -412,7 +517,12 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
           {filteredRepos.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredRepos.map((repo) => (
-                <HUDCard key={repo._id} className="p-8 h-full flex flex-col hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(34,211,238,0.08)]">
+                <HUDCard
+                  key={repo._id}
+                  layoutId={`space-project-${repo._id}`}
+                  onClick={() => setSelectedProject(repo)}
+                  className="p-8 h-full flex flex-col hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(34,211,238,0.08)] cursor-pointer"
+                >
                   {/* Top Row */}
                   <div className="flex justify-between items-start mb-10">
                     <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#8b5cf6] font-bold">
@@ -421,6 +531,10 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
                     <div className="flex items-center gap-2">
                       <NeonDot color={repo.language ? '#22d3ee' : '#8b5cf6'} />
                     </div>
+                  </div>
+
+                  <div className="mb-8">
+                    <ProjectVisual repo={repo} theme="space" compact />
                   </div>
 
                   {/* Content */}
@@ -439,12 +553,9 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
                       <span className="font-mono text-[10px] opacity-30 tracking-wider">★ {repo.stars || 0}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      {repo.repoUrl && (
-                        <a href={repo.repoUrl} target="_blank" rel="noreferrer"
-                           className="font-mono text-[10px] tracking-widest uppercase text-[#22d3ee]/50 hover:text-[#22d3ee] transition-colors flex items-center gap-1.5">
-                          GitHub ↗
-                        </a>
-                      )}
+                      <span className="font-mono text-[10px] tracking-widest uppercase text-[#22d3ee]/50 group-hover:text-[#22d3ee] transition-colors">
+                        Details →
+                      </span>
                     </div>
                   </div>
                 </HUDCard>
@@ -465,12 +576,87 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
             </div>
           )}
         </div>
-      </section>
+      </motion.section>
+
+      {/* MATCH CUT DETAILED PROJECT OVERLAY */}
+      <AnimatePresence>
+        {selectedProject && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+            onClick={() => setSelectedProject(null)}
+          >
+            <motion.div
+              layoutId={`space-project-${selectedProject._id}`}
+              className="max-w-2xl w-full relative z-10 bg-[#00000a] p-8 border border-[#22d3ee] shadow-[0_0_50px_rgba(34,211,238,0.25)] flex flex-col gap-6"
+              onClick={e => e.stopPropagation()}
+            >
+              <HUDCorner pos="tl" />
+              <HUDCorner pos="tr" />
+              <HUDCorner pos="bl" />
+              <HUDCorner pos="br" />
+              
+              <div className="flex justify-between items-start">
+                <span className="font-mono text-xs uppercase text-[#8b5cf6] font-bold">
+                  {selectedProject.language || 'Project'}
+                </span>
+                <button 
+                  onClick={() => setSelectedProject(null)}
+                  className="font-mono text-xs uppercase text-white/50 hover:text-[#22d3ee] border border-white/10 px-3 py-1 hover:border-[#22d3ee] transition-colors"
+                >
+                  Close [X]
+                </button>
+              </div>
+              
+              <div>
+                <h3 className="text-3xl font-bold text-white mb-2">{selectedProject.name}</h3>
+                <GlowLine className="my-4" />
+                <p className="text-white/70 leading-relaxed mb-6">
+                  {selectedProject.description || 'A precision-engineered solution built for resilience and performance at scale.'}
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 bg-white/5 p-4 rounded border border-white/5 font-mono text-xs">
+                <div>
+                  <span className="opacity-40">STARS</span>
+                  <div className="text-xl font-bold text-[#22d3ee] mt-1">★ {selectedProject.stars || 0}</div>
+                </div>
+                <div>
+                  <span className="opacity-40">FORKS</span>
+                  <div className="text-xl font-bold text-[#8b5cf6] mt-1">⑂ {selectedProject.forks || 0}</div>
+                </div>
+              </div>
+              
+              <div className="flex justify-end gap-4 mt-4">
+                {selectedProject.repoUrl && (
+                  <a 
+                    href={selectedProject.repoUrl} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="px-6 py-3 font-mono text-xs uppercase bg-[#22d3ee] text-black font-black hover:bg-white transition-colors"
+                  >
+                    GitHub Repository ↗
+                  </a>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ═══════════════════════════════════════════════
-          04. SKILLS SECTION
+          04. SKILLS SECTION — With horizontal swipe reveal
       ═══════════════════════════════════════════════ */}
-      <section id="skills" className="relative z-10 py-48 px-6 md:px-12">
+      <motion.section 
+        id="skills" 
+        className="relative z-10 py-48 px-6 md:px-12"
+        initial={{ opacity: 0, x: -100 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className="max-w-7xl mx-auto">
           <SectionHeader label="03 // Skills" title="Capabilities" subtitle="Technical expertise across the full stack" />
 
@@ -510,14 +696,21 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ═══════════════════════════════════════════════
-          05. EXPERIENCE / TIMELINE
+          05. EXPERIENCE / TIMELINE — Swipe reveal
       ═══════════════════════════════════════════════ */}
       {experience.length > 0 && (
-        <section id="experience" className="relative z-10 py-48 px-6 md:px-12"
-                 style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+        <motion.section 
+          id="experience" 
+          className="relative z-10 py-48 px-6 md:px-12"
+          style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+          initial={{ opacity: 0, x: -100 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        >
           <div className="max-w-7xl mx-auto">
             <SectionHeader label="04 // Experience" title="Command History" subtitle="Career milestones and key deployments" />
 
@@ -561,13 +754,19 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
       )}
 
       {/* ═══════════════════════════════════════════════
-          06. RESUME SECTION
+          06. RESUME SECTION — Swipe reveal
       ═══════════════════════════════════════════════ */}
-      <section className="relative z-10 py-32 px-6 md:px-12">
+      <motion.section 
+        className="relative z-10 py-32 px-6 md:px-12"
+        initial={{ opacity: 0, x: -100 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className="max-w-7xl mx-auto">
           <HUDCard className="p-12 text-center">
             <div className="font-mono text-[10px] tracking-[0.6em] uppercase text-[#8b5cf6] mb-4">Credentials</div>
@@ -585,12 +784,19 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
             </a>
           </HUDCard>
         </div>
-      </section>
+      </motion.section>
 
       {/* ═══════════════════════════════════════════════
-          07. CONTACT SECTION
+          07. CONTACT SECTION — Swipe reveal
       ═══════════════════════════════════════════════ */}
-      <section id="contact" className="relative z-10 py-48 px-6 md:px-12">
+      <motion.section 
+        id="contact" 
+        className="relative z-10 py-48 px-6 md:px-12"
+        initial={{ opacity: 0, x: -100 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className="max-w-7xl mx-auto">
           <SectionHeader label="06 // Contact" title="Connect_Node" subtitle="Ready to collaborate? Open to opportunities." />
 
@@ -668,10 +874,10 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
               <div>
                 <label className="font-mono text-[10px] tracking-[0.4em] uppercase opacity-30 block mb-2">Message</label>
                 <textarea name="message" value={form.message} onChange={onChange} required rows={6} placeholder="Your message..."
-                          className="w-full px-5 py-4 font-mono text-sm bg-transparent outline-none resize-none transition-all duration-300"
-                          style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)' }}
-                          onFocus={e => { e.currentTarget.style.borderColor = 'rgba(34,211,238,0.4)'; }}
-                          onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }} />
+                           className="w-full px-5 py-4 font-mono text-sm bg-transparent outline-none resize-none transition-all duration-300"
+                           style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)' }}
+                           onFocus={e => { e.currentTarget.style.borderColor = 'rgba(34,211,238,0.4)'; }}
+                           onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }} />
               </div>
               <button type="submit"
                       className="w-full py-5 font-mono text-[12px] tracking-[0.4em] uppercase font-black transition-all duration-300"
@@ -683,7 +889,7 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
             </form>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ═══════════════════════════════════════════════
           08. FOOTER

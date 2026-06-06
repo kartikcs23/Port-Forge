@@ -35,11 +35,19 @@ const projectSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    language: {
+      type: String,
+      default: '',
+    },
     score: {
       type: Number,
       default: 0,
     },
     pinned: {
+      type: Boolean,
+      default: false,
+    },
+    hidden: {
       type: Boolean,
       default: false,
     },

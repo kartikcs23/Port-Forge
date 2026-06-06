@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ProjectVisual } from './ProjectVisual';
 
 /* ═══════════════════════════════════════════════════
    ASCLEPIUS — Medical Portfolio Theme
@@ -31,15 +33,22 @@ const MedBadge = ({ children, color=TEAL }) => (
   </span>
 );
 
-const Card = ({ children, style={} }) => (
-  <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:16,
-    boxShadow:'0 4px 24px rgba(10,22,40,0.06)', padding:32,
-    transition:'all 0.3s', ...style }}
-    onMouseEnter={e=>{ e.currentTarget.style.boxShadow='0 12px 40px rgba(8,145,178,0.12)'; e.currentTarget.style.borderColor=TEAL; e.currentTarget.style.transform='translateY(-4px)'; }}
-    onMouseLeave={e=>{ e.currentTarget.style.boxShadow='0 4px 24px rgba(10,22,40,0.06)'; e.currentTarget.style.borderColor='#e2e8f0'; e.currentTarget.style.transform='translateY(0)'; }}>
-    {children}
-  </div>
-);
+const Card = ({ children, style={}, onClick, layoutId }) => {
+  const CardContainer = layoutId ? motion.div : 'div';
+  return (
+    <CardContainer
+      layoutId={layoutId}
+      onClick={onClick}
+      style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:16,
+        boxShadow:'0 4px 24px rgba(10,22,40,0.06)', padding:32,
+        transition:'all 0.3s', ...style }}
+      onMouseEnter={e=>{ e.currentTarget.style.boxShadow='0 12px 40px rgba(8,145,178,0.12)'; e.currentTarget.style.borderColor=TEAL; e.currentTarget.style.transform='translateY(-4px)'; }}
+      onMouseLeave={e=>{ e.currentTarget.style.boxShadow='0 4px 24px rgba(10,22,40,0.06)'; e.currentTarget.style.borderColor='#e2e8f0'; e.currentTarget.style.transform='translateY(0)'; }}
+    >
+      {children}
+    </CardContainer>
+  );
+};
 
 const HR = ({ color=TEAL }) => (
   <div style={{ height:1, background:`linear-gradient(90deg,${color},${color}40,transparent)`, margin:'48px 0' }} />
@@ -67,6 +76,7 @@ export const MedicalTheme = ({ rootUser, profile, repos=[] }) => {
   const [activeFilter, setActiveFilter] = useState('ALL');
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const [selectedProject, setSelectedProject] = useState(null);
   const { form, sent, onChange, onSubmit } = useForm();
 
   const name       = profile?.name       || rootUser?.name   || 'Dr. Name';
@@ -103,10 +113,44 @@ export const MedicalTheme = ({ rootUser, profile, repos=[] }) => {
   return (
     <div style={{ minHeight:'100vh', background:ICE, color:NAVY, fontFamily:SANS, overflowX:'hidden' }}>
 
-      {/* BG dot pattern */}
-      <div style={{ position:'fixed', inset:0, zIndex:0, pointerEvents:'none', opacity:0.4,
-        backgroundImage:`radial-gradient(circle, ${TEAL}18 1px, transparent 1px)`,
-        backgroundSize:'32px 32px' }} />
+      {/* ── BACKGROUNDS ── */}
+      {/* Medical Biology Grid Background */}
+      <div style={{ position:'fixed', inset:0, zIndex:0, pointerEvents:'none' }}>
+        <img src="/assets/themes/medical_bg.png" alt=""
+             style={{ width:'100%', height:'100%', objectFit:'cover', opacity:0.35,
+                      transform: `scale(1.02) translateY(${scrollY * 0.012}px)`, transition: 'transform 0.1s linear' }} />
+      </div>
+
+      {/* SVG Shape Morphing: Molecular Network Node Mesh */}
+      <div style={{ position:'fixed', right:'5%', top:'20%', pointerEvents:'none', zIndex:1, opacity:0.18 }}>
+        <svg width="400" height="400" viewBox="0 0 200 200">
+          <g stroke={TEAL} strokeWidth="1">
+            <line x1="40" y1="40" x2="100" y2="100">
+              <animate attributeName="x1" dur="15s" repeatCount="indefinite" values="40;50;30;40" />
+              <animate attributeName="y1" dur="15s" repeatCount="indefinite" values="40;30;50;40" />
+            </line>
+            <line x1="160" y1="40" x2="100" y2="100">
+              <animate attributeName="x1" dur="15s" repeatCount="indefinite" values="160;150;170;160" />
+              <animate attributeName="y1" dur="15s" repeatCount="indefinite" values="40;50;30;40" />
+            </line>
+            <line x1="100" y1="160" x2="100" y2="100">
+              <animate attributeName="y1" dur="15s" repeatCount="indefinite" values="160;170;150;160" />
+            </line>
+          </g>
+          <circle cx="40" cy="40" r="6" fill={TEAL}>
+            <animate attributeName="cx" dur="15s" repeatCount="indefinite" values="40;50;30;40" />
+            <animate attributeName="cy" dur="15s" repeatCount="indefinite" values="40;30;50;40" />
+          </circle>
+          <circle cx="160" cy="40" r="6" fill={GREEN}>
+            <animate attributeName="cx" dur="15s" repeatCount="indefinite" values="160;150;170;160" />
+            <animate attributeName="cy" dur="15s" repeatCount="indefinite" values="40;50;30;40" />
+          </circle>
+          <circle cx="100" cy="160" r="8" fill={TEAL}>
+            <animate attributeName="cy" dur="15s" repeatCount="indefinite" values="160;170;150;160" />
+          </circle>
+          <circle cx="100" cy="100" r="10" fill={NAVY} />
+        </svg>
+      </div>
 
       {/* Top accent line */}
       <div style={{ position:'fixed', top:0, left:0, right:0, height:3,
@@ -165,13 +209,17 @@ export const MedicalTheme = ({ rootUser, profile, repos=[] }) => {
         )}
       </nav>
 
-      {/* ════════════════ 01. HERO ════════════════ */}
+      {/* ── HERO ── */}
       <section id="hero" style={{ position:'relative', zIndex:10, minHeight:'100vh',
         display:'flex', alignItems:'center', padding:'120px 48px 80px', maxWidth:1200, margin:'0 auto' }}>
         <div style={{ width:'100%' }}>
           <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:80, alignItems:'center' }} className="grid-cols-1">
 
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, ease: 'easeOut' }}
+            >
               {/* Credential badge */}
               <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:28 }}>
                 <CrossIcon size={14} color={TEAL} />
@@ -216,16 +264,6 @@ export const MedicalTheme = ({ rootUser, profile, repos=[] }) => {
                   onMouseLeave={e=>{ e.currentTarget.style.borderColor=`${NAVY}20`; e.currentTarget.style.color=NAVY; }}>
                   Contact Me
                 </a>
-                {links.github && (
-                  <a href={links.github} target="_blank" rel="noreferrer"
-                     style={{ fontFamily:SANS, fontSize:14, fontWeight:600, padding:'16px 36px',
-                       background:`${GREEN}12`, color:GREEN, textDecoration:'none', borderRadius:10,
-                       border:`2px solid ${GREEN}30`, transition:'all 0.3s' }}
-                     onMouseEnter={e=>{ e.currentTarget.style.background=`${GREEN}22`; e.currentTarget.style.borderColor=GREEN; }}
-                     onMouseLeave={e=>{ e.currentTarget.style.background=`${GREEN}12`; e.currentTarget.style.borderColor=`${GREEN}30`; }}>
-                    Publications ↗
-                  </a>
-                )}
               </div>
 
               {/* Stats */}
@@ -244,7 +282,7 @@ export const MedicalTheme = ({ rootUser, profile, repos=[] }) => {
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* Avatar */}
             {avatar && (
@@ -269,9 +307,16 @@ export const MedicalTheme = ({ rootUser, profile, repos=[] }) => {
         </div>
       </section>
 
-      {/* ════════════════ 02. ABOUT ════════════════ */}
-      <section id="about" style={{ position:'relative', zIndex:10, padding:'100px 48px',
-        background:'#fff', borderTop:'1px solid rgba(8,145,178,0.08)', borderBottom:'1px solid rgba(8,145,178,0.08)' }}>
+      {/* ── ABOUT — Clean vertical swipe entry ── */}
+      <motion.section 
+        id="about" 
+        style={{ position:'relative', zIndex:10, padding:'100px 48px',
+          background:'#fff', borderTop:'1px solid rgba(8,145,178,0.08)', borderBottom:'1px solid rgba(8,145,178,0.08)' }}
+        initial={{ opacity: 0, y: 80 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
         <div style={{ maxWidth:1200, margin:'0 auto' }}>
           <SectionTitle label="01 // Profile" title="About Me" sub="Background, philosophy & mission" />
           <div style={{ display:'grid', gridTemplateColumns:'1.2fr 0.8fr', gap:64 }} className="grid-cols-1 md:grid-cols-2">
@@ -314,11 +359,18 @@ export const MedicalTheme = ({ rootUser, profile, repos=[] }) => {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* ════════════════ 03. RESEARCH / PROJECTS ════════════════ */}
-      <section id="research" style={{ position:'relative', zIndex:10, padding:'100px 48px', maxWidth:1200, margin:'0 auto' }}>
-        <SectionTitle label="02 // Research" title="Publications & Projects" sub="Evidence-based contributions to medical science" />
+      {/* ── RESEARCH / PROJECTS — Vertical swipe & Zoom Match Cut ── */}
+      <motion.section 
+        id="research" 
+        style={{ position:'relative', zIndex:10, padding:'100px 48px', maxWidth:1200, margin:'0 auto' }}
+        initial={{ opacity: 0, y: 80 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
+        <SectionTitle label="02 // Research" title="Publications & Projects" sub="Evidence-based contributions to medical science (Click card to expand)" />
 
         {langs.length > 1 && (
           <div style={{ display:'flex', flexWrap:'wrap', gap:10, marginBottom:40 }}>
@@ -336,56 +388,110 @@ export const MedicalTheme = ({ rootUser, profile, repos=[] }) => {
           </div>
         )}
 
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(320px,1fr))', gap:24 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(320px, 1fr))', gap:24 }}>
           {shown.map(repo => (
-            <Card key={repo._id}>
+            <Card 
+              key={repo._id}
+              layoutId={`medical-project-${repo._id}`}
+              onClick={() => setSelectedProject(repo)}
+              style={{ cursor:'pointer' }}
+            >
+              <div style={{ marginBottom: 24 }}>
+                <ProjectVisual repo={repo} theme="medical" compact />
+              </div>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:16 }}>
                 <MedBadge color={TEAL}>{repo.language || 'Research'}</MedBadge>
-                <span style={{ fontFamily:MONO, fontSize:11, color:SLATE }}>⭐ {repo.stars||0}</span>
+                <span style={{ fontFamily:MONO, fontSize:11, color:SLATE }}>★ {repo.stars||0}</span>
               </div>
               <h3 style={{ fontFamily:SERIF, fontSize:20, fontWeight:700, color:NAVY,
                 marginBottom:10, lineHeight:1.3 }}>{repo.name}</h3>
-              <p style={{ fontFamily:SANS, fontSize:14, lineHeight:1.7, color:SLATE, marginBottom:20 }}>
+              <p style={{ fontFamily:SANS, fontSize:14, lineHeight:1.7, color:SLATE, marginBottom:20 }} className="line-clamp-3">
                 {repo.description || 'A rigorous study contributing to evidence-based medical practice and clinical outcomes.'}
               </p>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center',
                 paddingTop:16, borderTop:'1px solid #f1f5f9' }}>
-                <div style={{ display:'flex', gap:16 }}>
-                  <span style={{ fontFamily:SANS, fontSize:12, color:SLATE }}>🔀 {repo.forks||0} forks</span>
-                </div>
-                {repo.repoUrl && (
-                  <a href={repo.repoUrl} target="_blank" rel="noreferrer"
-                     style={{ fontFamily:SANS, fontSize:12, fontWeight:600, color:TEAL,
-                       textDecoration:'none', transition:'color 0.2s' }}>
-                    View →
-                  </a>
-                )}
+                <span style={{ fontFamily:SANS, fontSize:12, fontWeight:600, color:TEAL }}>
+                  Read Details →
+                </span>
               </div>
             </Card>
           ))}
         </div>
-        {repos.length === 0 && (
-          <Card style={{ textAlign:'center', padding:64, gridColumn:'1/-1' }}>
-            <CrossIcon size={48} color={`${TEAL}40`} />
-            <p style={{ marginTop:16, color:SLATE, fontFamily:SANS }}>No publications yet — sync your GitHub repositories.</p>
-          </Card>
-        )}
-        {links.github && (
-          <div style={{ textAlign:'center', marginTop:48 }}>
-            <a href={links.github} target="_blank" rel="noreferrer"
-               style={{ fontFamily:SANS, fontSize:14, fontWeight:600, padding:'14px 36px',
-                 border:`2px solid ${TEAL}30`, color:TEAL, textDecoration:'none', borderRadius:10, transition:'all 0.3s' }}
-               onMouseEnter={e=>{ e.currentTarget.style.background=`${TEAL}08`; e.currentTarget.style.borderColor=TEAL; }}
-               onMouseLeave={e=>{ e.currentTarget.style.background='transparent'; e.currentTarget.style.borderColor=`${TEAL}30`; }}>
-              All Repositories ↗
-            </a>
-          </div>
-        )}
-      </section>
+      </motion.section>
 
-      {/* ════════════════ 04. SPECIALIZATIONS ════════════════ */}
-      <section id="specializations" style={{ position:'relative', zIndex:10, padding:'100px 48px',
-        background:'#fff', borderTop:'1px solid rgba(8,145,178,0.08)', borderBottom:'1px solid rgba(8,145,178,0.08)' }}>
+      {/* MEDICAL DETAILS ZOOM OVERLAY */}
+      <AnimatePresence>
+        {selectedProject && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, background: 'rgba(10,22,40,0.6)', backdropFilter: 'blur(10px)' }}
+            onClick={() => setSelectedProject(null)}
+          >
+            <motion.div
+              layoutId={`medical-project-${selectedProject._id}`}
+              style={{ background: '#fff', maxWidth: 650, width: '100%', padding: 48, borderRadius: 20, border: `1px solid #e2e8f0`, boxShadow: '0 30px 90px rgba(10,22,40,0.2)', position: 'relative' }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <MedBadge color={TEAL}>{selectedProject.language || 'Research'}</MedBadge>
+                <button 
+                  onClick={() => setSelectedProject(null)}
+                  style={{ background: 'none', border: `1px solid ${TEAL}40`, borderRadius: 8, fontFamily: SANS, fontSize: 11, fontWeight: 600, padding: '6px 16px', color: TEAL, cursor: 'pointer' }}
+                >
+                  Close [X]
+                </button>
+              </div>
+              
+              <h3 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 700, color: NAVY, marginBottom: 20, lineHeight: 1.2 }}>
+                {selectedProject.name}
+              </h3>
+              
+              <HR />
+              
+              <p style={{ fontFamily: SANS, fontSize: 16, lineHeight: 1.8, color: SLATE, marginBottom: 32 }}>
+                {selectedProject.description || 'A rigorous study contributing to evidence-based medical practice and clinical outcomes.'}
+              </p>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, padding: 24, background: ICE, borderRadius: 12, marginBottom: 32 }}>
+                <div>
+                  <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '0.1em', color: SLATE }}>STARS</span>
+                  <div style={{ fontFamily: SERIF, fontSize: 24, fontWeight: 700, color: TEAL, marginTop: 4 }}>★ {selectedProject.stars || 0}</div>
+                </div>
+                <div>
+                  <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '0.1em', color: SLATE }}>FORKS</span>
+                  <div style={{ fontFamily: SERIF, fontSize: 24, fontWeight: 700, color: GREEN, marginTop: 4 }}>⑂ {selectedProject.forks || 0}</div>
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                {selectedProject.repoUrl && (
+                  <a 
+                    href={selectedProject.repoUrl} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    style={{ padding: '16px 36px', background: TEAL, color: '#fff', fontFamily: SANS, fontSize: 13, fontWeight: 600, borderRadius: 10, textDecoration: 'none', boxShadow: `0 8px 20px ${TEAL}30` }}
+                  >
+                    View Publication Source ↗
+                  </a>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── SPECIALIZATIONS — Vertical swipe reveal ── */}
+      <motion.section 
+        id="specializations" 
+        style={{ position:'relative', zIndex:10, padding:'100px 48px',
+          background:'#fff', borderTop:'1px solid rgba(8,145,178,0.08)', borderBottom:'1px solid rgba(8,145,178,0.08)' }}
+        initial={{ opacity: 0, y: 80 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
         <div style={{ maxWidth:1200, margin:'0 auto' }}>
           <SectionTitle label="03 // Skills" title="Specializations" sub="Clinical expertise & technical competencies" />
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:24 }} className="grid-cols-1 md:grid-cols-3">
@@ -418,11 +524,18 @@ export const MedicalTheme = ({ rootUser, profile, repos=[] }) => {
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* ════════════════ 05. EXPERIENCE ════════════════ */}
+      {/* ── EXPERIENCE — Vertical swipe reveal ── */}
       {experience.length > 0 && (
-        <section id="experience" style={{ position:'relative', zIndex:10, padding:'100px 48px', maxWidth:1200, margin:'0 auto' }}>
+        <motion.section 
+          id="experience" 
+          style={{ position:'relative', zIndex:10, padding:'100px 48px', maxWidth:1200, margin:'0 auto' }}
+          initial={{ opacity: 0, y: 80 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
           <SectionTitle label="04 // Experience" title="Clinical Experience" sub="Professional journey in medicine" />
           <div style={{ position:'relative', paddingLeft:32 }}>
             <div style={{ position:'absolute', left:0, top:0, bottom:0, width:2,
@@ -452,12 +565,18 @@ export const MedicalTheme = ({ rootUser, profile, repos=[] }) => {
               </div>
             ))}
           </div>
-        </section>
+        </motion.section>
       )}
 
-      {/* ════════════════ 06. RESUME ════════════════ */}
-      <section style={{ position:'relative', zIndex:10, padding:'60px 48px',
-        background:`linear-gradient(135deg,${NAVY},#132040)` }}>
+      {/* ── CTA — Vertical swipe reveal ── */}
+      <motion.section 
+        style={{ position:'relative', zIndex:10, padding:'60px 48px',
+          background:`linear-gradient(135deg,${NAVY},#132040)` }}
+        initial={{ opacity: 0, y: 80 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
         <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', flexWrap:'wrap',
           alignItems:'center', justifyContent:'space-between', gap:32 }}>
           <div>
@@ -473,11 +592,18 @@ export const MedicalTheme = ({ rootUser, profile, repos=[] }) => {
             ↓ Download PDF
           </a>
         </div>
-      </section>
+      </motion.section>
 
-      {/* ════════════════ 07. CONTACT ════════════════ */}
-      <section id="contact" style={{ position:'relative', zIndex:10, padding:'100px 48px',
-        background:'#fff', borderTop:'1px solid rgba(8,145,178,0.08)' }}>
+      {/* ── CONTACT — Vertical swipe reveal ── */}
+      <motion.section 
+        id="contact" 
+        style={{ position:'relative', zIndex:10, padding:'100px 48px',
+          background:'#fff', borderTop:'1px solid rgba(8,145,178,0.08)' }}
+        initial={{ opacity: 0, y: 80 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
         <div style={{ maxWidth:1200, margin:'0 auto' }}>
           <SectionTitle label="06 // Contact" title="Get In Touch" sub="Available for consultations, collaborations & speaking engagements" />
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1.2fr', gap:64 }} className="grid-cols-1 md:grid-cols-2">
@@ -548,9 +674,9 @@ export const MedicalTheme = ({ rootUser, profile, repos=[] }) => {
             </form>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* ════════════════ FOOTER ════════════════ */}
+      {/* ── FOOTER ── */}
       <footer style={{ position:'relative', zIndex:10, background:NAVY, color:'#fff', padding:'56px 48px' }}>
         <div style={{ maxWidth:1200, margin:'0 auto' }}>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:48, marginBottom:48 }}>
@@ -574,7 +700,6 @@ export const MedicalTheme = ({ rootUser, profile, repos=[] }) => {
               <div style={{ fontFamily:MONO, fontSize:9, letterSpacing:'0.5em', textTransform:'uppercase', color:'rgba(255,255,255,0.25)', marginBottom:16 }}>Connect</div>
               {links.github&&<a href={links.github} target="_blank" rel="noreferrer" style={{ display:'block', fontFamily:SANS, fontSize:13, color:'rgba(255,255,255,0.4)', textDecoration:'none', marginBottom:10, transition:'color 0.2s' }} onMouseEnter={e=>e.currentTarget.style.color=TEAL} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.4)'}>GitHub ↗</a>}
               {links.linkedin&&<a href={links.linkedin} target="_blank" rel="noreferrer" style={{ display:'block', fontFamily:SANS, fontSize:13, color:'rgba(255,255,255,0.4)', textDecoration:'none', marginBottom:10, transition:'color 0.2s' }} onMouseEnter={e=>e.currentTarget.style.color=GREEN} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.4)'}>LinkedIn ↗</a>}
-              {email&&<a href={`mailto:${email}`} style={{ display:'block', fontFamily:SANS, fontSize:13, color:'rgba(255,255,255,0.4)', textDecoration:'none', marginBottom:10, transition:'color 0.2s' }} onMouseEnter={e=>e.currentTarget.style.color=TEAL} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.4)'}>Email ↗</a>}
             </div>
           </div>
           <div style={{ borderTop:'1px solid rgba(255,255,255,0.06)', paddingTop:24,
@@ -617,12 +742,6 @@ export const MedicalTheme = ({ rootUser, profile, repos=[] }) => {
         @keyframes ekg-pulse {
           0%,100% { opacity: 1; }
           50%     { opacity: 0.4; }
-        }
-
-        /* ── Card hover ── */
-        @keyframes card-lift {
-          from { transform: translateY(0); }
-          to   { transform: translateY(-4px); }
         }
       `}</style>
     </div>

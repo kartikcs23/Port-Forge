@@ -116,7 +116,7 @@ export const LinkedInInsights = () => {
                     placeholder="https://www.linkedin.com/in/yourprofile"
                     value={linkedinUrl}
                     onChange={(e) => setLinkedinUrl(e.target.value)}
-                    className="w-full border-2 border-ink bg-background px-4 py-3 text-ink font-sans placeholder-muted focus:outline-none focus:border-accent transition-colors"
+                    className="w-full border-2 border-ink bg-background px-4 py-3 text-white font-sans placeholder-muted focus:outline-none focus:border-accent transition-colors"
                   />
                   <p className="text-xs font-sans text-muted mt-2">
                     Example: https://www.linkedin.com/in/john-doe
@@ -155,7 +155,7 @@ export const LinkedInInsights = () => {
                   placeholder="https://www.linkedin.com/in/yourprofile"
                   value={linkedinUrl}
                   onChange={(e) => setLinkedinUrl(e.target.value)}
-                  className="flex-1 border-2 border-ink bg-background px-4 py-2 text-ink font-sans placeholder-muted focus:outline-none focus:border-accent transition-colors text-sm"
+                  className="flex-1 border-2 border-ink bg-background px-4 py-2 text-white font-sans placeholder-muted focus:outline-none focus:border-accent transition-colors text-sm"
                 />
                 <button
                   type="submit"

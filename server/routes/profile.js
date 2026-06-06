@@ -5,6 +5,8 @@ const {
   updateProfile,
   getProjects,
   togglePinProject,
+  updateProject,
+  toggleProjectVisibility,
 } = require('../controllers/profileController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -21,5 +23,7 @@ router.get('/me', protect, getMyProfile);
 router.put('/update', protect, updateProfile);
 router.get('/projects', protect, getProjects);
 router.patch('/projects/:id/pin', protect, togglePinProject);
+router.put('/projects/:id', protect, updateProject);
+router.patch('/projects/:id/visibility', protect, toggleProjectVisibility);
 
 module.exports = router;

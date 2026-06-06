@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
 
 export const Contact = () => {
   const [formData, setFormData] = useState({
@@ -8,17 +9,8 @@ export const Contact = () => {
     subject: '',
     message: ''
   });
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  const [sentSuccess, setSentSuccess] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -30,270 +22,191 @@ export const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSentSuccess(false);
 
-    // Simulate form submission
     setTimeout(() => {
-      alert('🚀 Message sent! We\'ll get back to you faster than you can say "PortForge"! ⚡');
+      setSentSuccess(true);
       setFormData({ name: '', email: '', subject: '', message: '' });
       setIsSubmitting(false);
-    }, 2000);
+      setTimeout(() => setSentSuccess(false), 5000);
+    }, 1000);
   };
 
   return (
-    <div className="min-h-screen bg-background text-ink font-sans overflow-hidden relative">
-      {/* Dynamic Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div
-          className="absolute w-80 h-80 bg-accent/8 rounded-full blur-3xl animate-pulse"
-          style={{
-            left: `${mousePosition.x * 0.015}%`,
-            top: `${mousePosition.y * 0.015}%`,
-            transition: 'all 0.4s ease-out'
-          }}
-        />
-        <div
-          className="absolute w-64 h-64 bg-accent/5 rounded-full blur-2xl animate-pulse"
-          style={{
-            right: `${mousePosition.x * 0.02}%`,
-            bottom: `${mousePosition.y * 0.02}%`,
-            animationDelay: '1.5s',
-            transition: 'all 0.6s ease-out'
-          }}
-        />
-        {/* Floating particles */}
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 bg-accent rounded-full animate-bounce"
-            style={{
-              left: `${20 + i * 10}%`,
-              top: `${30 + (i % 3) * 20}%`,
-              animationDelay: `${i * 0.3}s`,
-              animationDuration: `${2 + i * 0.5}s`
-            }}
-          />
-        ))}
-      </div>
-
+    <div className="min-h-screen font-sans overflow-hidden bg-background relative selection:bg-primary/30 selection:text-white">
+      {/* Shared Navbar */}
       <Navbar />
 
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-        {/* Hero Section */}
-        <div className="text-center mb-20 relative">
-          <div className="inline-block border-4 border-ink px-8 py-3 mb-12 bg-surface shadow-brutal font-black text-lg uppercase tracking-widest text-accent transform hover:scale-110 transition-transform duration-500 animate-pulse relative">
-            💬 LET'S CONNECT 💬
-            <div className="absolute -inset-1 border-2 border-accent rounded-lg animate-spin-slow opacity-60" />
+      {/* Cyber Grid Background */}
+      <div className="absolute inset-0 cyber-grid opacity-[0.25] pointer-events-none z-0"></div>
+      <div className="absolute inset-0 dot-bg opacity-[0.4] pointer-events-none z-0"></div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-40 pb-20 relative z-10">
+        
+        {/* Background Gradients */}
+        <div className="absolute top-1/4 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-1/4 left-0 w-80 h-80 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+        {/* Page Header */}
+        <div className="text-center mb-20 relative z-10 fade-in-up">
+          <div className="inline-flex items-center gap-3 px-4 py-2 mb-8 border border-border bg-secondary/80 text-xs font-bold uppercase tracking-widest text-primary shadow-[3px_3px_0px_0px_rgba(235,59,59,0.15)]">
+            <span className="w-2.5 h-2.5 bg-primary glow-pulse"></span>
+            <span>COMMUNICATION TERMINAL</span>
           </div>
 
-          <h1 className="text-6xl sm:text-7xl md:text-8xl font-black mb-8 leading-[0.85] relative">
-            LET'S BUILD SOMETHING
-            <span className="block text-accent animate-bounce-gentle shadow-text-glow transform hover:scale-105 transition-transform duration-300">
-              INCREDIBLE TOGETHER
-            </span>
+          <h1 className="text-5xl sm:text-7xl font-black mb-8 leading-tight tracking-tighter uppercase font-display">
+            <span className="block text-white">LET'S BUILD</span>
+            <span className="block text-primary">SOMETHING NEW</span>
           </h1>
 
-          <div className="relative">
-            <p className="text-2xl text-muted leading-relaxed max-w-4xl mx-auto transform hover:scale-105 transition-transform duration-300 font-medium">
-              Have questions? Ideas? Want to collaborate? Need support?{' '}
-              <span className="text-accent font-black animate-pulse">WE'D LOVE TO HEAR FROM YOU!</span>{' '}
-              Drop us a line and let's make some magic happen. ✨
-            </p>
-
-            {/* Animated speech bubbles */}
-            <div className="absolute -top-8 -left-8 text-4xl animate-bounce" style={{ animationDelay: '0s' }}>💭</div>
-            <div className="absolute -top-4 -right-12 text-3xl animate-bounce" style={{ animationDelay: '0.5s' }}>💬</div>
-            <div className="absolute -bottom-6 -left-12 text-2xl animate-bounce" style={{ animationDelay: '1s' }}>🗣️</div>
-          </div>
+          <p className="text-xs sm:text-sm text-gray-400 leading-relaxed max-w-2xl mx-auto font-semibold uppercase tracking-wider">
+            Have features requests? API problems? Drop a report directly to our core developers.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          {/* Enhanced Contact Form */}
-          <div className="bg-surface p-10 shadow-brutal border-4 border-ink transform hover:scale-102 transition-all duration-500 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10">
-              <div className="flex items-center mb-8">
-                <div className="text-5xl mr-4 animate-bounce">📝</div>
-                <h3 className="text-4xl font-black text-accent group-hover:text-ink transition-colors duration-300">SEND US A MESSAGE</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 relative z-10">
+          
+          {/* Contact Form Section */}
+          <div className="lg:col-span-7 border-2 border-border bg-card p-8 md:p-10 shadow-[8px_8px_0px_0px_rgba(235,59,59,0.15)] relative fade-in-up stagger-1">
+            <div className="absolute top-0 inset-x-0 h-1.5 stripe-bg"></div>
+            
+            <h3 className="text-xl font-bold text-white uppercase tracking-wider mb-8 font-display">// DISPATCH_MESSAGE</h3>
+
+            {sentSuccess && (
+              <div className="mb-6 p-4 border-2 border-primary bg-primary/10 text-xs font-bold uppercase tracking-widest text-primary shadow-[4px_4px_0px_0px_rgba(18,22,32,1)]">
+                [SUCCESS] MESSAGE COMPILED AND DISPATCHED SUCCESSFULLY.
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6 text-xs font-display">
+              <div>
+                <label htmlFor="name" className="block font-bold mb-2 text-primary uppercase tracking-widest">
+                  Sender Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="w-full bg-background border-2 border-border px-4 py-3.5 text-white font-sans text-sm focus:outline-none focus:border-primary transition-all font-semibold"
+                  placeholder="E.G. JOHN DOE"
+                />
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="relative">
-                  <label htmlFor="name" className="block text-lg font-black mb-3 uppercase tracking-wider text-accent">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-6 py-4 bg-background border-4 border-ink shadow-brutal focus:outline-none focus:shadow-brutal-hover focus:border-accent transition-all duration-300 text-lg font-medium hover:scale-105 transform"
-                    placeholder="Your awesome name"
-                  />
-                </div>
+              <div>
+                <label htmlFor="email" className="block font-bold mb-2 text-primary uppercase tracking-widest">
+                  Target Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="w-full bg-background border-2 border-border px-4 py-3.5 text-white font-sans text-sm focus:outline-none focus:border-primary transition-all font-semibold"
+                  placeholder="E.G. SENDER@EMAIL.COM"
+                />
+              </div>
 
-                <div className="relative">
-                  <label htmlFor="email" className="block text-lg font-black mb-3 uppercase tracking-wider text-accent">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-6 py-4 bg-background border-4 border-ink shadow-brutal focus:outline-none focus:shadow-brutal-hover focus:border-accent transition-all duration-300 text-lg font-medium hover:scale-105 transform"
-                    placeholder="your.email@example.com"
-                  />
-                </div>
+              <div>
+                <label htmlFor="subject" className="block font-bold mb-2 text-primary uppercase tracking-widest">
+                  Packet Subject
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  required
+                  className="w-full bg-background border-2 border-border px-4 py-3.5 text-white font-sans text-sm focus:outline-none focus:border-primary transition-all font-semibold"
+                  placeholder="E.G. FEEDBACK / SUPPORT"
+                />
+              </div>
 
-                <div className="relative">
-                  <label htmlFor="subject" className="block text-lg font-black mb-3 uppercase tracking-wider text-accent">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-6 py-4 bg-background border-4 border-ink shadow-brutal focus:outline-none focus:shadow-brutal-hover focus:border-accent transition-all duration-300 text-lg font-medium hover:scale-105 transform"
-                    placeholder="What's this about?"
-                  />
-                </div>
+              <div>
+                <label htmlFor="message" className="block font-bold mb-2 text-primary uppercase tracking-widest">
+                  Payload Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
+                  rows="5"
+                  className="w-full bg-background border-2 border-border px-4 py-3.5 text-white font-sans text-sm focus:outline-none focus:border-primary transition-all font-semibold resize-none"
+                  placeholder="WRITE DETAILED REPORT..."
+                />
+              </div>
 
-                <div className="relative">
-                  <label htmlFor="message" className="block text-lg font-black mb-3 uppercase tracking-wider text-accent">
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                    rows="8"
-                    className="w-full px-6 py-4 bg-background border-4 border-ink shadow-brutal focus:outline-none focus:shadow-brutal-hover focus:border-accent transition-all duration-300 text-lg font-medium resize-none hover:scale-105 transform"
-                    placeholder="Tell us what's on your mind..."
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-accent text-ink px-12 py-6 font-black text-2xl uppercase tracking-widest shadow-brutal hover:shadow-brutal-hover transition-all duration-300 hover:-translate-y-2 hover:translate-x-2 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
-                >
-                  <span className="relative z-10">
-                    {isSubmitting ? '🚀 SENDING...' : 'SEND MESSAGE 🚀'}
-                  </span>
-                  {!isSubmitting && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                  )}
-                </button>
-              </form>
-            </div>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full btn-forge-primary !text-xs disabled:opacity-50"
+              >
+                {isSubmitting ? '// DISPATCHING...' : '// TRANSMIT_PACKET'}
+              </button>
+            </form>
           </div>
 
-          {/* Enhanced Contact Info */}
-          <div className="space-y-10">
-            <div className="bg-surface p-10 shadow-brutal border-4 border-ink transform hover:scale-102 transition-all duration-500 group relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative z-10">
-                <div className="flex items-center mb-8">
-                  <div className="text-5xl mr-4 animate-spin-slow">🎯</div>
-                  <h3 className="text-4xl font-black text-accent group-hover:text-ink transition-colors duration-300">REACH OUT DIRECTLY</h3>
+          {/* Side Info Cards */}
+          <div className="lg:col-span-5 space-y-8">
+            
+            {/* Direct Lines */}
+            <div className="border-2 border-border bg-card p-8 md:p-10 shadow-[6px_6px_0px_0px_rgba(235,59,59,0.15)] relative fade-in-up stagger-2">
+              <div className="absolute top-0 inset-x-0 h-1 stripe-bg opacity-40"></div>
+              <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-8 font-display">// DIRECT_CHANNELS</h3>
+
+              <div className="space-y-4 text-xs font-display">
+                <div className="p-4 bg-background border border-border">
+                  <p className="font-bold text-[10px] text-primary uppercase tracking-widest mb-1">Email Endpoint</p>
+                  <p className="text-white font-semibold font-sans text-sm">hello@portforge.dev</p>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-6 p-4 bg-background border-2 border-ink shadow-brutal transform hover:scale-105 transition-all duration-300 group/item">
-                    <div className="w-16 h-16 bg-accent text-ink rounded-full flex items-center justify-center font-black text-2xl shadow-brutal group-hover/item:shadow-brutal-hover transition-all duration-300">
-                      📧
-                    </div>
-                    <div className="group-hover/item:text-accent transition-colors duration-300">
-                      <p className="font-black text-lg">Email</p>
-                      <p className="text-muted font-medium">hello@portforge.dev</p>
-                    </div>
-                  </div>
+                <div className="p-4 bg-background border border-border">
+                  <p className="font-bold text-[10px] text-primary uppercase tracking-widest mb-1">Social Feed</p>
+                  <p className="text-white font-semibold font-sans text-sm">@portforge</p>
+                </div>
 
-                  <div className="flex items-center space-x-6 p-4 bg-background border-2 border-ink shadow-brutal transform hover:scale-105 transition-all duration-300 group/item">
-                    <div className="w-16 h-16 bg-accent text-ink rounded-full flex items-center justify-center font-black text-2xl shadow-brutal group-hover/item:shadow-brutal-hover transition-all duration-300">
-                      🐦
-                    </div>
-                    <div className="group-hover/item:text-accent transition-colors duration-300">
-                      <p className="font-black text-lg">Twitter</p>
-                      <p className="text-muted font-medium">@portforge</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-6 p-4 bg-background border-2 border-ink shadow-brutal transform hover:scale-105 transition-all duration-300 group/item">
-                    <div className="w-16 h-16 bg-accent text-ink rounded-full flex items-center justify-center font-black text-2xl shadow-brutal group-hover/item:shadow-brutal-hover transition-all duration-300">
-                      💬
-                    </div>
-                    <div className="group-hover/item:text-accent transition-colors duration-300">
-                      <p className="font-black text-lg">Discord</p>
-                      <p className="text-muted font-medium">Join our community</p>
-                    </div>
-                  </div>
+                <div className="p-4 bg-background border border-border">
+                  <p className="font-bold text-[10px] text-primary uppercase tracking-widest mb-1">Developer Room</p>
+                  <p className="text-white font-semibold font-sans text-sm">discord.gg/portforge</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-surface p-10 shadow-brutal border-4 border-ink transform hover:scale-102 transition-all duration-500 group relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative z-10">
-                <div className="flex items-center mb-8">
-                  <div className="text-4xl mr-4 animate-pulse">❓</div>
-                  <h3 className="text-3xl font-black text-accent group-hover:text-ink transition-colors duration-300">FREQUENTLY ASKED</h3>
+            {/* Quick Metrics */}
+            <div className="border-2 border-border bg-card p-8 md:p-10 shadow-[6px_6px_0px_0px_rgba(235,59,59,0.15)] relative fade-in-up stagger-3">
+              <div className="absolute top-0 inset-x-0 h-1 stripe-bg opacity-40"></div>
+              <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-8 font-display">// COMPILE_STATS</h3>
+
+              <div className="space-y-4 text-xs font-display">
+                <div className="p-4 bg-background border border-border">
+                  <p className="font-bold text-[10px] text-primary uppercase tracking-widest mb-1">SYNC_SPEED</p>
+                  <p className="text-white font-semibold font-sans text-sm">Under 60 seconds average</p>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="p-4 bg-background border-2 border-ink shadow-brutal transform hover:scale-105 transition-all duration-300">
-                    <p className="font-black mb-2 text-accent">How quickly can I get a portfolio?</p>
-                    <p className="text-muted font-medium">In <span className="text-accent font-black">UNDER 60 SECONDS</span> with your GitHub and LinkedIn connected! ⚡</p>
-                  </div>
+                <div className="p-4 bg-background border border-border">
+                  <p className="font-bold text-[10px] text-primary uppercase tracking-widest mb-1">ACTIVE_TIER</p>
+                  <p className="text-white font-semibold font-sans text-sm">Basic generator free forever</p>
+                </div>
 
-                  <div className="p-4 bg-background border-2 border-ink shadow-brutal transform hover:scale-105 transition-all duration-300">
-                    <p className="font-black mb-2 text-accent">Is PortForge free?</p>
-                    <p className="text-muted font-medium">Yes! Basic portfolios are <span className="text-accent font-black">COMPLETELY FREE</span>. Premium features available. 🎉</p>
-                  </div>
-
-                  <div className="p-4 bg-background border-2 border-ink shadow-brutal transform hover:scale-105 transition-all duration-300">
-                    <p className="font-black mb-2 text-accent">Can I customize my portfolio?</p>
-                    <p className="text-muted font-medium"><span className="text-accent font-black">ABSOLUTELY!</span> Full customization options for colors, layout, and content. 🎨</p>
-                  </div>
+                <div className="p-4 bg-background border border-border">
+                  <p className="font-bold text-[10px] text-primary uppercase tracking-widest mb-1">COMPLIANCE</p>
+                  <p className="text-white font-semibold font-sans text-sm">Clean modular layouts</p>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes bounce-gentle {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-5px); }
-        }
-
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-
-        .animate-bounce-gentle {
-          animation: bounce-gentle 2s ease-in-out infinite;
-        }
-
-        .animate-spin-slow {
-          animation: spin-slow 8s linear infinite;
-        }
-
-        .shadow-text-glow {
-          text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
-        }
-      `}</style>
+      
+      <Footer />
     </div>
   );
 };

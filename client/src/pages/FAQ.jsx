@@ -1,29 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Navbar } from '../components/Navbar';
+import { Link } from 'react-router-dom';
+import { Footer } from '../components/Footer';
 
 export const FAQ = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [expandedFAQ, setExpandedFAQ] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isSearching, setIsSearching] = useState(false);
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   const categories = [
-    { id: 'all', name: 'All Questions', icon: '🎯', color: 'accent' },
-    { id: 'getting-started', name: 'Getting Started', icon: '🚀', color: 'blue-500' },
-    { id: 'features', name: 'Features', icon: '⚡', color: 'green-500' },
-    { id: 'pricing', name: 'Pricing', icon: '💰', color: 'purple-500' },
-    { id: 'technical', name: 'Technical', icon: '🔧', color: 'orange-500' },
-    { id: 'account', name: 'Account', icon: '👤', color: 'pink-500' }
+    { id: 'all', name: 'ALL_METRICS' },
+    { id: 'getting-started', name: 'GETTING_STARTED' },
+    { id: 'features', name: 'SYSTEM_FEATURES' },
+    { id: 'pricing', name: 'RESOURCE_PRICING' },
+    { id: 'technical', name: 'TECHNICAL_STACK' },
+    { id: 'account', name: 'ACCOUNT_HUB' }
   ];
 
   const faqs = [
@@ -31,73 +22,65 @@ export const FAQ = () => {
       id: 1,
       category: 'getting-started',
       question: "How do I create my first portfolio?",
-      answer: "Getting started is EASY! Just connect your GitHub and LinkedIn accounts. Our AI analyzes your code, projects, and experience to automatically generate a stunning portfolio in under 60 seconds. No design skills required!",
-      icon: "🎨",
+      answer: "Getting started is easy! Just connect your GitHub and LinkedIn accounts. Our AI analyzes your code, projects, and experience to automatically generate a stunning portfolio in under 60 seconds. No design skills required!",
       difficulty: "Beginner",
-      readTime: "2 min"
+      readTime: "2M"
     },
     {
       id: 2,
       category: 'features',
-      question: "What makes PortForge different from other portfolio builders?",
-      answer: "We're not just another template. PortForge uses AI to understand YOUR unique coding style, contributions, and achievements. We create personalized portfolios that actually represent who you are as a developer, not just generic templates.",
-      icon: "🤖",
+      question: "What makes PortForge different?",
+      answer: "We're not just another template. PortForge uses AI to understand your unique coding style, contributions, and achievements. We create personalized portfolios that actually represent who you are as a developer, not just generic templates.",
       difficulty: "Intermediate",
-      readTime: "3 min"
+      readTime: "3M"
     },
     {
       id: 3,
       category: 'pricing',
       question: "Is PortForge really free?",
-      answer: "YES! Basic portfolios are completely FREE. You get unlimited projects, custom domains, and all core features at no cost. Premium features like advanced analytics and priority support are available for power users.",
-      icon: "💎",
+      answer: "Yes! Basic portfolios are completely free. You get unlimited projects, custom domains, and all core features at no cost. Premium features like advanced analytics and priority support are available for power users.",
       difficulty: "Beginner",
-      readTime: "1 min"
+      readTime: "1M"
     },
     {
       id: 4,
       category: 'technical',
       question: "Do I need coding experience to use PortForge?",
-      answer: "Not at all! PortForge is designed for developers of ALL levels. Whether you're a beginner with your first project or a senior engineer with 10+ years experience, our AI adapts to showcase your skills appropriately.",
-      icon: "🌟",
+      answer: "Not at all! PortForge is designed for developers of all levels. Whether you're a beginner with your first project or a senior engineer with 10+ years experience, our AI adapts to showcase your skills appropriately.",
       difficulty: "Beginner",
-      readTime: "2 min"
+      readTime: "2M"
     },
     {
       id: 5,
       category: 'account',
       question: "Can I customize my portfolio after it's generated?",
-      answer: "Absolutely! You have FULL control. Change colors, layouts, add custom sections, reorder content, and personalize every aspect. Your portfolio, your rules!",
-      icon: "🎛️",
+      answer: "Absolutely! You have full control. Change colors, layouts, add custom sections, reorder content, and personalize every aspect. Your portfolio, your rules!",
       difficulty: "Intermediate",
-      readTime: "4 min"
+      readTime: "4M"
     },
     {
       id: 6,
       category: 'features',
       question: "How does the GitHub integration work?",
       answer: "We securely connect to your GitHub account and analyze your repositories, commit patterns, languages used, and contribution history. This creates an accurate representation of your coding expertise and project experience.",
-      icon: "📊",
       difficulty: "Advanced",
-      readTime: "5 min"
+      readTime: "5M"
     },
     {
       id: 7,
       category: 'technical',
       question: "Is my data secure?",
-      answer: "SECURITY FIRST! We use bank-level encryption, never store your passwords, and only access public GitHub data. Your information is protected with enterprise-grade security measures.",
-      icon: "🔒",
+      answer: "Security first! We use bank-level encryption, never store your passwords, and only access public GitHub data. Your information is protected with enterprise-grade security measures.",
       difficulty: "Intermediate",
-      readTime: "3 min"
+      readTime: "3M"
     },
     {
       id: 8,
       category: 'pricing',
       question: "What premium features are available?",
       answer: "Premium unlocks: Advanced analytics, custom domains, priority support, export options, team collaboration, and exclusive themes. Perfect for professionals who want the complete package!",
-      icon: "🚀",
       difficulty: "Intermediate",
-      readTime: "2 min"
+      readTime: "2M"
     }
   ];
 
@@ -108,220 +91,153 @@ export const FAQ = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const handleSearch = (term) => {
-    setSearchTerm(term);
-    setIsSearching(true);
-    setTimeout(() => setIsSearching(false), 300);
-  };
-
   return (
-    <div className="min-h-screen bg-background text-ink font-sans overflow-hidden relative">
-      {/* Dynamic Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div
-          className="absolute w-80 h-80 bg-accent/6 rounded-full blur-3xl animate-pulse"
-          style={{
-            left: `${mousePosition.x * 0.012}%`,
-            top: `${mousePosition.y * 0.012}%`,
-            transition: 'all 0.4s ease-out'
-          }}
-        />
-        <div
-          className="absolute w-64 h-64 bg-accent/4 rounded-full blur-2xl animate-pulse"
-          style={{
-            right: `${mousePosition.x * 0.018}%`,
-            bottom: `${mousePosition.y * 0.018}%`,
-            animationDelay: '1.5s',
-            transition: 'all 0.6s ease-out'
-          }}
-        />
-
-        {/* Floating Question Marks */}
-        {[...Array(12)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute text-4xl opacity-10 animate-bounce"
-            style={{
-              left: `${15 + (i * 7)}%`,
-              top: `${20 + (i % 4) * 15}%`,
-              animationDelay: `${i * 0.8}s`,
-              animationDuration: `${3 + i * 0.3}s`
-            }}
-          >
-            ❓
-          </div>
-        ))}
-      </div>
-
+    <div className="min-h-screen font-sans overflow-hidden bg-background relative selection:bg-primary/30 selection:text-white">
+      {/* Shared Navbar */}
       <Navbar />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-        {/* Hero Section */}
-        <div className="text-center mb-20 relative">
-          <div className="inline-block border-4 border-ink px-8 py-3 mb-12 bg-surface shadow-brutal font-black text-xl uppercase tracking-widest text-accent transform hover:scale-110 transition-transform duration-500 animate-pulse relative">
-            ❓ FAQ CENTRAL ❓
-            <div className="absolute -inset-1 border-2 border-accent rounded-lg animate-spin-slow opacity-60" />
+      {/* Cyber Grid Background */}
+      <div className="absolute inset-0 cyber-grid opacity-[0.25] pointer-events-none z-0"></div>
+      <div className="absolute inset-0 dot-bg opacity-[0.4] pointer-events-none z-0"></div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-40 pb-20 relative z-10">
+        
+        {/* Glow behind layout */}
+        <div className="absolute top-1/4 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-1/4 left-0 w-80 h-80 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+        {/* Page Header */}
+        <div className="text-center mb-20 relative z-10 fade-in-up">
+          <div className="inline-flex items-center gap-3 px-4 py-2 mb-8 border border-border bg-secondary/80 text-xs font-bold uppercase tracking-widest text-primary shadow-[3px_3px_0px_0px_rgba(235,59,59,0.15)]">
+            <span className="w-2.5 h-2.5 bg-primary glow-pulse"></span>
+            <span>SYSTEM KNOWLEDGE BASE</span>
           </div>
 
-          <h1 className="text-6xl sm:text-7xl md:text-8xl font-black mb-8 leading-[0.85] relative">
-            GOT QUESTIONS?
-            <span className="block text-accent animate-bounce-gentle shadow-text-glow transform hover:scale-105 transition-transform duration-300">
-              WE'VE GOT ANSWERS!
-            </span>
+          <h1 className="text-5xl sm:text-7xl font-black mb-8 leading-tight tracking-tighter uppercase font-display">
+            <span className="block text-white">FREQUENTLY ASKED</span>
+            <span className="block text-primary">DECLARATIONS</span>
           </h1>
 
-          <div className="relative max-w-2xl mx-auto mb-12">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="🔍 Search questions..."
-                value={searchTerm}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="w-full px-8 py-6 bg-background border-4 border-ink shadow-brutal focus:outline-none focus:shadow-brutal-hover focus:border-accent transition-all duration-300 text-xl font-medium rounded-lg hover:scale-105 transform"
-              />
-              <div className={`absolute right-4 top-1/2 transform -translate-y-1/2 text-2xl transition-all duration-300 ${isSearching ? 'animate-spin' : ''}`}>
-                {isSearching ? '🔄' : '🔍'}
-              </div>
+          {/* Industrial Search Bar */}
+          <div className="relative max-w-2xl mx-auto mb-12 mt-12">
+            <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
+              <span className="text-xl">🔍</span>
             </div>
-
-            {/* Search Animation */}
-            {isSearching && (
-              <div className="absolute inset-0 border-4 border-accent rounded-lg animate-ping opacity-20" />
-            )}
+            <input
+              type="text"
+              placeholder="SEARCH PROTOCOLS..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-16 pr-8 py-5 bg-background border-2 border-border text-white focus:outline-none focus:border-primary transition-all text-sm font-bold font-display uppercase tracking-widest"
+            />
           </div>
 
-          <p className="text-2xl text-muted leading-relaxed max-w-4xl mx-auto transform hover:scale-105 transition-transform duration-300">
-            Find answers faster than a developer debugging code! 💻⚡
-            <span className="text-accent font-black animate-pulse"> Search, filter, and discover</span> everything you need to know about PortForge.
+          <p className="text-xs sm:text-sm text-gray-400 leading-relaxed max-w-3xl mx-auto font-semibold uppercase tracking-wider">
+            Query information databases about generation processes, integrations, and deployment.
           </p>
         </div>
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-4 mb-16">
+        {/* Category Filters */}
+        <div className="flex flex-wrap justify-center gap-4 mb-16 relative z-10 fade-in-up stagger-1">
           {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => setActiveCategory(category.id)}
-              className={`px-6 py-4 border-4 border-ink shadow-brutal font-black text-lg uppercase tracking-wider transform hover:scale-110 transition-all duration-300 ${
+              className={`px-5 py-2.5 border-2 border-border font-display font-bold text-xs uppercase tracking-wider transition-all duration-200 ${
                 activeCategory === category.id
-                  ? 'bg-accent text-ink shadow-brutal-hover'
-                  : 'bg-surface hover:bg-accent/10'
+                  ? 'bg-primary text-white shadow-[3px_3px_0px_0px_rgba(18,22,32,1)]'
+                  : 'bg-card text-muted-foreground hover:text-white hover:border-primary'
               }`}
             >
-              <span className="mr-2">{category.icon}</span>
               {category.name}
             </button>
           ))}
         </div>
 
-        {/* FAQ Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* FAQ Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
           {filteredFAQs.map((faq, index) => (
             <div
               key={faq.id}
-              className="bg-surface p-8 shadow-brutal border-4 border-ink transform hover:scale-105 transition-all duration-500 group relative overflow-hidden"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              className={`border-2 border-border bg-card p-6 md:p-8 flex flex-col h-full fade-in-up transition-all duration-300 ${
+                expandedFAQ === faq.id 
+                  ? 'border-primary shadow-[6px_6px_0px_0px_rgba(235,59,59,0.15)] bg-card/90' 
+                  : 'shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]'
+              }`}
+              style={{ animationDelay: `${(index % 4) * 100 + 200}ms` }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-              <div className="relative z-10">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="text-4xl group-hover:animate-bounce">{faq.icon}</div>
-                    <div>
-                      <div className="flex items-center space-x-2 mb-2">
-                        <span className={`px-3 py-1 text-xs font-black uppercase tracking-wider border-2 border-ink ${
-                          faq.difficulty === 'Beginner' ? 'bg-green-500 text-white' :
-                          faq.difficulty === 'Intermediate' ? 'bg-yellow-500 text-black' :
-                          'bg-red-500 text-white'
-                        }`}>
-                          {faq.difficulty}
-                        </span>
-                        <span className="text-sm text-muted font-medium">{faq.readTime} read</span>
-                      </div>
-                    </div>
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <div className="flex items-center space-x-3 mb-4 text-xs font-display">
+                    <span className={`px-3 py-1 font-bold border border-border uppercase tracking-widest ${
+                      faq.difficulty === 'Beginner' ? 'text-green-400 bg-green-950/20' :
+                      faq.difficulty === 'Intermediate' ? 'text-yellow-400 bg-yellow-950/20' :
+                      'text-red-400 bg-red-950/20'
+                    }`}>
+                      {faq.difficulty}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
+                      [READ_TIME: {faq.readTime}]
+                    </span>
                   </div>
-
-                  <button
-                    onClick={() => setExpandedFAQ(expandedFAQ === faq.id ? null : faq.id)}
-                    className="text-3xl transform hover:scale-125 transition-transform duration-300"
-                  >
-                    {expandedFAQ === faq.id ? '➖' : '➕'}
-                  </button>
                 </div>
 
-                <h3 className="text-2xl font-black mb-4 group-hover:text-accent transition-colors duration-300">
-                  {faq.question}
-                </h3>
+                <button
+                  onClick={() => setExpandedFAQ(expandedFAQ === faq.id ? null : faq.id)}
+                  className="w-8 h-8 flex items-center justify-center border-2 border-border bg-background hover:bg-secondary transition-colors text-white font-black font-display text-sm focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]"
+                >
+                  {expandedFAQ === faq.id ? '−' : '+'}
+                </button>
+              </div>
 
-                <div className={`overflow-hidden transition-all duration-500 ${
-                  expandedFAQ === faq.id ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                }`}>
-                  <p className="text-lg leading-relaxed text-muted pt-4 border-t-2 border-ink">
-                    {faq.answer}
-                  </p>
-                </div>
+              <h3 
+                className={`text-md font-bold uppercase tracking-wide cursor-pointer transition-colors font-display ${expandedFAQ === faq.id ? 'text-primary' : 'text-white'}`}
+                onClick={() => setExpandedFAQ(expandedFAQ === faq.id ? null : faq.id)}
+              >
+                {faq.question}
+              </h3>
 
-                {/* Animated border on expand */}
-                {expandedFAQ === faq.id && (
-                  <div className="absolute inset-0 border-4 border-accent rounded-lg animate-ping opacity-20" />
-                )}
+              <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                expandedFAQ === faq.id ? 'max-h-96 opacity-100 mt-auto' : 'max-h-0 opacity-0'
+              }`}>
+                <p className="text-xs leading-relaxed text-gray-400 pt-6 border-t-2 border-border border-dashed font-semibold uppercase tracking-wider mt-4">
+                  {faq.answer}
+                </p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Call to Action */}
-        <div className="text-center mt-20 relative">
-          <div className="absolute inset-0 bg-accent/10 rounded-full blur-3xl animate-pulse" />
-          <h3 className="text-4xl font-black mb-8 text-accent relative z-10 animate-bounce-gentle">
-            STILL HAVE QUESTIONS?
+        {/* Need support footer */}
+        <div className="text-center mt-24 border-2 border-border bg-card p-12 md:p-16 relative z-10 fade-in-up stagger-3 shadow-[8px_8px_0px_0px_rgba(235,59,59,0.15)]">
+          <div className="absolute top-0 inset-x-0 h-1.5 stripe-bg"></div>
+          
+          <h3 className="text-2xl font-black mb-6 text-white tracking-wider uppercase font-display">
+            AWAITING ADDITIONAL METRICS?
           </h3>
-          <p className="text-xl text-muted mb-8 max-w-2xl mx-auto relative z-10">
-            Can't find what you're looking for? Our support team is here to help!
+          <p className="text-xs sm:text-sm text-gray-400 mb-10 max-w-2xl mx-auto font-semibold uppercase tracking-wider">
+            If you need customized support, open a ticket report directly.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
-            <a
-              href="/contact"
-              className="inline-block bg-accent text-ink px-8 py-4 font-black text-lg uppercase tracking-wider shadow-brutal hover:shadow-brutal-hover transition-all duration-300 hover:-translate-y-2 hover:translate-x-2 hover:scale-110 animate-pulse"
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/contact"
+              className="btn-forge-primary"
             >
-              📞 CONTACT SUPPORT
-            </a>
+              // SUBMIT_TICKET
+            </Link>
 
-            <a
-              href="/"
-              className="inline-block bg-surface text-ink px-8 py-4 font-black text-lg uppercase tracking-wider border-4 border-ink shadow-brutal hover:shadow-brutal-hover transition-all duration-300 hover:-translate-y-2 hover:translate-x-2"
+            <Link
+              to="/register"
+              className="btn-forge-secondary"
             >
-              🚀 GET STARTED
-            </a>
+              // SIGN_UP
+            </Link>
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes bounce-gentle {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-5px); }
-        }
-
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-
-        .animate-bounce-gentle {
-          animation: bounce-gentle 2s ease-in-out infinite;
-        }
-
-        .animate-spin-slow {
-          animation: spin-slow 8s linear infinite;
-        }
-
-        .shadow-text-glow {
-          text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
-        }
-      `}</style>
+      
+      <Footer />
     </div>
   );
 };

@@ -38,13 +38,32 @@ const getMyProfile = async (req, res) => {
  */
 const updateProfile = async (req, res) => {
   try {
-    const { name, avatar, bio, location, experience, education, skills, links } = req.body;
+    const {
+      name,
+      avatar,
+      bio,
+      intro,
+      headline,
+      location,
+      email,
+      phone,
+      website,
+      experience,
+      education,
+      skills,
+      links,
+    } = req.body;
 
     const updateData = {};
     if (name !== undefined) updateData.name = name;
     if (avatar !== undefined) updateData.avatar = avatar;
     if (bio !== undefined) updateData.bio = bio;
+    if (intro !== undefined) updateData.intro = intro;
+    if (headline !== undefined) updateData.headline = headline;
     if (location !== undefined) updateData.location = location;
+    if (email !== undefined) updateData.email = email;
+    if (phone !== undefined) updateData.phone = phone;
+    if (website !== undefined) updateData.website = website;
     if (experience !== undefined) updateData.experience = experience;
     if (education !== undefined) updateData.education = education;
     if (skills !== undefined) updateData.skills = skills;
@@ -135,4 +154,82 @@ const togglePinProject = async (req, res) => {
   }
 };
 
-module.exports = { getMyProfile, updateProfile, getProjects, togglePinProject };
+const updateProject = async (req, res) => {
+  try {
+    const allowedFields = ['name', 'description', 'language', 'languages', 'repoUrl', 'score', 'pinned', 'hidden'];
+    const updateData = {};
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) updateData[field] = req.body[field];
+    });
+
+    const project = await Project.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user._id },
+      { $set: updateData },
+      { new: true }
+    );
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        data: null,
+        message: 'Project not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: { project },
+      message: 'Project updated',
+    });
+  } catch (error) {
+    console.error('Update project error:', error.message);
+    res.status(500).json({
+      success: false,
+      data: null,
+      message: 'Failed to update project',
+    });
+  }
+};
+
+const toggleProjectVisibility = async (req, res) => {
+  try {
+    const project = await Project.findOne({
+      _id: req.params.id,
+      userId: req.user._id,
+    });
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        data: null,
+        message: 'Project not found',
+      });
+    }
+
+    project.hidden = !project.hidden;
+    await project.save();
+
+    res.status(200).json({
+      success: true,
+      data: { project },
+      message: `Project ${project.hidden ? 'hidden' : 'shown'}`,
+    });
+  } catch (error) {
+    console.error('Toggle project visibility error:', error.message);
+    res.status(500).json({
+      success: false,
+      data: null,
+      message: 'Failed to toggle project visibility',
+    });
+  }
+};
+
+module.exports = {
+  getMyProfile,
+  updateProfile,
+  getProjects,
+  togglePinProject,
+  updateProject,
+  toggleProjectVisibility,
+};

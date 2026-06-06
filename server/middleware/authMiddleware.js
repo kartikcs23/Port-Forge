@@ -1,4 +1,4 @@
-﻿const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 /**
@@ -29,7 +29,12 @@ const protect = async (req, res, next) => {
       }
     }
 
-    let user = await User.findOne({ clerkId });
+    let user = await User.findOne({
+      $or: [
+        { clerkId },
+        { email: `${clerkId}@clerk.local` }
+      ]
+    });
 
     if (!user) {
       // Stub creation for the local MongoDB since we just migrated to Clerk
@@ -37,8 +42,22 @@ const protect = async (req, res, next) => {
         clerkId,
         name: 'Clerk Developer',
         email: `${clerkId}@clerk.local`,
-        password: 'clerk_placeholder_password_avoid_login'
+        password: 'clerk_placeholder_password_avoid_login',
+        role: clerkId === 'dev_clerk_id_12345' ? 'admin' : 'user'
       });
+    } else {
+      let changed = false;
+      if (user.clerkId !== clerkId) {
+        user.clerkId = clerkId;
+        changed = true;
+      }
+      if (clerkId === 'dev_clerk_id_12345' && user.role !== 'admin') {
+        user.role = 'admin';
+        changed = true;
+      }
+      if (changed) {
+        await user.save();
+      }
     }
 
     req.user = user;

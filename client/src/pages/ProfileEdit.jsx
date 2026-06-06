@@ -1,26 +1,55 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '@clerk/clerk-react';
+import { Eye, EyeOff, Plus, Save, Star, Trash2 } from 'lucide-react';
+import { useAppUser } from '../hooks/useAppUser';
+import { usePortfolio } from '../hooks/usePortfolio';
 import api from '../utils/axios';
 import { Navbar } from '../components/Navbar';
 
+const emptyExperience = { company: '', role: '', startDate: '', endDate: '', description: '' };
+const emptyEducation = { institution: '', degree: '', field: '', year: '' };
+
+const Field = ({ label, children }) => (
+  <label className="block space-y-2">
+    <span className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground">{label}</span>
+    {children}
+  </label>
+);
+
+const inputClass = 'w-full border-2 border-border bg-background px-4 py-3 text-sm font-bold text-white outline-none transition-colors focus:border-accent';
+const textareaClass = `${inputClass} min-h-28 resize-y leading-relaxed`;
+
 export const ProfileEdit = () => {
   const navigate = useNavigate();
-  const { user, isLoaded } = useUser();
-  const [saving, setSaving] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState(null);
+  const { user, isLoaded } = useAppUser();
+  const {
+    projects,
+    loading,
+    error,
+    fetchProjects,
+    togglePin,
+    updateProject,
+    toggleProjectVisibility,
+  } = usePortfolio();
 
+  const [activeTab, setActiveTab] = useState('profile');
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingProjectId, setSavingProjectId] = useState(null);
+  const [status, setStatus] = useState('');
+  const [projectDrafts, setProjectDrafts] = useState({});
   const [formData, setFormData] = useState({
+    name: '',
+    intro: '',
+    headline: '',
     bio: '',
     location: '',
-    avatar: null,
-    intro: '',
     email: '',
     phone: '',
     website: '',
+    avatar: '',
+    skillsText: '',
     experience: [],
     education: [],
-    skills: [],
     links: {
       github: '',
       linkedin: '',
@@ -29,290 +58,410 @@ export const ProfileEdit = () => {
     },
   });
 
+  const visibleProjectCount = useMemo(
+    () => projects.filter((project) => !project.hidden).length,
+    [projects]
+  );
+
   const fetchProfile = useCallback(async () => {
     try {
       const res = await api.get('/api/profile/me');
-      if (res.data.success) {
-        const profile = res.data.data.profile;
-        setFormData(prev => ({
-          ...prev,
-          bio: profile.bio || '',
-          location: profile.location || '',
-          intro: profile.intro || '',
-          email: profile.email || user?.emailAddresses?.[0]?.emailAddress || '',
-          phone: profile.phone || '',
-          website: profile.website || '',
-          experience: profile.experience || [],
-          education: profile.education || [],
-          skills: profile.skills || [],
-          links: profile.links || {
-            github: '',
-            linkedin: '',
-            website: '',
-            twitter: '',
-          },
-        }));
-        if (profile.avatarUrl) {
-          setAvatarPreview(profile.avatarUrl);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch profile:', error);
+      if (!res.data.success) return;
+
+      const profile = res.data.data.profile || {};
+      setFormData({
+        name: profile.name || user?.fullName || '',
+        intro: profile.intro || '',
+        headline: profile.headline || '',
+        bio: profile.bio || '',
+        location: profile.location || '',
+        email: profile.email || user?.emailAddresses?.[0]?.emailAddress || '',
+        phone: profile.phone || '',
+        website: profile.website || '',
+        avatar: profile.avatar || profile.avatarUrl || '',
+        skillsText: (profile.skills || []).join(', '),
+        experience: profile.experience?.length ? profile.experience : [],
+        education: profile.education?.length ? profile.education : [],
+        links: {
+          github: profile.links?.github || '',
+          linkedin: profile.links?.linkedin || '',
+          website: profile.links?.website || profile.website || '',
+          twitter: profile.links?.twitter || '',
+        },
+      });
+    } catch (err) {
+      setStatus(err.response?.data?.message || err.message);
     }
   }, [user]);
 
   useEffect(() => {
     if (isLoaded) {
       fetchProfile();
+      fetchProjects();
     }
-  }, [isLoaded, fetchProfile]);
+  }, [isLoaded, fetchProfile, fetchProjects]);
 
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result);
-        setFormData(prev => ({ ...prev, avatar: file }));
+  useEffect(() => {
+    const drafts = {};
+    projects.forEach((project) => {
+      drafts[project._id] = {
+        name: project.name || '',
+        description: project.description || '',
+        language: project.language || project.languages?.[0] || '',
+        repoUrl: project.repoUrl || project.url || '',
+        score: project.score ?? 0,
       };
-      reader.readAsDataURL(file);
-    }
+    });
+    setProjectDrafts(drafts);
+  }, [projects]);
+
+  const updateField = (name, value) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleLinksChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
+  const updateLink = (name, value) => {
+    setFormData((prev) => ({
       ...prev,
-      links: { ...prev.links, [name]: value }
+      links: { ...prev.links, [name]: value },
     }));
   };
 
-  const handleSkillsChange = (value) => {
-    const skills = value.split(',').map(s => s.trim()).filter(s => s);
-    setFormData(prev => ({ ...prev, skills }));
+  const updateListItem = (listName, index, field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [listName]: prev[listName].map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [field]: value } : item
+      ),
+    }));
   };
 
-  const handleSave = async () => {
-    setSaving(true);
+  const addListItem = (listName, template) => {
+    setFormData((prev) => ({ ...prev, [listName]: [...prev[listName], template] }));
+  };
+
+  const removeListItem = (listName, index) => {
+    setFormData((prev) => ({
+      ...prev,
+      [listName]: prev[listName].filter((_, itemIndex) => itemIndex !== index),
+    }));
+  };
+
+  const saveProfile = async () => {
+    setSavingProfile(true);
+    setStatus('');
     try {
-      const updateData = {
+      const payload = {
+        name: formData.name,
+        avatar: formData.avatar,
+        intro: formData.intro,
+        headline: formData.headline,
         bio: formData.bio,
         location: formData.location,
-        intro: formData.intro,
         email: formData.email,
         phone: formData.phone,
         website: formData.website,
-        skills: formData.skills,
+        skills: formData.skillsText.split(',').map((skill) => skill.trim()).filter(Boolean),
+        experience: formData.experience,
+        education: formData.education,
         links: formData.links,
       };
 
-      const res = await api.put('/api/profile/update', updateData);
-      if (res.data.success) {
-        alert('Profile updated successfully!');
-        navigate('/dashboard');
-      }
-    } catch (error) {
-      alert('Failed to update profile: ' + (error.response?.data?.message || error.message));
+      const res = await api.put('/api/profile/update', payload);
+      setStatus(res.data.success ? 'Profile saved.' : res.data.message);
+    } catch (err) {
+      setStatus(err.response?.data?.message || err.message);
     } finally {
-      setSaving(false);
+      setSavingProfile(false);
     }
   };
 
-  // Remove loading check - let content render normally
+  const updateProjectDraft = (projectId, field, value) => {
+    setProjectDrafts((prev) => ({
+      ...prev,
+      [projectId]: { ...prev[projectId], [field]: value },
+    }));
+  };
+
+  const saveProject = async (projectId) => {
+    setSavingProjectId(projectId);
+    setStatus('');
+    const draft = projectDrafts[projectId];
+    const result = await updateProject(projectId, {
+      ...draft,
+      score: Number(draft.score) || 0,
+    });
+    setStatus(result.success ? 'Project saved.' : result.message);
+    setSavingProjectId(null);
+  };
+
+  const handleTogglePin = async (projectId) => {
+    const result = await togglePin(projectId);
+    setStatus(result.success ? 'Project pin updated.' : result.message);
+  };
+
+  const handleToggleVisibility = async (projectId) => {
+    const result = await toggleProjectVisibility(projectId);
+    setStatus(result.success ? 'Project visibility updated.' : result.message);
+  };
 
   return (
-    <div className="min-h-screen bg-background text-ink font-sans">
+    <div className="min-h-screen bg-background text-foreground font-sans">
       <Navbar />
 
-      <main className="max-w-4xl mx-auto px-4 py-16 pt-32">
-        <div className="bg-surface border-2 border-ink shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] p-8">
-          <h1 className="text-4xl font-black font-display uppercase tracking-tighter mb-12 border-b-4 border-ink pb-6">
-            Edit Profile
-          </h1>
-
-          <div className="space-y-12">
-            {/* Avatar Section */}
-            <div className="space-y-4">
-              <label className="block text-sm font-black uppercase tracking-widest">Profile Avatar</label>
-              <div className="flex gap-8 items-start">
-                <div className="w-32 h-32 border-3 border-ink rounded-xl overflow-hidden bg-background flex items-center justify-center">
-                  {avatarPreview ? (
-                    <img src={avatarPreview} alt="Avatar Preview" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-4xl font-black opacity-20">{user?.firstName?.charAt(0)}</span>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="block w-full text-sm border-2 border-ink p-2"
-                  />
-                  <p className="text-xs text-muted mt-2 font-bold uppercase">PNG, JPG, GIF up to 5MB</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Basic Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="block text-sm font-black uppercase tracking-widest">Intro / Headline</label>
-                <input
-                  type="text"
-                  name="intro"
-                  value={formData.intro}
-                  onChange={handleInputChange}
-                  placeholder="e.g., Full Stack Developer | React, Node.js"
-                  className="w-full border-2 border-ink p-3 font-sans bg-background focus:outline-none focus:bg-accent focus:text-white uppercase"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-black uppercase tracking-widest">Location</label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  placeholder="e.g., San Francisco, CA"
-                  className="w-full border-2 border-ink p-3 font-sans bg-background focus:outline-none focus:bg-accent focus:text-white uppercase"
-                />
-              </div>
-            </div>
-
-            {/* Bio */}
-            <div className="space-y-2">
-              <label className="block text-sm font-black uppercase tracking-widest">About / Bio</label>
-              <textarea
-                name="bio"
-                value={formData.bio}
-                onChange={handleInputChange}
-                placeholder="Tell us about yourself, your experience, and what you're passionate about..."
-                className="w-full border-2 border-ink p-3 font-sans bg-background focus:outline-none focus:bg-accent focus:text-white h-32 resize-none"
-              />
-            </div>
-
-            {/* Contact Details */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-black uppercase tracking-tighter border-b-2 border-ink pb-2">Contact Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-black uppercase tracking-widest">Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full border-2 border-ink p-3 font-sans bg-background focus:outline-none focus:bg-accent focus:text-white uppercase"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-black uppercase tracking-widest">Phone</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="+1 (555) 000-0000"
-                    className="w-full border-2 border-ink p-3 font-sans bg-background focus:outline-none focus:bg-accent focus:text-white uppercase"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Social Links */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-black uppercase tracking-tighter border-b-2 border-ink pb-2">Social Links</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-black uppercase tracking-widest">GitHub</label>
-                  <input
-                    type="url"
-                    name="github"
-                    value={formData.links.github}
-                    onChange={handleLinksChange}
-                    placeholder="https://github.com/username"
-                    className="w-full border-2 border-ink p-3 font-sans bg-background focus:outline-none focus:bg-accent focus:text-white text-xs"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-black uppercase tracking-widest">LinkedIn</label>
-                  <input
-                    type="url"
-                    name="linkedin"
-                    value={formData.links.linkedin}
-                    onChange={handleLinksChange}
-                    placeholder="https://linkedin.com/in/username"
-                    className="w-full border-2 border-ink p-3 font-sans bg-background focus:outline-none focus:bg-accent focus:text-white text-xs"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-black uppercase tracking-widest">Website</label>
-                  <input
-                    type="url"
-                    name="website"
-                    value={formData.links.website}
-                    onChange={handleLinksChange}
-                    placeholder="https://yoursite.com"
-                    className="w-full border-2 border-ink p-3 font-sans bg-background focus:outline-none focus:bg-accent focus:text-white text-xs"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-black uppercase tracking-widest">Twitter</label>
-                  <input
-                    type="url"
-                    name="twitter"
-                    value={formData.links.twitter}
-                    onChange={handleLinksChange}
-                    placeholder="https://twitter.com/username"
-                    className="w-full border-2 border-ink p-3 font-sans bg-background focus:outline-none focus:bg-accent focus:text-white text-xs"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Skills */}
-            <div className="space-y-2">
-              <label className="block text-sm font-black uppercase tracking-widest">Tech Stack (comma-separated)</label>
-              <textarea
-                value={formData.skills.join(', ')}
-                onChange={(e) => handleSkillsChange(e.target.value)}
-                placeholder="React, Node.js, JavaScript, Python, MongoDB..."
-                className="w-full border-2 border-ink p-3 font-sans bg-background focus:outline-none focus:bg-accent focus:text-white h-24 resize-none"
-              />
-              <div className="flex flex-wrap gap-2 mt-4">
-                {formData.skills.map((skill, idx) => (
-                  <span key={idx} className="bg-accent text-white px-3 py-1 font-bold text-xs uppercase">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-4 pt-8 border-t-2 border-ink">
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex-1 bg-accent text-white px-8 py-4 font-black text-sm uppercase border-2 border-accent shadow-[5px_5px_0px_0px_rgba(17,17,17,1)] hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] hover:-translate-y-1 transition-all disabled:opacity-50"
-              >
-                {saving ? 'SAVING...' : '✓ SAVE CHANGES'}
-              </button>
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="flex-1 bg-white text-ink px-8 py-4 font-black text-sm uppercase border-2 border-ink shadow-[5px_5px_0px_0px_rgba(17,17,17,1)] hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] hover:-translate-y-1 transition-all"
-              >
-                ← CANCEL
-              </button>
-            </div>
+      <main className="max-w-7xl mx-auto px-4 py-10 pt-28 md:pt-32">
+        <div className="mb-8 flex flex-col gap-4 border-b-4 border-border pb-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.45em] text-accent">Portfolio editor</p>
+            <h1 className="mt-2 text-4xl md:text-6xl font-black uppercase tracking-tighter">
+              Edit Content
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm font-bold uppercase tracking-widest text-muted-foreground">
+              Update your public details, skills, timeline, and the GitHub projects used in your portfolio.
+            </p>
           </div>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="border-2 border-border bg-secondary px-5 py-3 text-xs font-black uppercase tracking-widest text-foreground hover:bg-accent hover:text-white"
+          >
+            Back to Dashboard
+          </button>
         </div>
+
+        <div className="mb-8 grid grid-cols-1 gap-3 md:grid-cols-3">
+          {[
+            ['profile', 'Profile', 'Bio and contact details'],
+            ['timeline', 'Timeline', 'Experience and education'],
+            ['projects', 'Projects', `${visibleProjectCount}/${projects.length} shown`],
+          ].map(([id, label, helper]) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`border-2 p-4 text-left transition-all ${
+                activeTab === id
+                  ? 'border-accent bg-accent text-white shadow-[5px_5px_0px_0px_#141822]'
+                  : 'border-border bg-card hover:border-accent'
+              }`}
+            >
+              <span className="block text-lg font-black uppercase tracking-tight">{label}</span>
+              <span className="mt-1 block text-[10px] font-bold uppercase tracking-widest opacity-70">{helper}</span>
+            </button>
+          ))}
+        </div>
+
+        {(status || error) && (
+          <div className="mb-6 border-2 border-border bg-card px-4 py-3 text-xs font-bold uppercase tracking-widest text-accent">
+            {status || error}
+          </div>
+        )}
+
+        {activeTab === 'profile' && (
+          <section className="bg-card border-2 border-border p-6 md:p-8 shadow-[8px_8px_0px_0px_#141822]">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <Field label="Display name">
+                <input className={inputClass} value={formData.name} onChange={(e) => updateField('name', e.target.value)} />
+              </Field>
+              <Field label="Avatar URL">
+                <input className={inputClass} value={formData.avatar} onChange={(e) => updateField('avatar', e.target.value)} placeholder="https://..." />
+              </Field>
+              <Field label="Intro">
+                <input className={inputClass} value={formData.intro} onChange={(e) => updateField('intro', e.target.value)} placeholder="Full-stack developer..." />
+              </Field>
+              <Field label="Headline">
+                <input className={inputClass} value={formData.headline} onChange={(e) => updateField('headline', e.target.value)} placeholder="React, Node, AI systems" />
+              </Field>
+              <Field label="Location">
+                <input className={inputClass} value={formData.location} onChange={(e) => updateField('location', e.target.value)} />
+              </Field>
+              <Field label="Email">
+                <input className={inputClass} type="email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} />
+              </Field>
+              <Field label="Phone">
+                <input className={inputClass} value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} />
+              </Field>
+              <Field label="Website">
+                <input className={inputClass} value={formData.website} onChange={(e) => updateField('website', e.target.value)} />
+              </Field>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+              <Field label="GitHub URL">
+                <input className={inputClass} value={formData.links.github} onChange={(e) => updateLink('github', e.target.value)} />
+              </Field>
+              <Field label="LinkedIn URL">
+                <input className={inputClass} value={formData.links.linkedin} onChange={(e) => updateLink('linkedin', e.target.value)} />
+              </Field>
+              <Field label="Portfolio / personal site URL">
+                <input className={inputClass} value={formData.links.website} onChange={(e) => updateLink('website', e.target.value)} />
+              </Field>
+              <Field label="Twitter / X URL">
+                <input className={inputClass} value={formData.links.twitter} onChange={(e) => updateLink('twitter', e.target.value)} />
+              </Field>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-6">
+              <Field label="Bio">
+                <textarea className={textareaClass} value={formData.bio} onChange={(e) => updateField('bio', e.target.value)} />
+              </Field>
+              <Field label="Skills, comma separated">
+                <textarea className={textareaClass} value={formData.skillsText} onChange={(e) => updateField('skillsText', e.target.value)} placeholder="React, Node.js, MongoDB, Tailwind..." />
+              </Field>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+              {formData.skillsText.split(',').map((skill) => skill.trim()).filter(Boolean).map((skill) => (
+                <span key={skill} className="bg-accent px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white">
+                  {skill}
+                </span>
+              ))}
+            </div>
+
+            <button
+              onClick={saveProfile}
+              disabled={savingProfile}
+              className="mt-8 inline-flex items-center gap-2 bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[5px_5px_0px_0px_#141822] disabled:opacity-50"
+            >
+              <Save className="h-4 w-4" /> {savingProfile ? 'Saving...' : 'Save Profile'}
+            </button>
+          </section>
+        )}
+
+        {activeTab === 'timeline' && (
+          <section className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <TimelineEditor
+              title="Experience"
+              items={formData.experience}
+              template={emptyExperience}
+              fields={['role', 'company', 'startDate', 'endDate', 'description']}
+              onAdd={() => addListItem('experience', emptyExperience)}
+              onRemove={(index) => removeListItem('experience', index)}
+              onChange={(index, field, value) => updateListItem('experience', index, field, value)}
+            />
+            <TimelineEditor
+              title="Education"
+              items={formData.education}
+              template={emptyEducation}
+              fields={['institution', 'degree', 'field', 'year']}
+              onAdd={() => addListItem('education', emptyEducation)}
+              onRemove={(index) => removeListItem('education', index)}
+              onChange={(index, field, value) => updateListItem('education', index, field, value)}
+            />
+            <div className="lg:col-span-2">
+              <button
+                onClick={saveProfile}
+                disabled={savingProfile}
+                className="inline-flex items-center gap-2 bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[5px_5px_0px_0px_#141822] disabled:opacity-50"
+              >
+                <Save className="h-4 w-4" /> {savingProfile ? 'Saving...' : 'Save Timeline'}
+              </button>
+            </div>
+          </section>
+        )}
+
+        {activeTab === 'projects' && (
+          <section className="space-y-5">
+            {projects.length === 0 && !loading && (
+              <div className="border-2 border-border bg-card p-8 text-center text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                No GitHub projects found. Sync GitHub from the dashboard first.
+              </div>
+            )}
+
+            {projects.map((project) => {
+              const draft = projectDrafts[project._id] || {};
+              return (
+                <div key={project._id} className={`border-2 p-5 shadow-[5px_5px_0px_0px_#141822] ${project.hidden ? 'border-muted bg-card/50 opacity-70' : 'border-border bg-card'}`}>
+                  <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-2xl font-black uppercase tracking-tight text-white">{project.name}</h3>
+                        {project.pinned && <span className="bg-primary px-2 py-1 text-[10px] font-black uppercase tracking-widest text-white">Pinned</span>}
+                        {project.hidden && <span className="bg-muted px-2 py-1 text-[10px] font-black uppercase tracking-widest text-white">Hidden</span>}
+                      </div>
+                      <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                        Stars {project.stars || 0} · Forks {project.forks || 0}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button onClick={() => handleTogglePin(project._id)} className="inline-flex items-center gap-2 border-2 border-border bg-secondary px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-accent hover:text-white">
+                        <Star className="h-3 w-3" /> {project.pinned ? 'Unpin' : 'Pin'}
+                      </button>
+                      <button onClick={() => handleToggleVisibility(project._id)} className="inline-flex items-center gap-2 border-2 border-border bg-secondary px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-accent hover:text-white">
+                        {project.hidden ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                        {project.hidden ? 'Show' : 'Hide'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <Field label="Project name">
+                      <input className={inputClass} value={draft.name || ''} onChange={(e) => updateProjectDraft(project._id, 'name', e.target.value)} />
+                    </Field>
+                    <Field label="Primary language">
+                      <input className={inputClass} value={draft.language || ''} onChange={(e) => updateProjectDraft(project._id, 'language', e.target.value)} />
+                    </Field>
+                    <Field label="Repository URL">
+                      <input className={inputClass} value={draft.repoUrl || ''} onChange={(e) => updateProjectDraft(project._id, 'repoUrl', e.target.value)} />
+                    </Field>
+                    <Field label="Score">
+                      <input className={inputClass} type="number" min="0" max="100" value={draft.score ?? 0} onChange={(e) => updateProjectDraft(project._id, 'score', e.target.value)} />
+                    </Field>
+                    <div className="md:col-span-2">
+                      <Field label="Description">
+                        <textarea className={textareaClass} value={draft.description || ''} onChange={(e) => updateProjectDraft(project._id, 'description', e.target.value)} />
+                      </Field>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => saveProject(project._id)}
+                    disabled={savingProjectId === project._id}
+                    className="mt-5 inline-flex items-center gap-2 bg-accent px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-[4px_4px_0px_0px_#141822] disabled:opacity-50"
+                  >
+                    <Save className="h-4 w-4" /> {savingProjectId === project._id ? 'Saving...' : 'Save Project'}
+                  </button>
+                </div>
+              );
+            })}
+          </section>
+        )}
       </main>
     </div>
   );
 };
+
+const TimelineEditor = ({ title, items, fields, onAdd, onRemove, onChange }) => (
+  <div className="bg-card border-2 border-border p-6 shadow-[8px_8px_0px_0px_#141822]">
+    <div className="mb-5 flex items-center justify-between border-b-2 border-border pb-3">
+      <h2 className="text-2xl font-black uppercase tracking-tight">{title}</h2>
+      <button onClick={onAdd} className="inline-flex items-center gap-2 bg-accent px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white">
+        <Plus className="h-3 w-3" /> Add
+      </button>
+    </div>
+
+    <div className="space-y-5">
+      {items.length === 0 && (
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">No {title.toLowerCase()} entries yet.</p>
+      )}
+      {items.map((item, index) => (
+        <div key={index} className="border-2 border-border bg-background p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Entry {index + 1}</span>
+            <button onClick={() => onRemove(index)} className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-accent">
+              <Trash2 className="h-3 w-3" /> Remove
+            </button>
+          </div>
+          <div className="grid grid-cols-1 gap-3">
+            {fields.map((field) => (
+              <Field key={field} label={field.replace(/([A-Z])/g, ' $1')}>
+                {field === 'description' ? (
+                  <textarea className={textareaClass} value={item[field] || ''} onChange={(e) => onChange(index, field, e.target.value)} />
+                ) : (
+                  <input className={inputClass} value={item[field] || ''} onChange={(e) => onChange(index, field, e.target.value)} />
+                )}
+              </Field>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);

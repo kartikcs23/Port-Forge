@@ -1,18 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
 
 export const Privacy = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [activeSection, setActiveSection] = useState(0);
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   const sections = [
     'Information We Collect',
@@ -27,297 +18,224 @@ export const Privacy = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-ink font-sans overflow-hidden relative">
-      {/* Dynamic Background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div
-          className="absolute w-96 h-96 bg-accent/3 rounded-full blur-3xl animate-pulse"
-          style={{
-            left: `${mousePosition.x * 0.01}%`,
-            top: `${mousePosition.y * 0.01}%`,
-            transition: 'all 0.5s ease-out'
-          }}
-        />
-        <div
-          className="absolute w-80 h-80 bg-accent/2 rounded-full blur-2xl animate-pulse"
-          style={{
-            right: `${mousePosition.x * 0.015}%`,
-            bottom: `${mousePosition.y * 0.015}%`,
-            animationDelay: '2s',
-            transition: 'all 0.7s ease-out'
-          }}
-        />
-      </div>
-
+    <div className="min-h-screen font-sans overflow-hidden bg-background relative selection:bg-primary/30 selection:text-white">
+      {/* Shared Navbar */}
       <Navbar />
 
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-        {/* Hero Section */}
-        <div className="text-center mb-20 relative">
-          <div className="inline-block border-4 border-ink px-8 py-3 mb-12 bg-surface shadow-brutal font-black text-lg uppercase tracking-widest text-accent transform hover:scale-110 transition-transform duration-500 animate-pulse relative">
-            🔒 PRIVACY FIRST 🔒
-            <div className="absolute -inset-1 border-2 border-accent rounded-lg animate-spin-slow opacity-60" />
+      {/* Cyber Grid Background */}
+      <div className="absolute inset-0 cyber-grid opacity-[0.25] pointer-events-none z-0"></div>
+      <div className="absolute inset-0 dot-bg opacity-[0.4] pointer-events-none z-0"></div>
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-40 pb-20 relative z-10">
+        
+        {/* Background Gradients */}
+        <div className="absolute top-1/4 left-0 w-96 h-96 bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-1/4 right-0 w-80 h-80 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+        {/* Page Header */}
+        <div className="text-center mb-20 relative z-10 fade-in-up">
+          <div className="inline-flex items-center gap-3 px-4 py-2 mb-8 border border-border bg-secondary/80 text-xs font-bold uppercase tracking-widest text-primary shadow-[3px_3px_0px_0px_rgba(235,59,59,0.15)]">
+            <span className="w-2.5 h-2.5 bg-primary glow-pulse"></span>
+            <span>PRIVACY COMPLIANCE</span>
           </div>
 
-          <h1 className="text-6xl sm:text-7xl md:text-8xl font-black mb-8 leading-[0.85] relative">
-            PRIVACY
-            <span className="block text-accent animate-bounce-gentle shadow-text-glow transform hover:scale-105 transition-transform duration-300">
-              POLICY
-            </span>
+          <h1 className="text-5xl sm:text-7xl font-black mb-8 leading-tight tracking-tighter uppercase font-display">
+            <span className="block text-white">SYSTEM</span>
+            <span className="block text-primary">PRIVACY POLICY</span>
           </h1>
 
-          <div className="flex items-center justify-center space-x-4 mb-8">
-            <div className="text-muted font-medium">Last updated:</div>
-            <div className="bg-accent text-ink px-4 py-2 font-black shadow-brutal animate-pulse">
+          <div className="flex items-center justify-center space-x-4 mb-12 text-xs font-display font-bold uppercase tracking-widest">
+            <div className="text-muted-foreground">LAST COMPILED:</div>
+            <div className="bg-secondary text-white px-4 py-2 border border-border shadow-[2px_2px_0px_0px_rgba(235,59,59,0.15)]">
               {new Date().toLocaleDateString()}
             </div>
           </div>
 
-          <p className="text-xl text-muted leading-relaxed max-w-3xl mx-auto transform hover:scale-105 transition-transform duration-300">
-            Your privacy is our <span className="text-accent font-black animate-pulse">TOP PRIORITY</span>.
-            We collect only what we need to make PortForge amazing for you. 🔒✨
+          <p className="text-xs sm:text-sm text-gray-400 leading-relaxed max-w-2xl mx-auto font-semibold uppercase tracking-wider">
+            Review data processing laws, permissions, and compilation metrics recorded by PortForge.
           </p>
         </div>
 
-        {/* Table of Contents */}
-        <div className="bg-surface p-8 shadow-brutal border-4 border-ink mb-12 transform hover:scale-102 transition-transform duration-300">
-          <h2 className="text-3xl font-black mb-6 text-accent text-center">📋 TABLE OF CONTENTS</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Table of Contents sidebar */}
+        <div className="border-2 border-border bg-card p-6 md:p-8 mb-16 relative z-10 fade-in-up stagger-1 shadow-[6px_6px_0px_0px_rgba(235,59,59,0.15)]">
+          <div className="absolute top-0 inset-x-0 h-1.5 stripe-bg"></div>
+          <h2 className="text-sm font-bold uppercase mb-8 text-white tracking-widest font-display">// TABLE_OF_REGISTRIES</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 font-display">
             {sections.map((section, index) => (
               <button
                 key={index}
                 onClick={() => setActiveSection(index)}
-                className={`p-3 text-left border-2 border-ink shadow-brutal transform hover:scale-105 transition-all duration-300 ${
+                className={`p-4 text-left border-2 transition-all text-xs font-bold uppercase tracking-wider ${
                   activeSection === index
-                    ? 'bg-accent text-ink shadow-brutal-hover'
-                    : 'bg-background hover:bg-accent/10'
+                    ? 'bg-primary/10 border-primary text-primary shadow-[3px_3px_0px_0px_rgba(18,22,32,1)]'
+                    : 'bg-background border-border text-muted-foreground hover:border-primary hover:text-white'
                 }`}
               >
-                <span className="font-black text-sm">{index + 1}.</span> {section}
+                <span className="text-primary mr-2">0{index + 1}.</span> {section}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Privacy Content */}
-        <div className="space-y-12">
-          <div className="bg-surface p-10 shadow-brutal border-4 border-ink transform hover:scale-102 transition-all duration-500 group relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10">
-              <div className="flex items-center mb-6">
-                <div className="text-4xl mr-4 animate-bounce">📊</div>
-                <h2 className="text-4xl font-black text-accent group-hover:text-ink transition-colors duration-300">1. INFORMATION WE COLLECT</h2>
-              </div>
-              <div className="space-y-6 text-lg text-muted leading-relaxed">
-                <p>
-                  <strong className="text-ink font-black">Personal Information:</strong> When you create an account, we collect your name, email address, and profile information from authentication providers like Clerk.
-                </p>
-                <p>
-                  <strong className="text-ink font-black">GitHub Data:</strong> With your permission, we access your public GitHub repositories, commit history, and profile information to generate your portfolio.
-                </p>
-                <p>
-                  <strong className="text-ink font-black">LinkedIn Data:</strong> With your permission, we access your LinkedIn profile information to enhance your portfolio content.
-                </p>
-                <p>
-                  <strong className="text-ink font-black">Usage Data:</strong> We collect information about how you use PortForge, including pages visited, features used, and interaction patterns.
-                </p>
-              </div>
+        {/* Policy Documents */}
+        <div className="space-y-12 relative z-10 text-xs font-display">
+          
+          {/* Section 1 */}
+          <div className="border-2 border-border bg-card p-8 md:p-10 hover:border-primary transition-all duration-300 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]">
+            <div className="absolute top-0 left-0 w-2 h-full bg-primary/20"></div>
+            <h2 className="text-md font-bold text-white tracking-wider uppercase mb-6 pb-4 border-b border-border flex items-center gap-3 font-display">
+              <span className="text-primary">01.</span> INFORMATION WE COLLECT
+            </h2>
+            <div className="space-y-6 text-gray-400 font-semibold uppercase tracking-wide leading-relaxed font-sans">
+              <p>
+                <strong className="text-white">Personal Data:</strong> When you connect through Clerk, we record credentials (name, email endpoint, profile ID) to provision secure access keys.
+              </p>
+              <p>
+                <strong className="text-white">GitHub integration:</strong> We access repository scopes, stars, commit frequencies, and documentation structures to compute portfolio quality scores.
+              </p>
+              <p>
+                <strong className="text-white">LinkedIn metrics:</strong> We extract basic biographies, job titles, and experiences to format headers in generated portfolios.
+              </p>
             </div>
           </div>
 
-          <div className="bg-surface p-10 shadow-brutal border-4 border-ink transform hover:scale-102 transition-all duration-500 group relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10">
-              <div className="flex items-center mb-6">
-                <div className="text-4xl mr-4 animate-spin-slow">🎯</div>
-                <h2 className="text-4xl font-black text-accent group-hover:text-ink transition-colors duration-300">2. HOW WE USE YOUR INFORMATION</h2>
-              </div>
-              <div className="space-y-4 text-lg text-muted leading-relaxed">
-                <p>• <strong className="text-ink font-black">Portfolio Generation:</strong> To create and customize your professional portfolio</p>
-                <p>• <strong className="text-ink font-black">Service Provision:</strong> To provide, maintain, and improve PortForge</p>
-                <p>• <strong className="text-ink font-black">Communication:</strong> To send you important updates and respond to your inquiries</p>
-                <p>• <strong className="text-ink font-black">Analytics:</strong> To understand usage patterns and improve our service</p>
-                <p>• <strong className="text-ink font-black">Security:</strong> To protect against fraud and unauthorized access</p>
-              </div>
+          {/* Section 2 */}
+          <div className="border-2 border-border bg-card p-8 md:p-10 hover:border-primary transition-all duration-300 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]">
+            <div className="absolute top-0 left-0 w-2 h-full bg-primary/20"></div>
+            <h2 className="text-md font-bold text-white tracking-wider uppercase mb-6 pb-4 border-b border-border flex items-center gap-3 font-display">
+              <span className="text-primary">02.</span> HOW WE USE INFORMATION
+            </h2>
+            <div className="space-y-4 text-gray-400 font-semibold uppercase tracking-wide leading-relaxed font-sans">
+              <p className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-primary"></span> <strong className="text-white">PORTFOLIO GENERATION:</strong> Compiles layout themes and parses readme files.</p>
+              <p className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-primary"></span> <strong className="text-white">SERVICE OPTIMIZATION:</strong> Maintains and updates core compiler models.</p>
+              <p className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-primary"></span> <strong className="text-white">DISPATCHING COMMUNICATIVE LOGS:</strong> Transmits account updates and system status.</p>
+              <p className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-primary"></span> <strong className="text-white">METRIC SYSTEMS:</strong> Computes analytics and aggregates skill distributions.</p>
             </div>
           </div>
 
-          <div className="bg-surface p-10 shadow-brutal border-4 border-ink transform hover:scale-102 transition-all duration-500 group relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10">
-              <div className="flex items-center mb-6">
-                <div className="text-4xl mr-4 animate-pulse">🤝</div>
-                <h2 className="text-4xl font-black text-accent group-hover:text-ink transition-colors duration-300">3. INFORMATION SHARING</h2>
-              </div>
-              <div className="space-y-6 text-lg text-muted leading-relaxed">
-                <p>
-                  We do <span className="text-accent font-black">NOT</span> sell, trade, or otherwise transfer your personal information to third parties without your consent, except as described in this policy.
-                </p>
-                <p>
-                  <strong className="text-ink font-black">Service Providers:</strong> We may share information with trusted third-party service providers who assist us in operating our website and conducting our business.
-                </p>
-                <p>
-                  <strong className="text-ink font-black">Legal Requirements:</strong> We may disclose information if required by law or to protect our rights and safety.
-                </p>
-                <p>
-                  <strong className="text-ink font-black">Public Portfolios:</strong> Information you choose to make public in your portfolio will be visible to anyone who visits your portfolio URL.
-                </p>
-              </div>
+          {/* Section 3 */}
+          <div className="border-2 border-border bg-card p-8 md:p-10 hover:border-primary transition-all duration-300 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]">
+            <div className="absolute top-0 left-0 w-2 h-full bg-primary/20"></div>
+            <h2 className="text-md font-bold text-white tracking-wider uppercase mb-6 pb-4 border-b border-border flex items-center gap-3 font-display">
+              <span className="text-primary">03.</span> INFORMATION SHARING
+            </h2>
+            <div className="space-y-6 text-gray-400 font-semibold uppercase tracking-wide leading-relaxed font-sans">
+              <p>
+                We do <span className="text-white">not</span> sell, lease, or transmit personal data logs to third-party databases for marketing networks.
+              </p>
+              <p>
+                <strong className="text-white">Registry Services:</strong> Trust metrics may be processed by database layers or cloud partners necessary to host the app infrastructure.
+              </p>
+              <p>
+                <strong className="text-white">Public Directories:</strong> Portfolios set to "LIVE" are searchable and accessible by web crawlers or visiting clients.
+              </p>
             </div>
           </div>
 
-          <div className="bg-surface p-10 shadow-brutal border-4 border-ink transform hover:scale-102 transition-all duration-500 group relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10">
-              <div className="flex items-center mb-6">
-                <div className="text-4xl mr-4 animate-bounce">🔐</div>
-                <h2 className="text-4xl font-black text-accent group-hover:text-ink transition-colors duration-300">4. DATA SECURITY</h2>
-              </div>
-              <div className="space-y-6 text-lg text-muted leading-relaxed">
-                <p>
-                  We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.
-                </p>
-                <p>
-                  However, no method of transmission over the internet or electronic storage is{' '}
-                  <span className="text-accent font-black">100% SECURE</span>. While we strive to protect your information, we cannot guarantee absolute security.
-                </p>
-              </div>
+          {/* Section 4 */}
+          <div className="border-2 border-border bg-card p-8 md:p-10 hover:border-primary transition-all duration-300 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]">
+            <div className="absolute top-0 left-0 w-2 h-full bg-primary/20"></div>
+            <h2 className="text-md font-bold text-white tracking-wider uppercase mb-6 pb-4 border-b border-border flex items-center gap-3 font-display">
+              <span className="text-primary">04.</span> DATA SECURITY
+            </h2>
+            <div className="space-y-6 text-gray-400 font-semibold uppercase tracking-wide leading-relaxed font-sans">
+              <p>
+                We process files under secure SSL channels and hash data tables. Our authentication system relies on Clerk to verify sessions.
+              </p>
+              <p>
+                No method of data transmission across web grids is <span className="text-white">100% impenetrable</span>. We deploy continuous maintenance patches to secure system registries.
+              </p>
             </div>
           </div>
 
-          <div className="bg-surface p-10 shadow-brutal border-4 border-ink transform hover:scale-102 transition-all duration-500 group relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10">
-              <div className="flex items-center mb-6">
-                <div className="text-4xl mr-4 animate-spin-slow">⚖️</div>
-                <h2 className="text-4xl font-black text-accent group-hover:text-ink transition-colors duration-300">5. YOUR RIGHTS</h2>
-              </div>
-              <div className="space-y-4 text-lg text-muted leading-relaxed">
-                <p className="font-black text-accent mb-4">You have the right to:</p>
-                <ul className="list-none space-y-3 ml-6">
-                  <li className="flex items-start">
-                    <span className="text-accent font-black mr-3">•</span>
-                    <span>Access the personal information we hold about you</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-accent font-black mr-3">•</span>
-                    <span>Correct inaccurate or incomplete information</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-accent font-black mr-3">•</span>
-                    <span>Delete your account and associated data</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-accent font-black mr-3">•</span>
-                    <span>Object to or restrict certain processing</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-accent font-black mr-3">•</span>
-                    <span>Data portability</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-accent font-black mr-3">•</span>
-                    <span>Withdraw consent where applicable</span>
-                  </li>
-                </ul>
-              </div>
+          {/* Section 5 */}
+          <div className="border-2 border-border bg-card p-8 md:p-10 hover:border-primary transition-all duration-300 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]">
+            <div className="absolute top-0 left-0 w-2 h-full bg-primary/20"></div>
+            <h2 className="text-md font-bold text-white tracking-wider uppercase mb-6 pb-4 border-b border-border flex items-center gap-3 font-display">
+              <span className="text-primary">05.</span> SYSTEM USER RIGHTS
+            </h2>
+            <div className="space-y-4 text-gray-400 font-semibold uppercase tracking-wide leading-relaxed font-sans">
+              <p className="font-bold text-white mb-4">You maintain registry rights to:</p>
+              <ul className="space-y-3 ml-2 font-display uppercase tracking-wider text-[11px]">
+                <li className="flex items-center gap-3">
+                  <span className="text-primary">✓</span>
+                  <span>Inspect compiled credentials held by the database</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="text-primary">✓</span>
+                  <span>Update or modify incorrect experience profiles</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="text-primary">✓</span>
+                  <span>Wipe database records and terminate URL slug hosts</span>
+                </li>
+              </ul>
             </div>
           </div>
 
-          <div className="bg-surface p-10 shadow-brutal border-4 border-ink transform hover:scale-102 transition-all duration-500 group relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10">
-              <div className="flex items-center mb-6">
-                <div className="text-4xl mr-4 animate-pulse">🍪</div>
-                <h2 className="text-4xl font-black text-accent group-hover:text-ink transition-colors duration-300">6. COOKIES AND TRACKING</h2>
-              </div>
-              <div className="space-y-6 text-lg text-muted leading-relaxed">
-                <p>
-                  We use cookies and similar technologies to enhance your experience, analyze usage, and provide personalized content.
-                </p>
-                <p>
-                  You can control cookie settings through your browser preferences, though disabling cookies may affect functionality.
-                </p>
-              </div>
+          {/* Section 6 */}
+          <div className="border-2 border-border bg-card p-8 md:p-10 hover:border-primary transition-all duration-300 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]">
+            <div className="absolute top-0 left-0 w-2 h-full bg-primary/20"></div>
+            <h2 className="text-md font-bold text-white tracking-wider uppercase mb-6 pb-4 border-b border-border flex items-center gap-3 font-display">
+              <span className="text-primary">06.</span> COOKIES AND TRACKING
+            </h2>
+            <div className="space-y-6 text-gray-400 font-semibold uppercase tracking-wide leading-relaxed font-sans">
+              <p>
+                We use secure local browser files to verify session tokens, track user logins, and persist UI templates across pages.
+              </p>
             </div>
           </div>
 
-          <div className="bg-surface p-10 shadow-brutal border-4 border-ink transform hover:scale-102 transition-all duration-500 group relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10">
-              <div className="flex items-center mb-6">
-                <div className="text-4xl mr-4 animate-bounce">🧒</div>
-                <h2 className="text-4xl font-black text-accent group-hover:text-ink transition-colors duration-300">7. CHILDREN'S PRIVACY</h2>
-              </div>
-              <div className="space-y-6 text-lg text-muted leading-relaxed">
-                <p>
-                  PortForge is <span className="text-accent font-black">NOT INTENDED</span> for children under 13. We do not knowingly collect personal information from children under 13.
-                </p>
-              </div>
+          {/* Section 7 */}
+          <div className="border-2 border-border bg-card p-8 md:p-10 hover:border-primary transition-all duration-300 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]">
+            <div className="absolute top-0 left-0 w-2 h-full bg-primary/20"></div>
+            <h2 className="text-md font-bold text-white tracking-wider uppercase mb-6 pb-4 border-b border-border flex items-center gap-3 font-display">
+              <span className="text-primary">07.</span> CHILDREN'S PRIVACY
+            </h2>
+            <div className="space-y-6 text-gray-400 font-semibold uppercase tracking-wide leading-relaxed font-sans">
+              <p>
+                Our services are restricted to active developers. We do not inspect or record credentials from accounts under 13 years of age.
+              </p>
             </div>
           </div>
 
-          <div className="bg-surface p-10 shadow-brutal border-4 border-ink transform hover:scale-102 transition-all duration-500 group relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10">
-              <div className="flex items-center mb-6">
-                <div className="text-4xl mr-4 animate-spin-slow">📝</div>
-                <h2 className="text-4xl font-black text-accent group-hover:text-ink transition-colors duration-300">8. CHANGES TO THIS POLICY</h2>
-              </div>
-              <div className="space-y-6 text-lg text-muted leading-relaxed">
-                <p>
-                  We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "Last updated" date.
-                </p>
-              </div>
+          {/* Section 8 */}
+          <div className="border-2 border-border bg-card p-8 md:p-10 hover:border-primary transition-all duration-300 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]">
+            <div className="absolute top-0 left-0 w-2 h-full bg-primary/20"></div>
+            <h2 className="text-md font-bold text-white tracking-wider uppercase mb-6 pb-4 border-b border-border flex items-center gap-3 font-display">
+              <span className="text-primary">08.</span> SYSTEM POLICY CHANGES
+            </h2>
+            <div className="space-y-6 text-gray-400 font-semibold uppercase tracking-wide leading-relaxed font-sans">
+              <p>
+                We reserve rights to adjust compilations protocols. System updates will be displayed on this endpoint.
+              </p>
             </div>
           </div>
 
-          <div className="bg-surface p-10 shadow-brutal border-4 border-ink transform hover:scale-102 transition-all duration-500 group relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10">
-              <div className="flex items-center mb-6">
-                <div className="text-4xl mr-4 animate-pulse">📞</div>
-                <h2 className="text-4xl font-black text-accent group-hover:text-ink transition-colors duration-300">9. CONTACT US</h2>
-              </div>
-              <div className="space-y-6 text-lg text-muted leading-relaxed">
-                <p>
-                  If you have any questions about this Privacy Policy, please contact us at:
-                </p>
-                <div className="bg-background p-6 border-2 border-ink shadow-brutal transform hover:scale-105 transition-transform duration-300">
-                  <p className="font-black text-accent mb-2">Email:</p>
-                  <p className="font-medium mb-4">privacy@portforge.dev</p>
-                  <p className="font-black text-accent mb-2">Address:</p>
-                  <p className="font-medium">[Company Address]</p>
-                </div>
+          {/* Section 9 */}
+          <div className="border-2 border-border bg-card p-8 md:p-10 hover:border-primary transition-all duration-300 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]">
+            <div className="absolute top-0 left-0 w-2 h-full bg-primary/20"></div>
+            <h2 className="text-md font-bold text-white tracking-wider uppercase mb-6 pb-4 border-b border-border flex items-center gap-3 font-display">
+              <span className="text-primary">09.</span> COMPLIANCE DISPATCH
+            </h2>
+            <div className="space-y-6 text-gray-400 font-semibold uppercase tracking-wide leading-relaxed font-sans">
+              <p>
+                For data access reports, contact the system administrators at:
+              </p>
+              <div className="bg-background p-6 border border-border">
+                <p className="font-bold text-[10px] text-primary uppercase tracking-widest mb-1">Email Endpoint:</p>
+                <p className="font-semibold text-white mb-4">privacy@portforge.dev</p>
+                <p className="font-bold text-[10px] text-primary uppercase tracking-widest mb-1">Location Slug:</p>
+                <p className="font-semibold text-white">PortForge Core Lab, California</p>
               </div>
             </div>
           </div>
+          
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes bounce-gentle {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-5px); }
-        }
-
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-
-        .animate-bounce-gentle {
-          animation: bounce-gentle 2s ease-in-out infinite;
-        }
-
-        .animate-spin-slow {
-          animation: spin-slow 8s linear infinite;
-        }
-
-        .shadow-text-glow {
-          text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
-        }
-      `}</style>
+      <Footer />
     </div>
   );
 };

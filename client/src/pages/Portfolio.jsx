@@ -40,11 +40,11 @@ export const Portfolio = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background text-ink font-sans flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-background text-foreground font-sans flex flex-col items-center justify-center p-4">
         <div className="text-center max-w-md">
-          <h1 className="text-4xl font-black mb-4 uppercase tracking-tighter">ERROR_FOUND</h1>
-          <p className="text-lg font-bold mb-6 text-muted uppercase tracking-widest">{error}</p>
-          <a href="/" className="bg-accent text-white px-8 py-4 font-black uppercase text-xs border-2 border-ink shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-none transition-all">
+          <h1 className="text-4xl font-black mb-4 uppercase tracking-tighter text-white">ERROR_FOUND</h1>
+          <p className="text-lg font-bold mb-6 text-primary uppercase tracking-widest">{error}</p>
+          <a href="/" className="btn-forge-primary">
             Back to Home
           </a>
         </div>
@@ -76,7 +76,7 @@ export const Portfolio = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-ink font-sans selection:bg-accent selection:text-white">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-accent selection:text-white">
       {renderTheme()}
     </div>
   );

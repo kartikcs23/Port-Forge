@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { useAppUser } from './useAppUser';
 import api from '../utils/axios';
 
 /**
  * useAdmin — Hook to check if current user is admin
  */
 export const useAdmin = () => {
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { isLoaded, isSignedIn, user } = useAppUser();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 

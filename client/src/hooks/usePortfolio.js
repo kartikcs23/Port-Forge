@@ -19,8 +19,13 @@ export const usePortfolio = () => {
     setError(null);
     try {
       const response = await api.get('/api/portfolio/mine');
-      setPortfolio(response.data.data.portfolio);
-      return { success: true, data: response.data.data.portfolio };
+      if (response.data.success && response.data.data) {
+        setPortfolio(response.data.data.portfolio);
+        return { success: true, data: response.data.data.portfolio };
+      } else {
+        setPortfolio(null);
+        return { success: false, message: response.data.message };
+      }
     } catch (err) {
       const message = err.response?.data?.message || err.message;
       setError(message);
@@ -143,6 +148,38 @@ export const usePortfolio = () => {
     }
   }, []);
 
+  const updateProject = useCallback(async (projectId, projectData) => {
+    setError(null);
+    try {
+      const response = await api.put(`/api/profile/projects/${projectId}`, projectData);
+      const updatedProject = response.data.data.project;
+      setProjects((prev) =>
+        prev.map((project) => (project._id === projectId ? updatedProject : project))
+      );
+      return { success: true, data: updatedProject };
+    } catch (err) {
+      const message = err.response?.data?.message || err.message;
+      setError(message);
+      return { success: false, message };
+    }
+  }, []);
+
+  const toggleProjectVisibility = useCallback(async (projectId) => {
+    setError(null);
+    try {
+      const response = await api.patch(`/api/profile/projects/${projectId}/visibility`);
+      const updatedProject = response.data.data.project;
+      setProjects((prev) =>
+        prev.map((project) => (project._id === projectId ? updatedProject : project))
+      );
+      return { success: true, data: updatedProject };
+    } catch (err) {
+      const message = err.response?.data?.message || err.message;
+      setError(message);
+      return { success: false, message };
+    }
+  }, []);
+
   /**
    * updateTheme — Update portfolio theme
    */
@@ -169,6 +206,8 @@ export const usePortfolio = () => {
     syncGithub,
     fetchProjects,
     togglePin,
+    updateProject,
+    toggleProjectVisibility,
     updateTheme,
     updateProfileData,
   };

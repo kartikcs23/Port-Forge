@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navbar } from '../components/Navbar';
-import { useUser } from '@clerk/clerk-react';
+import { useAppUser } from '../hooks/useAppUser';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../hooks/useAdmin';
 import api from '../utils/axios';
@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 
 export const AdminDashboard = () => {
-  const { isLoaded, isSignedIn } = useUser();
+  const { isLoaded, isSignedIn } = useAppUser();
   const { isAdmin, loading: adminLoading } = useAdmin();
   const navigate = useNavigate();
 

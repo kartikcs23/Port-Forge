@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Download, Mail, GitBranch } from 'lucide-react';
+import { ProjectVisual } from './ProjectVisual';
 
 /* ═══════════════════════════════════════════════════════
    TOKYO THEME — Neon Cyberpunk Portfolio (Blue Edition)
@@ -55,20 +58,27 @@ const GlowLine = ({ color=HIGHLIGHT, className='' }) => (
   <div className={className} style={{ height:1, background:`linear-gradient(90deg, transparent, ${color}60, transparent)` }} />
 );
 
-const NeonCard = ({ children, className='', style={}, color=HIGHLIGHT }) => (
-  <div className={`group relative transition-all duration-400 ${className}`}
-       style={{ background:'rgba(255,255,255,0.03)', border:`1px solid rgba(255,255,255,0.1)`,
-                backdropFilter:'blur(12px)', position:'relative', overflow:'hidden', ...style }}>
-    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-         style={{ background:`radial-gradient(circle at 0 0, ${color}08, transparent 60%)` }} />
-    {/* corner accents */}
-    {['top-0 left-0 border-t border-l','top-0 right-0 border-t border-r','bottom-0 left-0 border-b border-l','bottom-0 right-0 border-b border-r'].map((c,i)=>(
-      <div key={i} className={`absolute w-3 h-3 transition-all duration-500 ${c}`}
-           style={{ borderColor:`${color}40` }} />
-    ))}
-    {children}
-  </div>
-);
+const NeonCard = ({ children, className='', style={}, color=HIGHLIGHT, onClick, layoutId }) => {
+  const CardContainer = layoutId ? motion.div : 'div';
+  return (
+    <CardContainer
+      layoutId={layoutId}
+      onClick={onClick}
+      className={`group relative transition-all duration-400 ${className}`}
+      style={{ background:'rgba(255,255,255,0.03)', border:`1px solid rgba(255,255,255,0.1)`,
+               backdropFilter:'blur(12px)', position:'relative', overflow:'hidden', ...style }}
+    >
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+           style={{ background:`radial-gradient(circle at 0 0, ${color}08, transparent 60%)` }} />
+      {/* corner accents */}
+      {['top-0 left-0 border-t border-l','top-0 right-0 border-t border-r','bottom-0 left-0 border-b border-l','bottom-0 right-0 border-b border-r'].map((c,i)=>(
+        <div key={i} className={`absolute w-3 h-3 transition-all duration-500 ${c}`}
+             style={{ borderColor:`${color}40` }} />
+      ))}
+      {children}
+    </CardContainer>
+  );
+};
 
 const SectionHead = ({ tag, title, sub, color=HIGHLIGHT }) => (
   <div style={{ marginBottom:72 }}>
@@ -92,6 +102,7 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
   const [filter,setFilter]=useState('ALL');
   const [menuOpen,setMenuOpen]=useState(false);
   const [scrollY,setScrollY]=useState(0);
+  const [selectedProject, setSelectedProject] = useState(null);
   const {form,sent,onChange,onSubmit}=useForm();
 
   const name      = profile?.name      || rootUser?.name   || 'Developer';
@@ -122,15 +133,43 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
     <div style={{ minHeight:'100vh', background:VOID, color:'#fff', fontFamily:SANS, overflowX:'hidden' }}>
 
       {/* ── BACKGROUNDS ── */}
+      {/* City Street Overlay Asset */}
+      <div style={{ position:'fixed', inset:0, zIndex:0, pointerEvents:'none' }}>
+        <img src="/assets/themes/tokyo_bg.png" alt=""
+             style={{ width:'100%', height:'100%', objectFit:'cover', opacity:0.18,
+                      transform: `scale(1.02) translateY(${scrollY * 0.012}px)`, transition: 'transform 0.1s linear' }} />
+      </div>
+
       {/* Grid */}
       <div style={{ position:'fixed', inset:0, zIndex:0, pointerEvents:'none', opacity:0.04,
         backgroundImage:`linear-gradient(${HIGHLIGHT}80 1px,transparent 1px),linear-gradient(90deg,${HIGHLIGHT}80 1px,transparent 1px)`,
         backgroundSize:'60px 60px' }} />
+
       {/* Glow blobs */}
       <div style={{ position:'fixed', top:'-20%', left:'-10%', width:600, height:600, borderRadius:'50%',
         background:SECONDARY, opacity:0.1, filter:'blur(120px)', zIndex:0, pointerEvents:'none' }} />
       <div style={{ position:'fixed', bottom:'-20%', right:'-10%', width:700, height:700, borderRadius:'50%',
         background:ACCENT, opacity:0.08, filter:'blur(150px)', zIndex:0, pointerEvents:'none' }} />
+
+      {/* SVG Shape Morphing: Digital Cyberpunk Polygon Matrix */}
+      <div style={{ position:'fixed', left:'10%', bottom:'10%', pointerEvents:'none', zIndex:1, opacity:0.15 }}>
+        <svg width="400" height="400" viewBox="0 0 100 100">
+          <polygon points="50,15 90,35 90,75 50,95 10,75 10,35" fill="none" stroke={HIGHLIGHT} strokeWidth="0.5">
+            <animate
+              attributeName="points"
+              dur="12s"
+              repeatCount="indefinite"
+              values="
+                50,15 90,35 90,75 50,95 10,75 10,35;
+                50,25 85,30 95,70 50,85 5,70 15,30;
+                50,5 95,45 80,80 50,90 20,80 5,45;
+                50,15 90,35 90,75 50,95 10,75 10,35
+              "
+            />
+          </polygon>
+        </svg>
+      </div>
+
       {/* Scanlines */}
       <div style={{ position:'fixed', inset:0, zIndex:1, pointerEvents:'none', opacity:0.02,
         backgroundImage:'linear-gradient(transparent 50%,rgba(0,0,0,0.5) 50%)', backgroundSize:'100% 4px' }} />
@@ -141,7 +180,7 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
         background: scrollY>60 ? 'rgba(2,6,23,0.95)' : 'transparent',
         backdropFilter: scrollY>60 ? 'blur(24px)' : 'none',
         borderBottom: scrollY>60 ? `1px solid ${ACCENT}20` : 'none' }}>
-        <div style={{ maxWidth:1280, margin:'0 auto', padding:'18px 48px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div style={{ maxWidth:1280, margin:'0 auto', padding:'18px 48px', display:'flex', alignItems:'center', justifyBetween:'space-between' }}>
           {/* Logo */}
           <div style={{ display:'flex', alignItems:'center', gap:12 }}>
             <div style={{ width:10, height:10, background:ACCENT, clipPath:'polygon(50% 0%,100% 50%,50% 100%,0% 50%)',
@@ -161,16 +200,9 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
                 {l.label}
               </a>
             ))}
-              <span style={{ fontFamily:MONO, fontSize:11, fontWeight:700, letterSpacing:'0.3em',
-                textTransform:'uppercase', padding:'10px 24px', background:ACCENT, color:'#fff', textDecoration:'none',
-                boxShadow:`0 0 20px ${ACCENT}40`, transition:'all 0.3s', display:'flex', alignItems:'center', gap:8 }}
-              onMouseEnter={e=>{ e.currentTarget.style.background=SECONDARY; e.currentTarget.style.boxShadow=`0 0 20px ${SECONDARY}50`; }}
-              onMouseLeave={e=>{ e.currentTarget.style.background=ACCENT; e.currentTarget.style.boxShadow=`0 0 20px ${ACCENT}40`; }}>
-              📧 Hire Me
-            </span>
           </div>
 
-          {/* Mobile */}
+          {/* Mobile hamburger */}
           <button onClick={()=>setMenuOpen(!menuOpen)} className="md:hidden"
                   style={{ background:'none', border:`1px solid ${ACCENT}40`, padding:'8px 10px', cursor:'pointer', color:'#fff' }}>
             {menuOpen ? '✕' : '☰'}
@@ -221,27 +253,17 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
                style={{ fontFamily:MONO, fontSize:12, fontWeight:700, letterSpacing:'0.35em',
               textTransform:'uppercase', padding:'16px 40px', background:ACCENT, color:'#fff', textDecoration:'none',
               boxShadow:`0 0 30px ${ACCENT}40`, transition:'all 0.3s', display:'flex', alignItems:'center', gap:10 }}
-              onMouseEnter={e=>{ e.currentTarget.style.background=SECONDARY; e.currentTarget.style.boxShadow=`0 0 30px ${SECONDARY}50`; }}
-              onMouseLeave={e=>{ e.currentTarget.style.background=ACCENT; e.currentTarget.style.boxShadow=`0 0 30px ${ACCENT}40`; }}>
+               onMouseEnter={e=>{ e.currentTarget.style.background=SECONDARY; e.currentTarget.style.boxShadow=`0 0 30px ${SECONDARY}50`; }}
+               onMouseLeave={e=>{ e.currentTarget.style.background=ACCENT; e.currentTarget.style.boxShadow=`0 0 30px ${ACCENT}40`; }}>
               View Projects →
             </a>
             <a href="#contact" style={{ fontFamily:MONO, fontSize:12, fontWeight:700, letterSpacing:'0.35em',
               textTransform:'uppercase', padding:'16px 40px', border:`1px solid rgba(255,255,255,0.2)`,
               color:'#fff', textDecoration:'none', transition:'all 0.3s', background:'transparent' }}
-              onMouseEnter={e=>{ e.currentTarget.style.borderColor=HIGHLIGHT; e.currentTarget.style.color=HIGHLIGHT; e.currentTarget.style.boxShadow=`0 0 20px ${HIGHLIGHT}40`; }}
-              onMouseLeave={e=>{ e.currentTarget.style.borderColor='rgba(255,255,255,0.2)'; e.currentTarget.style.color='#fff'; e.currentTarget.style.boxShadow='none'; }}>
+               onMouseEnter={e=>{ e.currentTarget.style.borderColor=HIGHLIGHT; e.currentTarget.style.color=HIGHLIGHT; e.currentTarget.style.boxShadow=`0 0 20px ${HIGHLIGHT}40`; }}
+               onMouseLeave={e=>{ e.currentTarget.style.borderColor='rgba(255,255,255,0.2)'; e.currentTarget.style.color='#fff'; e.currentTarget.style.boxShadow='none'; }}>
               Contact Me
             </a>
-            {links.github&&(
-              <a href={links.github} target="_blank" rel="noreferrer"
-                 style={{ fontFamily:MONO, fontSize:12, fontWeight:700, letterSpacing:'0.35em', textTransform:'uppercase',
-                   padding:'16px 40px', border:`1px solid ${SECONDARY}`, color:SECONDARY, textDecoration:'none', transition:'all 0.3s',
-                   display:'flex', alignItems:'center', gap:10 }}
-                onMouseEnter={e=>{ e.currentTarget.style.boxShadow=`0 0 20px ${SECONDARY}40`; e.currentTarget.style.background=`${SECONDARY}10`; }}
-                onMouseLeave={e=>{ e.currentTarget.style.boxShadow='none'; e.currentTarget.style.background='transparent'; }}>
-                🔗 GitHub
-              </a>
-            )}
           </div>
 
           {/* Stats */}
@@ -257,8 +279,15 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
         </div>
       </section>
 
-      {/* ── ABOUT ── */}
-      <section id="about" style={{ position:'relative', zIndex:10, padding:'120px 48px', maxWidth:1280, margin:'0 auto' }}>
+      {/* ── ABOUT — Fast horizontal swipe reveal ── */}
+      <motion.section 
+        id="about" 
+        style={{ position:'relative', zIndex:10, padding:'120px 48px', maxWidth:1280, margin:'0 auto' }}
+        initial={{ opacity: 0, x: 100 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
         <SectionHead tag="01 // About" title="Who I Am" sub="Background & Philosophy" color={HIGHLIGHT} />
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64 }} className="grid-cols-1 md:grid-cols-2">
           <div>
@@ -292,13 +321,20 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* ── PROJECTS ── */}
-      <section id="projects" style={{ position:'relative', zIndex:10, padding:'120px 48px',
-        background:'rgba(37,99,235,0.02)', borderTop:`1px solid rgba(255,255,255,0.04)`, borderBottom:`1px solid rgba(255,255,255,0.04)` }}>
+      {/* ── PROJECTS — Fast horizontal swipe reveal & match cut zoom ── */}
+      <motion.section 
+        id="projects" 
+        style={{ position:'relative', zIndex:10, padding:'120px 48px',
+          background:'rgba(37,99,235,0.02)', borderTop:`1px solid rgba(255,255,255,0.04)`, borderBottom:`1px solid rgba(255,255,255,0.04)` }}
+        initial={{ opacity: 0, x: 100 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div style={{ maxWidth:1280, margin:'0 auto' }}>
-          <SectionHead tag="02 // Projects" title="Deployments" sub="Engineered Solutions" color={ACCENT} />
+          <SectionHead tag="02 // Projects" title="Deployments" sub="Engineered Solutions (Click card to expand)" color={ACCENT} />
 
           {/* Filters */}
           {tags.length>1&&(
@@ -318,37 +354,116 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
           {/* Grid */}
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(340px,1fr))', gap:32 }}>
             {shown.map(repo=>(
-              <NeonCard key={repo._id} style={{ padding:32 }} color={ACCENT}>
+              <NeonCard 
+                key={repo._id} 
+                layoutId={`tokyo-project-${repo._id}`}
+                onClick={() => setSelectedProject(repo)}
+                style={{ padding:32, cursor:'pointer' }} 
+                color={ACCENT}
+              >
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:28 }}>
                   <NeonTag color={ACCENT}>{repo.language||'Code'}</NeonTag>
                   <div style={{ display:'flex', alignItems:'center', gap:8, fontFamily:MONO, fontSize:11, color:ACCENT }}>
                     ⭐ <span>{repo.stars||0}</span>
                   </div>
                 </div>
+                <div style={{ marginBottom: 24 }}>
+                  <ProjectVisual repo={repo} theme="tokyo" compact />
+                </div>
                 <h3 style={{ fontFamily:SANS, fontSize:22, fontWeight:900, letterSpacing:'-0.03em', marginBottom:12, color:'#fff' }}>
                   {repo.name}
                 </h3>
-                <p style={{ fontSize:14, lineHeight:1.7, color:'rgba(255,255,255,0.65)', marginBottom:32 }}>
+                <p style={{ fontSize:14, lineHeight:1.7, color:'rgba(255,255,255,0.65)', marginBottom:32 }} className="line-clamp-4">
                   {repo.description||'A precision-engineered digital solution.'}
                 </p>
                 <div style={{ paddingTop:24, borderTop:'1px solid rgba(255,255,255,0.08)', display:'flex', justifyContent:'flex-end' }}>
-                  {repo.repoUrl&&(
-                    <a href={repo.repoUrl} target="_blank" rel="noreferrer"
-                       style={{ fontFamily:MONO, fontSize:10, fontWeight:700, letterSpacing:'0.4em',
-                         textTransform:'uppercase', color:ACCENT, textDecoration:'none', display:'flex', alignItems:'center', gap:8 }}
-                       onMouseEnter={e=>e.currentTarget.style.textShadow=`0 0 12px ${ACCENT}`}>
-                      🔗 Source
-                    </a>
-                  )}
+                  <span style={{ fontFamily:MONO, fontSize:10, fontWeight:700, letterSpacing:'0.3em', textTransform:'uppercase', color:ACCENT }}>
+                    Expand →
+                  </span>
                 </div>
               </NeonCard>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
+
+      {/* TOKYO GLITCH DETAILED PROJECT OVERLAY */}
+      <AnimatePresence>
+        {selectedProject && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, background: 'rgba(2,6,23,0.85)', backdropFilter: 'blur(12px)' }}
+            onClick={() => setSelectedProject(null)}
+          >
+            <motion.div
+              layoutId={`tokyo-project-${selectedProject._id}`}
+              style={{ background: VOID2, maxWidth: 650, width: '100%', padding: 48, border: `1px solid ${ACCENT}`, boxShadow: `0 0 50px ${ACCENT}25`, position: 'relative' }}
+              onClick={e => e.stopPropagation()}
+            >
+              {/* corner accents */}
+              {['top-0 left-0 border-t border-l','top-0 right-0 border-t border-r','bottom-0 left-0 border-b border-l','bottom-0 right-0 border-b border-r'].map((c,i)=>(
+                <div key={i} className={`absolute w-4 h-4 ${c}`} style={{ borderColor:`${ACCENT}80` }} />
+              ))}
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <NeonTag color={ACCENT}>{selectedProject.language || 'Code'}</NeonTag>
+                <button 
+                  onClick={() => setSelectedProject(null)}
+                  style={{ background: 'none', border: `1px solid ${ACCENT}40`, fontFamily: MONO, fontSize: 10, fontWeight: 900, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '6px 16px', color: '#fff', cursor: 'pointer' }}
+                >
+                  Close [X]
+                </button>
+              </div>
+              
+              <h3 style={{ fontFamily: SANS, fontSize: 36, fontWeight: 900, letterSpacing: '-0.02em', color: '#fff', marginBottom: 20 }}>
+                {selectedProject.name}
+              </h3>
+              
+              <GlowLine color={ACCENT} className="my-6" />
+              
+              <p style={{ fontSize: 15, lineHeight: 1.8, color: 'rgba(255,255,255,0.7)', marginBottom: 32 }}>
+                {selectedProject.description || 'A precision-engineered digital solution.'}
+              </p>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, padding: 24, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', marginBottom: 32 }}>
+                <div>
+                  <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '0.2em', opacity: 0.4 }}>STARS</span>
+                  <div style={{ fontFamily: SANS, fontSize: 24, fontWeight: 900, color: HIGHLIGHT, marginTop: 4 }}>★ {selectedProject.stars || 0}</div>
+                </div>
+                <div>
+                  <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '0.2em', opacity: 0.4 }}>FORKS</span>
+                  <div style={{ fontFamily: SANS, fontSize: 24, fontWeight: 900, color: SECONDARY, marginTop: 4 }}>⑂ {selectedProject.forks || 0}</div>
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                {selectedProject.repoUrl && (
+                  <a 
+                    href={selectedProject.repoUrl} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    style={{ padding: '16px 36px', background: ACCENT, color: '#fff', fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', textDecoration: 'none', boxShadow: `0 0 20px ${ACCENT}40` }}
+                  >
+                    View Source ↗
+                  </a>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── SKILLS ── */}
-      <section id="skills" style={{ position:'relative', zIndex:10, padding:'120px 48px', maxWidth:1280, margin:'0 auto' }}>
+      <motion.section 
+        id="skills" 
+        style={{ position:'relative', zIndex:10, padding:'120px 48px', maxWidth:1280, margin:'0 auto' }}
+        initial={{ opacity: 0, x: 100 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
         <SectionHead tag="03 // Skills" title="Tech Stack" sub="Core Capabilities" color={SECONDARY} />
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))', gap:32 }}>
           {[
@@ -379,17 +494,24 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
             </NeonCard>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* ── EXPERIENCE ── */}
       {experience.length > 0 && (
-        <section id="experience" style={{ position:'relative', zIndex:10, padding:'120px 48px', background:VOID2 }}>
+        <motion.section 
+          id="experience" 
+          style={{ position:'relative', zIndex:10, padding:'120px 48px', background:VOID2 }}
+          initial={{ opacity: 0, x: 100 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
           <div style={{ maxWidth:1280, margin:'0 auto' }}>
             <SectionHead tag="04 // Experience" title="Mission Log" color={HIGHLIGHT} />
             <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
               {experience.map((exp,i)=>(
                 <NeonCard key={i} style={{ padding:40 }} color={HIGHLIGHT}>
-                  <div style={{ display:'flex', flexWrap:'wrap', alignItems:'center', justifyContent:'space-between', gap:24, marginBottom:20 }}>
+                  <div style={{ display:'flex', flexWrap:'wrap', alignItems:'center', justifyBetween:'space-between', gap:24, marginBottom:20 }}>
                     <h3 style={{ fontFamily:SANS, fontSize:'clamp(1.5rem,3vw,2.2rem)', fontWeight:900, color:'#fff' }}>{exp.role}</h3>
                     <div style={{ display:'flex', alignItems:'center', gap:20 }}>
                       <span style={{ fontFamily:MONO, fontSize:11, fontWeight:700, letterSpacing:'0.3em', textTransform:'uppercase',
@@ -402,12 +524,18 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
               ))}
             </div>
           </div>
-        </section>
+        </motion.section>
       )}
 
       {/* ── CTA ── */}
-      <section style={{ position:'relative', zIndex:10, padding:'80px 48px', maxWidth:1280, margin:'0 auto' }}>
-        <NeonCard style={{ padding:64, display:'flex', flexWrap:'wrap', alignItems:'center', justifyContent:'space-between', gap:40 }} color={ACCENT}>
+      <motion.section 
+        style={{ position:'relative', zIndex:10, padding:'80px 48px', maxWidth:1280, margin:'0 auto' }}
+        initial={{ opacity: 0, x: 100 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <NeonCard style={{ padding:64, display:'flex', flexWrap:'wrap', alignItems:'center', justifyBetween:'space-between', gap:40 }} color={ACCENT}>
           <div>
             <div style={{ fontFamily:MONO, fontSize:11, letterSpacing:'0.5em', textTransform:'uppercase', color:ACCENT, marginBottom:12 }}>Credentials</div>
             <h2 style={{ fontFamily:SANS, fontSize:'clamp(2.5rem,4vw,3.5rem)', fontWeight:900, color:'#fff' }}>Download Resume</h2>
@@ -418,10 +546,17 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
             <Download className="w-5 h-5" /> Get PDF
           </a>
         </NeonCard>
-      </section>
+      </motion.section>
 
       {/* ── CONTACT ── */}
-      <section id="contact" style={{ position:'relative', zIndex:10, padding:'120px 48px', maxWidth:1280, margin:'0 auto' }}>
+      <motion.section 
+        id="contact" 
+        style={{ position:'relative', zIndex:10, padding:'120px 48px', maxWidth:1280, margin:'0 auto' }}
+        initial={{ opacity: 0, x: 100 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
         <SectionHead tag="05 // Contact" title="Open Channel" sub="Secure Transmission" color={HIGHLIGHT} />
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:80 }} className="grid-cols-1 md:grid-cols-2">
           <div>
@@ -430,8 +565,8 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
             </p>
             {[
               email && { href:`mailto:${email}`, label:'Email', value:email, icon:<Mail className="w-5 h-5" />, c:ACCENT },
-              links.linkedin && { href:links.linkedin, label:'LinkedIn', value:'Connect with me', icon:<Linkedin className="w-5 h-5" />, c:SECONDARY },
-              links.github && { href:links.github, label:'GitHub', value:'View Repositories', icon:<Github className="w-5 h-5" />, c:HIGHLIGHT },
+              links.linkedin && { href:links.linkedin, label:'LinkedIn', value:'Connect with me', icon:<Mail className="w-5 h-5" />, c:SECONDARY },
+              links.github && { href:links.github, label:'GitHub', value:'View Repositories', icon:<GitBranch className="w-5 h-5" />, c:HIGHLIGHT },
             ].filter(Boolean).map(item=>(
               <a key={item.label} href={item.href} target="_blank" rel="noreferrer"
                  style={{ display:'flex', alignItems:'center', gap:24, padding:'20px', marginBottom:12,
@@ -449,72 +584,119 @@ export const TokyoTheme = ({ rootUser, profile, repos=[] }) => {
 
           <form onSubmit={onSubmit}>
             {sent && (
-              <div style={{ padding:'16px', marginBottom:24, fontFamily:MONO, fontSize:12, fontWeight:700,
-                letterSpacing:'0.3em', textTransform:'uppercase', textAlign:'center', color:HIGHLIGHT,
-                border:`1px solid ${HIGHLIGHT}`, background:`${HIGHLIGHT}10` }}>
-                Message Sent <Star className="inline-block w-4 h-4 ml-2 fill-current" />
+              <div style={{ padding:'14px 20px', border:`1px solid ${ACCENT}`, background:`${ACCENT}15`,
+                fontFamily:MONO, fontSize:12, letterSpacing:'0.25em', textTransform:'uppercase', color:ACCENT,
+                marginBottom:24, textAlign:'center' }}>
+                Transmission Complete ✓
               </div>
             )}
             <div style={{ marginBottom:24 }}>
-              <label style={{ display:'block', fontFamily:MONO, fontSize:10, fontWeight:700, letterSpacing:'0.4em', textTransform:'uppercase', opacity:0.5, marginBottom:12 }}>Name</label>
-              <input name="name" type="text" value={form.name} onChange={onChange} required
-                     style={{ width:'100%', padding:'16px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.1)', color:'#fff', outline:'none', boxSizing:'border-box' }} />
+              <label style={{ display:'block', fontFamily:MONO, fontSize:10, letterSpacing:'0.4em', textTransform:'uppercase', opacity:0.4, marginBottom:8 }}>Name</label>
+              <input name="name" value={form.name} onChange={onChange} required placeholder="Your Name"
+                     style={{ width:'100%', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.1)',
+                       padding:'16px 20px', outline:'none', color:'#fff', fontFamily:MONO, fontSize:14 }} />
             </div>
             <div style={{ marginBottom:24 }}>
-              <label style={{ display:'block', fontFamily:MONO, fontSize:10, fontWeight:700, letterSpacing:'0.4em', textTransform:'uppercase', opacity:0.5, marginBottom:12 }}>Email</label>
-              <input name="email" type="email" value={form.email} onChange={onChange} required
-                     style={{ width:'100%', padding:'16px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.1)', color:'#fff', outline:'none', boxSizing:'border-box' }} />
+              <label style={{ display:'block', fontFamily:MONO, fontSize:10, letterSpacing:'0.4em', textTransform:'uppercase', opacity:0.4, marginBottom:8 }}>Email</label>
+              <input name="email" type="email" value={form.email} onChange={onChange} required placeholder="your@email.com"
+                     style={{ width:'100%', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.1)',
+                       padding:'16px 20px', outline:'none', color:'#fff', fontFamily:MONO, fontSize:14 }} />
             </div>
             <div style={{ marginBottom:32 }}>
-              <label style={{ display:'block', fontFamily:MONO, fontSize:10, fontWeight:700, letterSpacing:'0.4em', textTransform:'uppercase', opacity:0.5, marginBottom:12 }}>Message</label>
-              <textarea name="message" value={form.message} onChange={onChange} required rows={5}
-                        style={{ width:'100%', padding:'16px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.1)', color:'#fff', outline:'none', boxSizing:'border-box', resize:'none' }} />
+              <label style={{ display:'block', fontFamily:MONO, fontSize:10, letterSpacing:'0.4em', textTransform:'uppercase', opacity:0.4, marginBottom:8 }}>Message</label>
+              <textarea name="message" value={form.message} onChange={onChange} required rows={6} placeholder="Message context..."
+                        style={{ width:'100%', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.1)',
+                          padding:'16px 20px', outline:'none', color:'#fff', resize:'none', fontFamily:MONO, fontSize:14 }} />
             </div>
-            <button type="submit" style={{ width:'100%', padding:'18px', fontFamily:MONO, fontSize:12, fontWeight:700, letterSpacing:'0.4em', textTransform:'uppercase', background:ACCENT, color:'#fff', cursor:'pointer', border:'none', boxShadow:`0 0 30px ${ACCENT}40` }}>
-              Send Signal <Send className="w-4 h-4 ml-2 inline-block" />
+            <button type="submit" style={{ width:'100%', padding:18, border:'none', background:ACCENT, color:'#fff',
+              fontFamily:MONO, fontSize:12, fontWeight:700, letterSpacing:'0.4em', textTransform:'uppercase',
+              boxShadow:`0 0 30px ${ACCENT}30`, cursor:'pointer', transition:'background 0.2s' }}
+                    onMouseEnter={e=>e.currentTarget.style.background=SECONDARY}
+                    onMouseLeave={e=>e.currentTarget.style.background=ACCENT}>
+              Transmit Message
             </button>
           </form>
         </div>
-      </section>
+      </motion.section>
 
       {/* ── FOOTER ── */}
-      <footer style={{ padding:'80px 48px', borderTop:`1px solid rgba(255,255,255,0.05)`, background:VOID2 }}>
-        <div style={{ maxWidth:1280, margin:'0 auto', display:'flex', flexWrap:'wrap', justifyContent:'space-between', alignItems:'flex-end', gap:40 }}>
-          <div>
-            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
-              <div style={{ width:10, height:10, background:ACCENT, clipPath:'polygon(50% 0%,100% 50%,50% 100%,0% 50%)' }} />
-              <span style={{ fontFamily:MONO, fontSize:14, fontWeight:700, letterSpacing:'0.4em' }}>{name.toUpperCase()}</span>
+      <footer style={{ background:VOID2, borderTop:`1px solid rgba(255,255,255,0.06)`, py:80, padding:'80px 48px' }}>
+        <div style={{ maxWidth:1280, margin:'0 auto' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))', gap:48, marginBottom:64 }}>
+            <div>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
+                <div style={{ width:8, height:8, background:ACCENT, clipPath:'polygon(50% 0%,100% 50%,50% 100%,0% 50%)' }} />
+                <span style={{ fontFamily:MONO, fontSize:12, fontWeight:700, letterSpacing:'0.4em', textTransform:'uppercase' }}>{name.split(' ')[0]}_FOLIO</span>
+              </div>
+              <p style={{ fontSize:14, opacity:0.4, lineHeight:1.6 }}>{headline}</p>
             </div>
-            <p style={{ fontSize:13, opacity:0.4, letterSpacing:'0.1em' }}>© {new Date().getFullYear()} ENGINEERED BY PORTFORGE</p>
+            <div>
+              <div style={{ fontFamily:MONO, fontSize:10, letterSpacing:'0.5em', textTransform:'uppercase', opacity:0.3, marginBottom:20 }}>Navigate</div>
+              <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                {navLinks.map(l=>(
+                  <a key={l.href} href={l.href} style={{ fontFamily:MONO, fontSize:13, opacity:0.4, textDecoration:'none', color:'#fff', transition:'all 0.2s' }}
+                     onMouseEnter={e=>{ e.currentTarget.style.opacity='1'; e.currentTarget.style.color=ACCENT; }}
+                     onMouseLeave={e=>{ e.currentTarget.style.opacity='0.4'; e.currentTarget.style.color='#fff'; }}>{l.label}</a>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontFamily:MONO, fontSize:10, letterSpacing:'0.5em', textTransform:'uppercase', opacity:0.3, marginBottom:20 }}>Connect</div>
+              <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                {links.github && <a href={links.github} target="_blank" rel="noreferrer" style={{ fontFamily:MONO, fontSize:13, opacity:0.4, textDecoration:'none', color:'#fff', transition:'all 0.2s' }} onMouseEnter={e=>{ e.currentTarget.style.opacity='1'; e.currentTarget.style.color=ACCENT; }} onMouseLeave={e=>{ e.currentTarget.style.opacity='0.4'; e.currentTarget.style.color='#fff'; }}>GitHub ↗</a>}
+                {links.linkedin && <a href={links.linkedin} target="_blank" rel="noreferrer" style={{ fontFamily:MONO, fontSize:13, opacity:0.4, textDecoration:'none', color:'#fff', transition:'all 0.2s' }} onMouseEnter={e=>{ e.currentTarget.style.opacity='1'; e.currentTarget.style.color=ACCENT; }} onMouseLeave={e=>{ e.currentTarget.style.opacity='0.4'; e.currentTarget.style.color='#fff'; }}>LinkedIn ↗</a>}
+              </div>
+            </div>
           </div>
-          <div style={{ display:'flex', gap:32 }}>
-            {navLinks.map(l=>(
-              <a key={l.href} href={l.href} style={{ fontFamily:MONO, fontSize:11, letterSpacing:'0.2em', textTransform:'uppercase', color:'rgba(255,255,255,0.4)', textDecoration:'none' }}>{l.label}</a>
-            ))}
+          <div style={{ height:1, background:'rgba(255,255,255,0.06)', marginBottom:32 }} />
+          <div style={{ display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:16, opacity:0.25, fontSize:11, fontFamily:MONO }}>
+            <span>© {new Date().getFullYear()} {name}. All Rights Reserved.</span>
+            <span>Built with PortForge_Tokyo</span>
           </div>
         </div>
       </footer>
 
       <style>{`
         html { scroll-behavior: smooth; }
+        * { box-sizing: border-box; }
+        ::selection { background: ${ACCENT}; color: #fff; }
+        @media (max-width: 768px) { section { padding-left: 24px !important; padding-right: 24px !important; } }
+
+        /* ── TOKYO GLITCH ── */
         .tokyo-glitch { position: relative; }
-        .tokyo-glitch::before, .tokyo-glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.5; }
-        .tokyo-glitch::before { color: ${ACCENT}; clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%); transform: translate(-2px, -2px); }
-        .tokyo-glitch::after { color: ${HIGHLIGHT}; clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%); transform: translate(2px, 2px); }
-        
-        @keyframes grid-scan {
-          0% { transform: translateY(-100vh); }
-          100% { transform: translateY(100vh); }
+        .tokyo-glitch::before,
+        .tokyo-glitch::after {
+          content: attr(data-text);
+          position: absolute;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          background: transparent;
         }
-        .grid-scan {
-          position: fixed; top: 0; left: 0; right: 0; height: 1px;
-          background: linear-gradient(90deg, transparent, ${ACCENT}, transparent);
-          animation: grid-scan 8s linear infinite; opacity: 0.2; pointer-events: none; z-index: 5;
+        .tokyo-glitch::before {
+          color: ${ACCENT};
+          animation: glitch-anim 2.5s infinite linear alternate-reverse;
+          clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
         }
-        .neon-flicker { animation: flicker 4s infinite; }
-        @keyframes flicker {
-          0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; }
-          20%, 24%, 55% { opacity: 0.8; }
+        .tokyo-glitch::after {
+          color: ${HIGHLIGHT};
+          animation: glitch-anim2 2.5s infinite linear alternate-reverse;
+          clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+        }
+        @keyframes glitch-anim {
+          0% { transform: translate(0); }
+          20% { transform: translate(-2px, 2px); }
+          40% { transform: translate(-2px, -2px); }
+          60% { transform: translate(2px, 2px); }
+          80% { transform: translate(2px, -2px); }
+          100% { transform: translate(0); }
+        }
+        @keyframes glitch-anim2 {
+          0% { transform: translate(0); }
+          20% { transform: translate(2px, -2px); }
+          40% { transform: translate(2px, 2px); }
+          60% { transform: translate(-2px, -2px); }
+          80% { transform: translate(-2px, 2px); }
+          100% { transform: translate(0); }
         }
       `}</style>
     </div>

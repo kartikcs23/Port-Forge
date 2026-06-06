@@ -147,7 +147,16 @@ const getPublicPortfolio = async (req, res) => {
   try {
     const { slug } = req.params;
 
-    const portfolio = await Portfolio.findOne({ slug });
+    // Search by slug first (case-insensitive)
+    let portfolio = await Portfolio.findOne({ slug: { $regex: new RegExp(`^${slug}$`, 'i') } });
+
+    if (!portfolio) {
+      // Fallback: search in Profile for a matching name (case-insensitive)
+      const profile = await Profile.findOne({ name: { $regex: new RegExp(`^${slug}$`, 'i') } });
+      if (profile) {
+        portfolio = await Portfolio.findOne({ userId: profile.userId });
+      }
+    }
 
     if (!portfolio) {
       return res.status(404).json({
@@ -166,7 +175,7 @@ const getPublicPortfolio = async (req, res) => {
     const [user, profile, projects] = await Promise.all([
       User.findById(portfolio.userId),
       Profile.findOne({ userId: portfolio.userId }),
-      Project.find({ userId: portfolio.userId }).sort({ score: -1 }).limit(5),
+      Project.find({ userId: portfolio.userId, hidden: { $ne: true } }).sort({ pinned: -1, score: -1 }).limit(8),
     ]);
 
     res.status(200).json({
@@ -199,9 +208,45 @@ const getPublicPortfolio = async (req, res) => {
   }
 };
 
+const updatePortfolio = async (req, res) => {
+  try {
+    let portfolio = await Portfolio.findOne({ userId: req.user._id });
+
+    if (!portfolio) {
+      return res.status(404).json({
+        success: false,
+        message: 'No portfolio found. Generate one first.',
+      });
+    }
+
+    if (req.body.theme !== undefined) {
+      portfolio.theme = req.body.theme;
+    }
+
+    if (req.body.slug !== undefined) {
+      portfolio.slug = req.body.slug;
+    }
+
+    await portfolio.save();
+
+    res.status(200).json({
+      success: true,
+      data: { portfolio },
+      message: 'Portfolio updated successfully',
+    });
+  } catch (error) {
+    console.error('Update portfolio error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update portfolio',
+    });
+  }
+};
+
 module.exports = {
   generatePortfolio,
   getMyPortfolio,
   togglePublish,
   getPublicPortfolio,
+  updatePortfolio,
 };
