@@ -90,3 +90,34 @@ credentials.json
 *.tmp
 .cache
 .env.test
+
+# ── AI & LLM Tools ───────────────────────────────────────────
+# Claude / Anthropic
+.claude/
+CLAUDE.md
+.claudeignore
+
+# Cursor AI
+.cursor/
+.cursorignore
+.cursorrules
+
+# GitHub Copilot
+.copilot/
+.github/copilot-instructions.md
+
+# Codeium
+.codeium/
+
+# Aider
+.aider*
+.aiderignore
+
+# Gemini / Google AI
+.gemini/
+
+# Generic AI scratch / chat exports
+ai-notes/
+llm-context/
+*.ai.md
+# ─────────────────────────────────────────────────────────────
