@@ -60,6 +60,10 @@ ehthumbs.db
 *.sqlite
 *.sqlite3
 
+# MongoDB local data (never commit DB files)
+server/db_data/
+*.sqlite3
+
 # Secrets & API Keys
 *.key
 *.pem
