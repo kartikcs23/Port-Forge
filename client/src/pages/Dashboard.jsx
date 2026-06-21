@@ -13,6 +13,7 @@ import {
   Rocket,
   Cpu,
   Activity,
+  GraduationCap,
   FileUp,
   CheckCircle2,
   ChevronDown,
@@ -241,6 +242,17 @@ export const Dashboard = () => {
                     <span className="block text-sm font-bold uppercase mt-1">Asclepius</span>
                   </div>
                   <Activity className={`w-5 h-5 ${portfolio?.theme === 'medical' ? 'text-white' : 'text-accent'}`} />
+                </button>
+
+                <button
+                  onClick={() => updateTheme('professional')}
+                  className={`p-4 border-2 ${portfolio?.theme === 'professional' ? 'border-accent bg-accent text-white shadow-[4px_4px_0px_0px_#141822] translate-x-[-2px] translate-y-[-2px]' : 'border-border bg-background hover:bg-secondary/50 text-foreground'}`}
+                >
+                  <div className="text-left">
+                    <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">EDITORIAL</span>
+                    <span className="block text-sm font-bold uppercase mt-1">Professional</span>
+                  </div>
+                  <GraduationCap className={`w-5 h-5 ${portfolio?.theme === 'professional' ? 'text-white' : 'text-accent'}`} />
                 </button>
               </div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-6 text-center">

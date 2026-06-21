@@ -17,6 +17,9 @@ import { Notifications } from './pages/Notifications';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { Insights } from './pages/Insights';
 import { LinkedInInsights } from './pages/LinkedInInsights';
+import { EgyptianPreview } from './pages/EgyptianPreview';
+import { EgyptianEditor } from './pages/EgyptianEditor';
+import { ThemeEditor } from './pages/ThemeEditor';
 
 const AuthGate = ({ children }) => {
   const isDev = localStorage.getItem('isDeveloperMode') === 'true';
@@ -102,6 +105,11 @@ function App() {
             </AuthGate>
           }
         />
+
+        {/* Temp preview route */}
+        <Route path="/egyptian-preview" element={<EgyptianPreview />} />
+        <Route path="/egyptian-editor" element={<EgyptianEditor />} />
+        <Route path="/theme-editor" element={<ThemeEditor />} />
 
         {/* Dynamic portfolio route - after specific routes */}
         <Route path="/:slug" element={<Portfolio />} />

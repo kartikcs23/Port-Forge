@@ -1,41 +1,60 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
 import { useInsights } from '../hooks/useInsights';
 import { Loader3D } from '../components/Loader3D';
 import { ContributionHeatmap } from '../components/ContributionHeatmap';
 
+const CACHE_KEY = 'pf_insights_cache';
+
 export const Insights = () => {
   const { loading, error, data, fetchInsights } = useInsights();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showAllProjects, setShowAllProjects] = useState(false);
+  const [cachedData, setCachedData] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(CACHE_KEY)) || null; } catch { return null; }
+  });
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    // Auto-load insights on mount
+    if (hasFetched.current) return;
+    hasFetched.current = true;
     const loadData = async () => {
-      setIsAnalyzing(true);
-      await fetchInsights();
+      // Only show full-screen loader on first-ever visit (no cache)
+      if (!cachedData) setIsAnalyzing(true);
+      const result = await fetchInsights();
+      if (result?.success && result?.data) {
+        setCachedData(result.data);
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(result.data)); } catch {}
+      }
       setIsAnalyzing(false);
     };
     loadData();
-  }, [fetchInsights]);
+  }, [fetchInsights, cachedData]);
 
   const handleReanalyze = async () => {
     setIsAnalyzing(true);
-    await fetchInsights();
+    const result = await fetchInsights();
+    if (result?.success && result?.data) {
+      setCachedData(result.data);
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify(result.data)); } catch {}
+    }
     setIsAnalyzing(false);
   };
 
-  if (loading || isAnalyzing) {
+  // Show loader only when no cached data and actively fetching
+  if (isAnalyzing && !cachedData) {
     return <Loader3D message="Analyzing your profile..." />;
   }
 
-  const projectScores = data?.analysis?.projectScores || [];
-  const badges = data?.analysis?.badges || {};
-  const timelineEvents = data?.analysis?.timeline || [];
-  const features = data?.analysis?.features || {};
-  const githubProfile = data?.github?.profile || {};
-  const linkedinData = data?.linkedin || {};
-  const contributions = data?.github?.contributions || [];
+  const display = data || cachedData;
+
+  const projectScores = display?.analysis?.projectScores || [];
+  const badges = display?.analysis?.badges || {};
+  const timelineEvents = display?.analysis?.timeline || [];
+  const features = display?.analysis?.features || {};
+  const githubProfile = display?.github?.profile || {};
+  const linkedinData = display?.linkedin || {};
+  const contributions = display?.github?.contributions || [];
 
   const badgeDescriptions = {
     'Night Owl': '10+ commits after midnight',
@@ -99,7 +118,14 @@ export const Insights = () => {
           </div>
         )}
 
-        {!data ? (
+        {/* Background refresh indicator */}
+        {isAnalyzing && display && (
+          <div className="fixed bottom-4 right-4 z-50 bg-ink text-white border-2 border-accent px-4 py-2 text-xs font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(235,59,59,0.4)] animate-pulse">
+            ⟳ Refreshing...
+          </div>
+        )}
+
+        {!display ? (
           <div className="bg-surface border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] p-8 text-center">
             <p className="text-muted font-sans text-lg">No analysis data available yet.</p>
             <p className="text-xs font-bold uppercase tracking-widest text-muted mt-2">Sync your GitHub first in the Dashboard.</p>

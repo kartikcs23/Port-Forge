@@ -16,6 +16,19 @@ const { assignBadges } = require('../linkedin-ml/src/badges');
 const { buildTimeline } = require('../linkedin-ml/src/timeline');
 const { findSimilarDevelopers } = require('../linkedin-ml/src/similarity');
 
+// ── In-memory cache (per user, 5-minute TTL) ──────────────────
+const _cache = new Map();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+const getCached = (userId) => {
+  const entry = _cache.get(String(userId));
+  if (!entry) return null;
+  if (Date.now() - entry.ts > CACHE_TTL_MS) { _cache.delete(String(userId)); return null; }
+  return entry.data;
+};
+const setCache = (userId, data) => _cache.set(String(userId), { data, ts: Date.now() });
+// ──────────────────────────────────────────────────────────────
+
 /**
  * analyzeProfile — Runs ML analysis on user's GitHub + LinkedIn data
  * 
@@ -24,6 +37,12 @@ const { findSimilarDevelopers } = require('../linkedin-ml/src/similarity');
 const analyzeProfile = async (req, res) => {
   try {
     const userId = req.user._id;
+
+    // Return cached data immediately if fresh
+    const cached = getCached(userId);
+    if (cached) {
+      return res.status(200).json({ success: true, data: cached, message: 'Profile analysis completed successfully (cached)' });
+    }
 
     // Fetch user's projects (GitHub data)
     const projects = await Project.find({ userId });
@@ -225,13 +244,12 @@ const analyzeProfile = async (req, res) => {
       similarity: []
     };
 
+    const responseData = { github: githubData, linkedin: linkedinData, analysis };
+    setCache(userId, responseData);
+
     res.status(200).json({
       success: true,
-      data: {
-        github: githubData,
-        linkedin: linkedinData,
-        analysis
-      },
+      data: responseData,
       message: 'Profile analysis completed successfully'
     });
 

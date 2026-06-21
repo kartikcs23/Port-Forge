@@ -8,6 +8,7 @@ import { EgyptianTheme } from '../components/themes/EgyptianTheme';
 import { SpaceTheme } from '../components/themes/SpaceTheme';
 import { TokyoTheme } from '../components/themes/TokyoTheme';
 import { MedicalTheme } from '../components/themes/MedicalTheme';
+import { ProfessionalTheme } from '../components/themes/ProfessionalTheme';
 import { Loader3D } from '../components/Loader3D';
 
 export const Portfolio = () => {
@@ -98,6 +99,8 @@ export const Portfolio = () => {
         return <TokyoTheme rootUser={rootUser} profile={profile} repos={repos} />;
       case 'medical':
         return <MedicalTheme rootUser={rootUser} profile={profile} repos={repos} />;
+      case 'professional':
+        return <ProfessionalTheme rootUser={rootUser} profile={profile} repos={repos} />;
       case 'brutalist':
       default:
         return <BrutalistTheme rootUser={rootUser} profile={profile} repos={repos} />;
