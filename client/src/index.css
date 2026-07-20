@@ -213,7 +213,6 @@ input::placeholder, textarea::placeholder {
   box-shadow: 7px 7px 0 #111;
 }
 
-.project-visual-tokyo,
 .project-visual-space {
   border: 1px solid color-mix(in srgb, var(--pv-primary) 55%, transparent);
   box-shadow: inset 0 0 40px rgba(255,255,255,0.03), 0 0 28px color-mix(in srgb, var(--pv-primary) 22%, transparent);

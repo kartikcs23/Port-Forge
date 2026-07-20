@@ -23,6 +23,11 @@ const insightsRoutes = require('./routes/insights');
 // Initialize Express app
 const app = express();
 
+// Trust the first hop reverse proxy (Render/Railway/Fly/etc. all sit behind one).
+// Needed so express-rate-limit reads the real client IP from X-Forwarded-For
+// instead of bucketing every request under the proxy's IP.
+app.set('trust proxy', 1);
+
 // ========================
 // Global Middleware
 // ========================
@@ -130,10 +135,38 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   await connectDB();
 
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`🚀 PortForge server running on port ${PORT}`);
     console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
   });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} is already in use. Please terminate the process using port ${PORT} or change PORT in .env.`);
+      process.exit(1);
+    } else {
+      console.error('Server error:', err);
+    }
+  });
+
+  const gracefulShutdown = (signal) => {
+    console.log(`\nReceived ${signal}. Closing HTTP server...`);
+    server.close(() => {
+      console.log('HTTP server closed.');
+      process.exit(0);
+    });
+  };
+
+  process.once('SIGUSR2', () => {
+    server.close(() => {
+      process.kill(process.pid, 'SIGUSR2');
+    });
+  });
+
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 };
 
 startServer();
+
+

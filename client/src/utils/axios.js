@@ -18,7 +18,9 @@ const api = axios.create({
  */
 api.interceptors.request.use(
   async (config) => {
-    // Wait up to 3s for Clerk session to be initialised
+    let token = null;
+
+    // Wait briefly if Clerk is present but session is loading
     if (window.Clerk) {
       let attempts = 0;
       while (!window.Clerk.session && attempts < 15) {
@@ -29,13 +31,19 @@ api.interceptors.request.use(
 
     if (window.Clerk && window.Clerk.session) {
       try {
-        const token = await window.Clerk.session.getToken();
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
+        token = await window.Clerk.session.getToken();
       } catch (err) {
         console.warn('Failed to get Clerk token:', err);
       }
+    }
+
+    // Fallback to localStorage authToken (used by local auth / AuthContext)
+    if (!token) {
+      token = localStorage.getItem('authToken');
+    }
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },

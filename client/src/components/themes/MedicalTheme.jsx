@@ -370,7 +370,7 @@ export const MedicalTheme = ({ rootUser, profile, repos = [] }) => {
         <canvas ref={meshCanvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none' }} />
 
         <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', alignItems: 'center', maxWidth: 1240, margin: '0 auto', width: '100%', padding: '80px 36px 52px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: avatar ? '1fr 340px' : '1fr', gap: 72, alignItems: 'center', width: '100%' }} className="grid-cols-1">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 72, alignItems: 'center', width: '100%' }} className="grid-cols-1">
             <motion.div initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, ease: 'easeOut' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 26, flexWrap: 'wrap' }}>
                 <MedBadge color={TEAL}>{headline}</MedBadge>
@@ -405,10 +405,15 @@ export const MedicalTheme = ({ rootUser, profile, repos = [] }) => {
               </div>
             </motion.div>
 
-            {avatar && (
-              <div className="hidden lg:block">
+            <div className="hidden lg:block">
                 <div style={{ position: 'relative', width: 300, height: 375, borderRadius: 22, overflow: 'hidden', boxShadow: '0 32px 64px rgba(10,22,40,0.13), 0 0 0 1px rgba(10,22,40,0.05)' }}>
-                  <img src={avatar} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  {avatar ? (
+                    <img src={avatar} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', background: ICE, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 110, color: TEAL, opacity: 0.5 }}>{name.replace(/^Dr\.?\s*/i, '').charAt(0)}</span>
+                    </div>
+                  )}
                   <div style={{
                     position: 'absolute', bottom: 16, left: '50%', transform: 'translateX(-50%)',
                     display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(10,22,40,0.9)',
@@ -419,7 +424,6 @@ export const MedicalTheme = ({ rootUser, profile, repos = [] }) => {
                   </div>
                 </div>
               </div>
-            )}
           </div>
         </div>
 

@@ -6,7 +6,6 @@ const {
   togglePublish,
   updatePortfolio,
   getPublicPortfolio,
-  updatePortfolio,
 } = require('../controllers/portfolioController');
 const { protect } = require('../middleware/authMiddleware');
 

@@ -6,9 +6,9 @@ import api from '../utils/axios';
 import { BrutalistTheme } from '../components/themes/BrutalistTheme';
 import { EgyptianTheme } from '../components/themes/EgyptianTheme';
 import { SpaceTheme } from '../components/themes/SpaceTheme';
-import { TokyoTheme } from '../components/themes/TokyoTheme';
 import { MedicalTheme } from '../components/themes/MedicalTheme';
 import { ProfessionalTheme } from '../components/themes/ProfessionalTheme';
+import { CinematicTheme } from '../components/themes/CinematicTheme';
 import { Loader3D } from '../components/Loader3D';
 
 export const Portfolio = () => {
@@ -95,12 +95,12 @@ export const Portfolio = () => {
         return <SpaceTheme rootUser={rootUser} profile={profile} repos={repos} />;
       case 'egyptian':
         return <EgyptianTheme rootUser={rootUser} profile={profile} repos={repos} />;
-      case 'tokyo':
-        return <TokyoTheme rootUser={rootUser} profile={profile} repos={repos} />;
       case 'medical':
         return <MedicalTheme rootUser={rootUser} profile={profile} repos={repos} />;
       case 'professional':
         return <ProfessionalTheme rootUser={rootUser} profile={profile} repos={repos} />;
+      case 'cinematic':
+        return <CinematicTheme rootUser={rootUser} profile={profile} repos={repos} />;
       case 'brutalist':
       default:
         return <BrutalistTheme rootUser={rootUser} profile={profile} repos={repos} />;

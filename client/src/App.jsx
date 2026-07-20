@@ -20,6 +20,15 @@ import { LinkedInInsights } from './pages/LinkedInInsights';
 import { EgyptianPreview } from './pages/EgyptianPreview';
 import { EgyptianEditor } from './pages/EgyptianEditor';
 import { ThemeEditor } from './pages/ThemeEditor';
+import { BrutalistPreview } from './pages/BrutalistPreview';
+import { SpacePreview } from './pages/SpacePreview';
+import { MedicalPreview } from './pages/MedicalPreview';
+import { ProfessionalPreview } from './pages/ProfessionalPreview';
+import { CinematicPreview } from './pages/CinematicPreview';
+// Dev-only testing route — statically eliminated from production builds
+// (import.meta.env.DEV is false in `npm run build`, so Vite/Rollup tree-shakes
+// this import and the route below out of the shipped bundle entirely).
+import { DevTesting } from './pages/DevTesting';
 
 const AuthGate = ({ children }) => {
   const isDev = localStorage.getItem('isDeveloperMode') === 'true';
@@ -110,6 +119,12 @@ function App() {
         <Route path="/egyptian-preview" element={<EgyptianPreview />} />
         <Route path="/egyptian-editor" element={<EgyptianEditor />} />
         <Route path="/theme-editor" element={<ThemeEditor />} />
+        <Route path="/brutalist-preview" element={<BrutalistPreview />} />
+        <Route path="/space-preview" element={<SpacePreview />} />
+        <Route path="/medical-preview" element={<MedicalPreview />} />
+        <Route path="/professional-preview" element={<ProfessionalPreview />} />
+        <Route path="/cinematic-preview" element={<CinematicPreview />} />
+        {import.meta.env.DEV && <Route path="/dev-testing" element={<DevTesting />} />}
 
         {/* Dynamic portfolio route - after specific routes */}
         <Route path="/:slug" element={<Portfolio />} />

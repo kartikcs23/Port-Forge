@@ -4,17 +4,17 @@ import { ArrowLeft, Plus, X } from 'lucide-react';
 import { BrutalistTheme } from '../components/themes/BrutalistTheme';
 import { EgyptianTheme } from '../components/themes/EgyptianTheme';
 import { SpaceTheme } from '../components/themes/SpaceTheme';
-import { TokyoTheme } from '../components/themes/TokyoTheme';
 import { MedicalTheme } from '../components/themes/MedicalTheme';
 import { ProfessionalTheme } from '../components/themes/ProfessionalTheme';
+import { CinematicTheme } from '../components/themes/CinematicTheme';
 
 const THEMES = [
   { key: 'brutalist',    label: 'Architect',  sub: 'Brutalist',  Component: BrutalistTheme },
   { key: 'egyptian',     label: 'Luxor',      sub: 'Egyptian',   Component: EgyptianTheme },
   { key: 'space',        label: 'Nebula',     sub: 'Space',      Component: SpaceTheme },
-  { key: 'tokyo',        label: 'Tokyo',      sub: 'Cyberpunk',  Component: TokyoTheme },
   { key: 'medical',      label: 'Asclepius',  sub: 'Medical',    Component: MedicalTheme },
   { key: 'professional', label: 'Professional', sub: 'Editorial', Component: ProfessionalTheme },
+  { key: 'cinematic',    label: 'Sakura Journey', sub: 'Cinematic', Component: CinematicTheme },
 ];
 
 const defaultProfile = {

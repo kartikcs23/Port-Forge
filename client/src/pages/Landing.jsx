@@ -85,7 +85,7 @@ export const Landing = () => {
               <div className="flex gap-4">
                 <div className="w-1/2 bg-background border border-border p-3 text-center uppercase tracking-widest font-bold text-white relative group cursor-pointer hover:border-primary transition-all">
                   <span className="text-[10px] block text-muted-foreground">THEME</span>
-                  <span className="text-[11px] block mt-1 text-primary">TOKYO_CYBER</span>
+                  <span className="text-[11px] block mt-1 text-primary">SAKURA_JOURNEY</span>
                 </div>
                 <div className="w-1/2 bg-background border border-border p-3 text-center uppercase tracking-widest font-bold text-white relative group cursor-pointer hover:border-primary transition-all">
                   <span className="text-[10px] block text-muted-foreground">SCORE</span>
@@ -154,7 +154,7 @@ export const Landing = () => {
                 DEPLOY LIVE
               </h3>
               <p className="text-xs text-gray-400 leading-relaxed font-semibold uppercase tracking-wide">
-                Select your preferred terminal theme (Tokyo, Brutalist, Luxor), register your custom URL slug, and share your site with the world.
+                Select your preferred terminal theme (Sakura Journey, Brutalist, Luxor), register your custom URL slug, and share your site with the world.
               </p>
             </div>
           </div>

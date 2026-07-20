@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useClerk } from '@clerk/clerk-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +12,23 @@ export const Navbar = () => {
   const location = useLocation();
   const { isAdmin } = useAdmin();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Dev-only: 5 rapid clicks on the logo opens the hidden testing page.
+  // The whole handler is gated behind import.meta.env.DEV so it's a no-op
+  // (and the /dev-testing route doesn't exist at all) in a production build.
+  const logoClicks = useRef({ count: 0, timer: null });
+  const handleLogoClick = (e) => {
+    if (!import.meta.env.DEV) return;
+    const state = logoClicks.current;
+    state.count += 1;
+    clearTimeout(state.timer);
+    state.timer = setTimeout(() => { state.count = 0; }, 1500);
+    if (state.count >= 5) {
+      state.count = 0;
+      e.preventDefault();
+      navigate('/dev-testing');
+    }
+  };
 
   const handleLogout = () => {
     signOut(() => navigate('/'));
@@ -66,6 +83,7 @@ export const Navbar = () => {
           {/* Logo */}
           <Link
             to="/"
+            onClick={handleLogoClick}
             className="flex items-center space-x-3 font-display font-black text-xl hover:opacity-95 transition-opacity group"
           >
             <div className="w-8 h-8 bg-primary border border-border flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(255,255,255,0.1)] group-hover:shadow-[3px_3px_0px_0px_#eb3b3b] transition-all">

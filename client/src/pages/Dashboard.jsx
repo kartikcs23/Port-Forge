@@ -11,9 +11,9 @@ import {
   Building2,
   Palmtree,
   Rocket,
-  Cpu,
   Activity,
   GraduationCap,
+  Clapperboard,
   FileUp,
   CheckCircle2,
   ChevronDown,
@@ -223,17 +223,6 @@ export const Dashboard = () => {
                 </button>
 
                 <button
-                  onClick={() => updateTheme('tokyo')}
-                  className={`p-4 border-2 ${portfolio?.theme === 'tokyo' ? 'border-accent bg-accent text-white shadow-[4px_4px_0px_0px_#141822] translate-x-[-2px] translate-y-[-2px]' : 'border-border bg-background hover:bg-secondary/50 text-foreground'}`}
-                >
-                  <div className="text-left">
-                    <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">CYBERPUNK</span>
-                    <span className="block text-sm font-bold uppercase mt-1">Tokyo</span>
-                  </div>
-                  <Cpu className={`w-5 h-5 ${portfolio?.theme === 'tokyo' ? 'text-white' : 'text-accent'}`} />
-                </button>
-
-                <button
                   onClick={() => updateTheme('medical')}
                   className={`p-4 border-2 ${portfolio?.theme === 'medical' ? 'border-accent bg-accent text-white shadow-[4px_4px_0px_0px_#141822] translate-x-[-2px] translate-y-[-2px]' : 'border-border bg-background hover:bg-secondary/50 text-foreground'}`}
                 >
@@ -253,6 +242,17 @@ export const Dashboard = () => {
                     <span className="block text-sm font-bold uppercase mt-1">Professional</span>
                   </div>
                   <GraduationCap className={`w-5 h-5 ${portfolio?.theme === 'professional' ? 'text-white' : 'text-accent'}`} />
+                </button>
+
+                <button
+                  onClick={() => updateTheme('cinematic')}
+                  className={`p-4 border-2 ${portfolio?.theme === 'cinematic' ? 'border-accent bg-accent text-white shadow-[4px_4px_0px_0px_#141822] translate-x-[-2px] translate-y-[-2px]' : 'border-border bg-background hover:bg-secondary/50 text-foreground'}`}
+                >
+                  <div className="text-left">
+                    <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">CINEMATIC</span>
+                    <span className="block text-sm font-bold uppercase mt-1">Sakura Journey</span>
+                  </div>
+                  <Clapperboard className={`w-5 h-5 ${portfolio?.theme === 'cinematic' ? 'text-white' : 'text-accent'}`} />
                 </button>
               </div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-6 text-center">

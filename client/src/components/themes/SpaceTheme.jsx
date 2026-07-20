@@ -125,6 +125,7 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
   const experience = profile?.experience || [];
   const education = profile?.education || [];
   const links = profile?.links || {};
+  const avatar = profile?.avatarUrl || profile?.avatar || '';
 
   const categorized = categorizeSkills(skills);
   const techTags = getAllTechTags(repos);
@@ -386,7 +387,16 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
 
                 {/* Core */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-full" style={{ background: '#fff', boxShadow: '0 0 40px #fff, 0 0 80px rgba(34,211,238,0.4), 0 0 120px rgba(139,92,246,0.2)' }} />
+                  {avatar ? (
+                    <div className="w-32 h-32 rounded-full overflow-hidden" style={{ boxShadow: '0 0 0 2px rgba(34,211,238,0.6), 0 0 40px rgba(34,211,238,0.4), 0 0 80px rgba(139,92,246,0.25)' }}>
+                      <img src={avatar} alt={name} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center font-bold text-2xl"
+                         style={{ background: '#fff', color: '#020617', boxShadow: '0 0 40px #fff, 0 0 80px rgba(34,211,238,0.4), 0 0 120px rgba(139,92,246,0.2)' }}>
+                      {name.charAt(0)}
+                    </div>
+                  )}
                 </div>
 
                 {/* Orbit Dot */}
