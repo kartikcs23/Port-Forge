@@ -47,9 +47,8 @@ const syncGithub = async (req, res) => {
             description: repo.description,
             stars: repo.stars,
             forks: repo.forks,
-            language: repo.language || (repo.languages || [])[0] || '',
-            languages: repo.languages,
             language: repo.language || repo.languages?.[0] || '',
+            languages: repo.languages,
             score: repo.score,
             repoUrl: repo.repoUrl,
             githubCreatedAt: repo.createdAt,
@@ -65,9 +64,18 @@ const syncGithub = async (req, res) => {
       },
     }));
 
+    // Delete all projects for this user that are NOT in the new sync batch.
+    // This ensures switching GitHub usernames removes the previous user's repos.
+    const newRepoIds = scoredRepos.map((r) => r.repoId);
+    await Project.deleteMany({
+      userId: req.user._id,
+      repoId: { $nin: newRepoIds },
+    });
+
     if (projectOps.length > 0) {
       await Project.bulkWrite(projectOps);
     }
+
 
     await Profile.findOneAndUpdate(
       { userId: req.user._id },

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
+import { InitialLoader } from './components/InitialLoader';
 
 // Pages
 import { Landing } from './pages/Landing';
@@ -48,6 +49,20 @@ const AuthGate = ({ children }) => {
 };
 
 function App() {
+  const isRootPath = window.location.pathname === '/';
+  const [loaded, setLoaded] = useState(
+    () => !isRootPath || sessionStorage.getItem('pf_loaded') === 'true'
+  );
+
+  const handleLoaderComplete = () => {
+    sessionStorage.setItem('pf_loaded', 'true');
+    setLoaded(true);
+  };
+
+  if (!loaded) {
+    return <InitialLoader onComplete={handleLoaderComplete} />;
+  }
+
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
