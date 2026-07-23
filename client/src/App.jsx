@@ -17,7 +17,7 @@ import { FAQ } from './pages/FAQ';
 import { Notifications } from './pages/Notifications';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { Insights } from './pages/Insights';
-import { LinkedInInsights } from './pages/LinkedInInsights';
+import { ResumeCreator } from './pages/ResumeCreator';
 import { EgyptianPreview } from './pages/EgyptianPreview';
 import { EgyptianEditor } from './pages/EgyptianEditor';
 import { ThemeEditor } from './pages/ThemeEditor';
@@ -31,22 +31,16 @@ import { CinematicPreview } from './pages/CinematicPreview';
 // this import and the route below out of the shipped bundle entirely).
 import { DevTesting } from './pages/DevTesting';
 
-const AuthGate = ({ children }) => {
-  const isDev = localStorage.getItem('isDeveloperMode') === 'true';
-  if (isDev) {
-    return children;
-  }
-  return (
-    <>
-      <SignedIn>
-        {children}
-      </SignedIn>
-      <SignedOut>
-        <RedirectToSignIn redirectUrl="/login" />
-      </SignedOut>
-    </>
-  );
-};
+const AuthGate = ({ children }) => (
+  <>
+    <SignedIn>
+      {children}
+    </SignedIn>
+    <SignedOut>
+      <RedirectToSignIn redirectUrl="/login" />
+    </SignedOut>
+  </>
+);
 
 function App() {
   const isRootPath = window.location.pathname === '/';
@@ -108,11 +102,11 @@ function App() {
         />
 
         <Route
-          path="/linkedin"
+          path="/resume"
           element={
             <>
               <SignedIn>
-                <LinkedInInsights />
+                <ResumeCreator />
               </SignedIn>
               <SignedOut>
                 <RedirectToSignIn redirectUrl="/login" />

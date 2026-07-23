@@ -9,8 +9,16 @@ import { CinematicTheme } from '../components/themes/CinematicTheme';
 
 /**
  * DEV-ONLY testing page — fetches a real GitHub profile + repos client-side
- * (public GitHub REST API, no token) and renders any theme with real data.
+ * (public GitHub REST API) and renders any theme with real data.
  * Reached via 5 rapid clicks on the navbar logo. Never linked anywhere.
+ *
+ * An optional Personal Access Token can be pasted in to raise the GitHub
+ * API rate limit from 60/hr (unauthenticated) to 5000/hr. Generate one at
+ * github.com → Settings → Developer settings → Personal access tokens
+ * (a fine-grained token with no scopes/read-only is enough — this page
+ * only ever does GET requests). The token stays in this browser's
+ * localStorage and is sent directly from the browser to api.github.com;
+ * it never touches our server.
  *
  * This whole route is only registered when import.meta.env.DEV is true
  * (see App.jsx) — a production build statically evaluates that to `false`
@@ -29,6 +37,7 @@ const THEMES = [
 ];
 
 const LS_KEY = 'pf-dev-testing-username';
+const LS_KEY_TOKEN = 'pf-dev-testing-token';
 
 const mapGithubToProfile = (user, repos) => {
   const languages = [...new Set(repos.map((r) => r.language).filter(Boolean))];
@@ -69,22 +78,36 @@ const mapGithubRepos = (repos) =>
 
 export const DevTesting = () => {
   const [username, setUsername] = useState(() => localStorage.getItem(LS_KEY) || '');
+  const [token, setToken] = useState(() => localStorage.getItem(LS_KEY_TOKEN) || '');
   const [themeKey, setThemeKey] = useState('cinematic');
   const [status, setStatus] = useState('idle'); // idle | loading | error | ready
   const [error, setError] = useState('');
+  const [rateLimit, setRateLimit] = useState(null);
   const [profile, setProfile] = useState(null);
   const [repos, setRepos] = useState([]);
 
-  const fetchGithub = async (name) => {
+  const fetchGithub = async (name, tok) => {
     if (!name.trim()) return;
     setStatus('loading');
     setError('');
+    setRateLimit(null);
     try {
+      const headers = tok ? { Authorization: `token ${tok}` } : {};
       const [userRes, reposRes] = await Promise.all([
-        fetch(`https://api.github.com/users/${encodeURIComponent(name)}`),
-        fetch(`https://api.github.com/users/${encodeURIComponent(name)}/repos?sort=updated&per_page=30`),
+        fetch(`https://api.github.com/users/${encodeURIComponent(name)}`, { headers }),
+        fetch(`https://api.github.com/users/${encodeURIComponent(name)}/repos?sort=updated&per_page=30`, { headers }),
       ]);
-      if (!userRes.ok) throw new Error(userRes.status === 404 ? 'GitHub user not found' : `GitHub API error (${userRes.status})`);
+
+      const remaining = userRes.headers.get('x-ratelimit-remaining');
+      const limit = userRes.headers.get('x-ratelimit-limit');
+      if (remaining !== null) setRateLimit(`${remaining}/${limit} GitHub requests left this hour`);
+
+      if (!userRes.ok) {
+        if (userRes.status === 404) throw new Error('GitHub user not found');
+        if (userRes.status === 401) throw new Error('Invalid token — check it was copied correctly');
+        if (userRes.status === 403) throw new Error('Rate limited by GitHub. Paste a Personal Access Token below to raise the limit to 5000/hr.');
+        throw new Error(`GitHub API error (${userRes.status})`);
+      }
       if (!reposRes.ok) throw new Error(`Failed to fetch repos (${reposRes.status})`);
 
       const userData = await userRes.json();
@@ -94,6 +117,7 @@ export const DevTesting = () => {
       setRepos(mapGithubRepos(reposData));
       setStatus('ready');
       localStorage.setItem(LS_KEY, name);
+      if (tok) localStorage.setItem(LS_KEY_TOKEN, tok);
     } catch (err) {
       setError(err.message || 'Failed to fetch GitHub data');
       setStatus('error');
@@ -101,7 +125,7 @@ export const DevTesting = () => {
   };
 
   useEffect(() => {
-    if (username) fetchGithub(username);
+    if (username) fetchGithub(username, token);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -133,22 +157,37 @@ export const DevTesting = () => {
       <div style={{ width: '100%', maxWidth: 420, textAlign: 'center' }}>
         <div style={{ fontSize: 11, letterSpacing: '0.3em', color: '#f472b6', marginBottom: 8 }}>DEV-ONLY · NOT SHIPPED TO PRODUCTION</div>
         <h1 style={{ fontSize: 24, fontWeight: 900, marginBottom: 24 }}>Testing Mode</h1>
-        <p style={{ fontSize: 13, opacity: 0.6, marginBottom: 24 }}>Enter a real GitHub username to preview any theme with live data (fetched client-side, no auth).</p>
-        <form onSubmit={(e) => { e.preventDefault(); fetchGithub(username); }} style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <p style={{ fontSize: 13, opacity: 0.6, marginBottom: 24 }}>Enter a real GitHub username to preview any theme with live data (fetched client-side).</p>
+        <form onSubmit={(e) => { e.preventDefault(); fetchGithub(username, token); }} style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="github-username"
+              style={{ flex: 1, background: '#16161f', border: '1px solid #333', borderRadius: 6, padding: '10px 12px', color: '#fff', fontFamily: 'monospace' }}
+            />
+            <select value={themeKey} onChange={(e) => setThemeKey(e.target.value)} style={{ background: '#16161f', color: '#fff', border: '1px solid #333', borderRadius: 6, padding: '0 8px' }}>
+              {THEMES.map((t) => <option key={t.key} value={t.key}>{t.label}</option>)}
+            </select>
+          </div>
           <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="github-username"
-            style={{ flex: 1, background: '#16161f', border: '1px solid #333', borderRadius: 6, padding: '10px 12px', color: '#fff', fontFamily: 'monospace' }}
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            type="password"
+            placeholder="GitHub token (optional — raises rate limit to 5000/hr)"
+            style={{ background: '#16161f', border: '1px solid #333', borderRadius: 6, padding: '10px 12px', color: '#fff', fontFamily: 'monospace', fontSize: 12 }}
           />
-          <select value={themeKey} onChange={(e) => setThemeKey(e.target.value)} style={{ background: '#16161f', color: '#fff', border: '1px solid #333', borderRadius: 6, padding: '0 8px' }}>
-            {THEMES.map((t) => <option key={t.key} value={t.key}>{t.label}</option>)}
-          </select>
-          <button type="submit" style={{ background: '#f472b6', color: '#fff', border: 'none', borderRadius: 6, padding: '0 18px', fontWeight: 700, cursor: 'pointer' }}>Go</button>
+          <button type="submit" style={{ background: '#f472b6', color: '#fff', border: 'none', borderRadius: 6, padding: '10px 18px', fontWeight: 700, cursor: 'pointer' }}>Go</button>
         </form>
         {status === 'loading' && <div style={{ fontSize: 12, opacity: 0.6 }}>Fetching from GitHub…</div>}
-        {status === 'error' && <div style={{ fontSize: 12, color: '#ef4444' }}>{error}</div>}
-        <Link to="/" style={{ display: 'inline-block', marginTop: 24, fontSize: 12, color: '#22d3ee' }}>← Back to site</Link>
+        {status === 'error' && <div style={{ fontSize: 12, color: '#ef4444', marginBottom: 8 }}>{error}</div>}
+        {rateLimit && <div style={{ fontSize: 11, opacity: 0.5 }}>{rateLimit}</div>}
+        <p style={{ fontSize: 10, opacity: 0.4, marginTop: 16, lineHeight: 1.5 }}>
+          No token needed for occasional use. If you hit a rate limit, generate a token at{' '}
+          <a href="https://github.com/settings/tokens" target="_blank" rel="noreferrer" style={{ color: '#22d3ee' }}>github.com/settings/tokens</a>
+          {' '}(no scopes needed — this page only reads public data) and paste it above. It's stored only in this browser's localStorage and sent directly to GitHub, never through our server.
+        </p>
+        <Link to="/" style={{ display: 'inline-block', marginTop: 16, fontSize: 12, color: '#22d3ee' }}>← Back to site</Link>
       </div>
     </div>
   );

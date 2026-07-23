@@ -1,24 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
+import { Bell, CheckCheck, Trash2, Radio, Sparkles, AlertCircle, Award, Activity, Zap, Check, Eye } from 'lucide-react';
 
 export const Notifications = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [notifications, setNotifications] = useState([]);
   const [isLiveMode, setIsLiveMode] = useState(false);
 
-  // Generate sample notifications
   useEffect(() => {
     const sampleNotifications = [
       {
         id: 1,
         type: 'success',
         title: 'Portfolio Generated Successfully!',
-        message: 'Your amazing portfolio is now live and ready to impress employers!',
+        message: 'Your public portfolio is live and synced with your primary domain settings.',
         time: '2 MIN AGO',
-        icon: '🎉',
-        color: 'text-green-400',
-        bg: 'bg-green-400/20',
+        badge: 'SUCCESS',
         read: false,
         action: 'View Portfolio'
       },
@@ -26,97 +24,88 @@ export const Notifications = () => {
         id: 2,
         type: 'info',
         title: 'GitHub Sync Complete',
-        message: 'Successfully synced 15 new repositories and 47 commits from your GitHub profile.',
+        message: 'Successfully synced 15 new repositories and 47 code commits from GitHub.',
         time: '15 MIN AGO',
-        icon: '🔄',
-        color: 'text-blue-400',
-        bg: 'bg-blue-400/20',
+        badge: 'SYNC',
         read: false,
         action: 'View Changes'
       },
       {
         id: 3,
         type: 'warning',
-        title: 'Profile Update Required',
-        message: 'Please update your LinkedIn profile link to get better portfolio recommendations.',
+        title: 'Profile Headline Recommendation',
+        message: 'Add your primary developer target role to boost portfolio ranking.',
         time: '1 HOUR AGO',
-        icon: '⚠️',
-        color: 'text-yellow-400',
-        bg: 'bg-yellow-400/20',
+        badge: 'ALERT',
         read: true,
-        action: 'Update Profile'
+        action: 'Edit Profile'
       },
       {
         id: 4,
         type: 'achievement',
-        title: 'New Achievement Unlocked!',
-        message: 'Congratulations! You\'ve reached 100 portfolio views. Keep up the great work!',
+        title: 'Milestone Unlocked: 100 Views',
+        message: 'Your portfolio has reached 100 unique recruiter and developer views.',
         time: '2 HOURS AGO',
-        icon: '🏆',
-        color: 'text-purple-400',
-        bg: 'bg-purple-400/20',
+        badge: 'ACHIEVEMENT',
         read: false,
-        action: 'View Achievement'
+        action: 'View Stats'
       },
       {
         id: 5,
         type: 'system',
-        title: 'New Feature Available',
-        message: 'Check out our new AI-powered portfolio themes! Customize your portfolio like never before.',
+        title: 'New Feature: Resume Creator',
+        message: 'Check out our new ATS-friendly Resume Creator coming in v2.0.',
         time: '1 DAY AGO',
-        icon: '✨',
-        color: 'text-pink-400',
-        bg: 'bg-pink-400/20',
+        badge: 'SYSTEM',
         read: true,
-        action: 'Explore Themes'
+        action: 'Learn More'
       },
       {
         id: 6,
         type: 'social',
-        title: 'Someone viewed your portfolio!',
-        message: 'A potential employer from Google just viewed your portfolio for 5 minutes.',
+        title: 'Recruiter Visit Detected',
+        message: 'A visitor from Google Tech Talent team inspected your project repositories.',
         time: '2 DAYS AGO',
-        icon: '👀',
-        color: 'text-indigo-400',
-        bg: 'bg-indigo-400/20',
+        badge: 'VISITOR',
         read: false,
-        action: 'View Analytics'
+        action: 'View Insights'
       }
     ];
 
     setNotifications(sampleNotifications);
   }, []);
 
-  // Simulate live notifications
   useEffect(() => {
     if (!isLiveMode) return;
 
     const interval = setInterval(() => {
+      const liveEvents = [
+        { type: 'success', title: 'New Visitor Ping', message: 'Anonymous developer checked your Brutalist theme portfolio.', badge: 'LIVE' },
+        { type: 'info', title: 'Repository Star Recalculated', message: 'GitHub star metric updated across 4 pinned projects.', badge: 'METRIC' },
+        { type: 'achievement', title: 'Code Streak Maintained', message: '3-day continuous commit activity recorded.', badge: 'STREAK' }
+      ];
+      const picked = liveEvents[Math.floor(Math.random() * liveEvents.length)];
+
       const newNotification = {
         id: Date.now(),
-        type: ['success', 'info', 'warning', 'achievement'][Math.floor(Math.random() * 4)],
-        title: 'Live Update!',
-        message: 'Something exciting just happened in your PortForge account.',
+        ...picked,
         time: 'JUST NOW',
-        icon: '⚡',
-        color: 'text-purple-400',
-        bg: 'bg-purple-400/20',
         read: false,
-        action: 'Check it out'
+        action: 'Inspect'
       };
 
       setNotifications(prev => [newNotification, ...prev.slice(0, 9)]);
-    }, 10000);
+    }, 8000);
 
     return () => clearInterval(interval);
   }, [isLiveMode]);
 
   const filters = [
-    { id: 'all', name: 'All', count: notifications.length },
-    { id: 'unread', name: 'Unread', count: notifications.filter(n => !n.read).length },
-    { id: 'success', name: 'Success', count: notifications.filter(n => n.type === 'success').length },
-    { id: 'info', name: 'Info', count: notifications.filter(n => n.type === 'info').length },
-    { id: 'warning', name: 'Alerts', count: notifications.filter(n => n.type === 'warning').length }
+    { id: 'all', name: 'ALL LOGS', count: notifications.length },
+    { id: 'unread', name: 'UNREAD', count: notifications.filter(n => !n.read).length },
+    { id: 'success', name: 'SUCCESS', count: notifications.filter(n => n.type === 'success').length },
+    { id: 'warning', name: 'ALERTS', count: notifications.filter(n => n.type === 'warning').length },
+    { id: 'achievement', name: 'BADGES', count: notifications.filter(n => n.type === 'achievement').length }
   ];
 
   const filteredNotifications = notifications.filter(notification => {
@@ -127,88 +116,103 @@ export const Notifications = () => {
 
   const markAsRead = (id) => {
     setNotifications(prev =>
-      prev.map(notification =>
-        notification.id === id ? { ...notification, read: true } : notification
-      )
+      prev.map(n => n.id === id ? { ...n, read: true } : n)
     );
   };
 
-  const dismissNotification = (id) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
+  const markAllAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
 
-  const getNotificationStyle = (type, read) => {
-    const baseStyle = "p-6 rounded-2xl transition-all duration-300 relative cursor-pointer border";
+  const dismissNotification = (id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
 
-    if (!read) {
-      return `${baseStyle} bg-white/10 border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:bg-white/15 hover:-translate-y-1`;
+  const clearAll = () => {
+    setNotifications([]);
+  };
+
+  const getBadgeIcon = (type) => {
+    switch (type) {
+      case 'success': return <Zap className="w-4 h-4 text-emerald-400" />;
+      case 'warning': return <AlertCircle className="w-4 h-4 text-accent" />;
+      case 'achievement': return <Award className="w-4 h-4 text-amber-400" />;
+      case 'system': return <Sparkles className="w-4 h-4 text-sky-400" />;
+      case 'social': return <Eye className="w-4 h-4 text-purple-400" />;
+      default: return <Activity className="w-4 h-4 text-blue-400" />;
     }
-
-    return `${baseStyle} bg-white/5 border-white/5 opacity-75 grayscale hover:grayscale-0 hover:opacity-100`;
   };
 
   return (
-    <div className="min-h-screen font-sans overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-accent selection:text-white">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-40 pb-20 relative">
-        <div className="absolute top-1/4 right-0 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none"></div>
-        <div className="absolute bottom-1/4 left-0 w-80 h-80 bg-blue-600/20 rounded-full blur-[100px] pointer-events-none"></div>
-
-        {/* Hero Section */}
-        <div className="text-center mb-16 relative z-10 fade-in-up">
-          <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-[0_0_15px_rgba(255,255,255,0.05)] text-sm font-medium text-purple-300">
-            <span className="w-2 h-2 rounded-full bg-purple-400 glow-pulse"></span>
-            Notification Center
-          </div>
-
-          <h1 className="text-6xl sm:text-7xl md:text-8xl font-bold mb-8 leading-tight tracking-tight">
-            <span className="block text-white">Stay in the</span>
-            <span className="block text-gradient">loop.</span>
-          </h1>
-
-          <div className="flex items-center justify-center gap-4 mb-12">
-            <button
-              onClick={() => setIsLiveMode(!isLiveMode)}
-              className={`px-6 py-3 rounded-full font-medium text-sm transition-all duration-300 border ${
-                isLiveMode 
-                  ? 'bg-red-500/20 text-red-300 border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.3)]' 
-                  : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${isLiveMode ? 'bg-red-400 glow-pulse' : 'bg-gray-500'}`}></span>
-                {isLiveMode ? 'Live Mode: ON' : 'Live Mode: OFF'}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 md:pt-32 pb-20">
+        
+        {/* Top Header */}
+        <section className="mb-10 border-b-2 border-border pb-6">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-accent/10 border border-accent/40 text-accent px-3 py-1 text-[10px] font-black uppercase tracking-widest mb-3">
+                <Bell className="w-3.5 h-3.5" /> SYSTEM LOG & NOTIFICATION HUB
               </div>
-            </button>
+              <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tight text-white flex items-center gap-3">
+                ALERTS & ACTIVITY
+              </h1>
+              <p className="text-muted-foreground font-sans text-sm md:text-base mt-2 max-w-2xl">
+                Real-time tracking of portfolio views, GitHub synchronization, system badges, and profile diagnostics.
+              </p>
+            </div>
 
-            <div className="text-purple-300 font-medium text-sm bg-purple-500/10 px-6 py-3 rounded-full border border-purple-500/20 shadow-inner">
-              {notifications.filter(n => !n.read).length} Unread
+            {/* Live Mode Toggle & Mass Actions */}
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => setIsLiveMode(!isLiveMode)}
+                className={`px-4 py-2.5 border-2 text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-[4px_4px_0px_0px_#141822] ${
+                  isLiveMode
+                    ? 'border-accent bg-accent/20 text-accent animate-pulse'
+                    : 'border-border bg-card text-muted-foreground hover:text-white'
+                }`}
+              >
+                <Radio className={`w-3.5 h-3.5 ${isLiveMode ? 'text-accent' : ''}`} />
+                {isLiveMode ? 'LIVE STREAM: ON' : 'LIVE STREAM: OFF'}
+              </button>
+
+              <button
+                onClick={markAllAsRead}
+                disabled={notifications.every(n => n.read)}
+                className="bg-card border-2 border-border text-foreground hover:bg-secondary px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-colors flex items-center gap-2 disabled:opacity-40"
+              >
+                <CheckCheck className="w-3.5 h-3.5" /> MARK ALL READ
+              </button>
+
+              <button
+                onClick={clearAll}
+                disabled={notifications.length === 0}
+                className="bg-card border-2 border-border text-accent hover:bg-accent hover:text-white px-3 py-2.5 text-xs font-black uppercase tracking-widest transition-colors disabled:opacity-40"
+                title="Clear All Logs"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
+        </section>
 
-          <p className="text-xl sm:text-2xl text-gray-400 leading-relaxed max-w-3xl mx-auto font-light">
-            Never miss a beat! Your <span className="text-white font-medium">personalized notification hub</span> keeps you updated on everything happening in your PortForge journey.
-          </p>
-        </div>
-
-        {/* Filter Tabs */}
-        <div className="flex flex-wrap justify-center gap-4 mb-16 relative z-10 fade-in-up stagger-1">
+        {/* Filter Bar */}
+        <div className="mb-8 flex flex-wrap gap-2 border-b-2 border-border pb-4">
           {filters.map((filter) => (
             <button
               key={filter.id}
               onClick={() => setActiveFilter(filter.id)}
-              className={`px-6 py-3 rounded-full font-medium text-sm transition-all duration-300 border flex items-center gap-3 ${
+              className={`px-4 py-2 text-xs font-black uppercase tracking-wider border-2 transition-all flex items-center gap-2 ${
                 activeFilter === filter.id
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 border-white/20 text-white shadow-[0_0_15px_rgba(139,92,246,0.3)]'
-                  : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-white/20'
+                  ? 'border-accent bg-accent text-white shadow-[4px_4px_0px_0px_#141822]'
+                  : 'border-border bg-card text-muted-foreground hover:border-accent/50 hover:text-white'
               }`}
             >
               <span>{filter.name}</span>
-              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                activeFilter === filter.id
-                  ? 'bg-white/20 text-white'
-                  : 'bg-white/10 text-gray-400'
+              <span className={`px-1.5 py-0.5 text-[10px] font-bold ${
+                activeFilter === filter.id ? 'bg-white/20 text-white' : 'bg-secondary text-muted-foreground'
               }`}>
                 {filter.count}
               </span>
@@ -217,128 +221,131 @@ export const Notifications = () => {
         </div>
 
         {/* Notifications List */}
-        <div className="space-y-4 relative z-10 fade-in-up stagger-2">
+        <div className="space-y-4 mb-12">
           {filteredNotifications.length === 0 ? (
-            <div className="text-center py-24 glass-panel">
-              <div className="text-6xl mb-6 opacity-50">📭</div>
-              <h3 className="text-2xl font-semibold mb-3 text-white tracking-wide">No Notifications Found</h3>
-              <p className="text-gray-400 font-light">Try changing your filter or check back later.</p>
+            <div className="bg-card border-2 border-border p-12 text-center shadow-[6px_6px_0px_0px_#141822]">
+              <div className="w-12 h-12 bg-background border-2 border-border flex items-center justify-center mx-auto mb-4">
+                <Bell className="w-6 h-6 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-black uppercase text-white mb-2">NO LOGS FOUND</h3>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                No active events matching the selected filter query.
+              </p>
             </div>
           ) : (
-            filteredNotifications.map((notification, index) => (
+            filteredNotifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`${getNotificationStyle(notification.type, notification.read)} fade-in-up`}
-                style={{ animationDelay: `${index * 100}ms` }}
                 onClick={() => markAsRead(notification.id)}
+                className={`bg-card border-2 p-5 transition-all relative cursor-pointer shadow-[5px_5px_0px_0px_#141822] hover:-translate-y-0.5 ${
+                  !notification.read
+                    ? 'border-accent/80 bg-card'
+                    : 'border-border opacity-70 hover:opacity-100'
+                }`}
               >
-                <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6">
-                  <div className="flex items-start gap-5 flex-1">
-                    <div className={`w-12 h-12 rounded-xl ${notification.bg} flex items-center justify-center text-xl shrink-0 ${!notification.read ? 'shadow-inner' : ''}`}>
-                      {notification.icon}
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                  <div className="flex items-start gap-4 flex-1">
+                    <div className="p-2.5 bg-background border-2 border-border shrink-0 mt-0.5">
+                      {getBadgeIcon(notification.type)}
                     </div>
 
                     <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-3 mb-2">
-                        <h3 className={`text-lg font-semibold tracking-wide ${!notification.read ? notification.color : 'text-gray-300'}`}>
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 border border-border bg-background text-accent">
+                          {notification.badge}
+                        </span>
+                        <h3 className={`text-base font-black uppercase tracking-tight ${!notification.read ? 'text-white' : 'text-foreground'}`}>
                           {notification.title}
                         </h3>
                         {!notification.read && (
-                          <div className={`text-[10px] font-bold px-2 py-1 rounded-md bg-white/10 border border-white/10 uppercase tracking-widest ${notification.color}`}>
-                            New
-                          </div>
+                          <span className="w-2 h-2 rounded-full bg-accent animate-ping ml-1" />
                         )}
                       </div>
 
-                      <p className="text-base text-gray-400 font-light leading-relaxed mb-4">
+                      <p className="text-xs text-muted-foreground font-sans leading-relaxed mb-3">
                         {notification.message}
                       </p>
 
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <span className="text-xs text-gray-500 font-medium tracking-wider">
-                          {notification.time}
-                        </span>
-
-                        {notification.action && (
-                          <button className="text-sm font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/10 px-4 py-2 rounded-lg transition-colors">
-                            {notification.action}
-                          </button>
-                        )}
+                      <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                        <span>{notification.time}</span>
+                        {notification.read && <span className="flex items-center gap-1 text-emerald-400"><Check className="w-3 h-3" /> READ</span>}
                       </div>
                     </div>
                   </div>
 
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      dismissNotification(notification.id);
-                    }}
-                    className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
-                  >
-                    ×
-                  </button>
+                  <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 shrink-0">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        dismissNotification(notification.id);
+                      }}
+                      className="text-[10px] font-black uppercase tracking-wider text-muted-foreground hover:text-accent p-1 transition-colors"
+                      title="Dismiss Event"
+                    >
+                      DISMISS ×
+                    </button>
+
+                    {notification.action && (
+                      <button className="bg-secondary text-white border border-border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-colors">
+                        {notification.action}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))
           )}
         </div>
 
-        {/* Notification Stats */}
-        <div className="mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10 fade-in-up stagger-3">
+        {/* System Stats Section */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
           {[
-            { label: 'Total', value: notifications.length },
-            { label: 'Unread', value: notifications.filter(n => !n.read).length },
-            { label: 'This Week', value: notifications.filter(n => n.time.includes('DAY') || n.time.includes('HOUR')).length },
-            { label: 'Achievements', value: notifications.filter(n => n.type === 'achievement').length }
-          ].map((stat, index) => (
-            <div
-              key={stat.label}
-              className="glass-card text-center"
-            >
-              <div className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 mb-2">
-                {stat.value}
-              </div>
-              <div className="text-sm font-medium text-gray-400 tracking-wide">
-                {stat.label}
-              </div>
+            { label: 'TOTAL LOGS', value: notifications.length },
+            { label: 'UNREAD', value: notifications.filter(n => !n.read).length },
+            { label: 'RECENT (24H)', value: notifications.filter(n => n.time.includes('MIN') || n.time.includes('HOUR')).length },
+            { label: 'ACHIEVEMENTS', value: notifications.filter(n => n.type === 'achievement').length }
+          ].map((stat) => (
+            <div key={stat.label} className="bg-card border-2 border-border p-5 text-center shadow-[4px_4px_0px_0px_#141822]">
+              <div className="text-3xl font-black text-accent mb-1">{stat.value}</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{stat.label}</div>
             </div>
           ))}
         </div>
 
-        {/* Settings Section */}
-        <div className="mt-20 glass-panel p-10 relative z-10 fade-in-up stagger-4">
-          <h3 className="text-3xl font-bold mb-10 text-center text-white tracking-tight">
-            Notification Settings
-          </h3>
+        {/* Notification Preferences Settings */}
+        <div className="bg-card border-2 border-border p-6 md:p-8 shadow-[8px_8px_0px_0px_#141822]">
+          <h2 className="text-2xl font-black uppercase tracking-tight text-white mb-6 border-b-2 border-border pb-3">
+            SYSTEM DISPATCH PREFERENCES
+          </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
-              { type: 'Portfolio Updates', desc: 'Get notified when your portfolio gets views or updates' },
-              { type: 'GitHub Sync', desc: 'Alerts when your GitHub data is successfully synced' },
-              { type: 'Achievements', desc: 'Celebrate milestones and unlock new features' },
-              { type: 'System Updates', desc: 'Important announcements and platform changes' },
-              { type: 'Social Activity', desc: 'When someone interacts with your portfolio' },
-              { type: 'Marketing', desc: 'Tips, tricks, and special offers' }
-            ].map((setting, index) => (
+              { type: 'Portfolio Traffic Alerts', desc: 'Notify when recruiters or visitors view your public portfolio' },
+              { type: 'GitHub Sync Diagnostics', desc: 'Log automated sync completions and repository updates' },
+              { type: 'Milestones & Badges', desc: 'Receive real-time alerts when activity thresholds are unlocked' },
+              { type: 'System & Feature Updates', desc: 'Critical platform announcements and new template releases' }
+            ].map((setting) => (
               <div
                 key={setting.type}
-                className="flex items-center justify-between p-6 bg-white/5 border border-white/10 rounded-2xl gap-4 hover:bg-white/10 transition-colors"
+                className="flex items-center justify-between p-4 bg-background border-2 border-border gap-4"
               >
                 <div>
-                  <h4 className="font-semibold text-white tracking-wide mb-1">{setting.type}</h4>
-                  <p className="text-sm text-gray-400 font-light">{setting.desc}</p>
+                  <h4 className="font-black uppercase text-xs text-white tracking-wide">{setting.type}</h4>
+                  <p className="text-[11px] text-muted-foreground font-sans mt-0.5">{setting.desc}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                   <input type="checkbox" className="sr-only peer" defaultChecked />
-                  <div className="w-12 h-6 bg-white/10 rounded-full peer peer-focus:ring-2 peer-focus:ring-purple-500/50 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
+                  <div className="w-10 h-5 bg-muted rounded-none peer border border-border peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"></div>
                 </label>
               </div>
             ))}
           </div>
         </div>
-      </div>
-      
+
+      </main>
+
       <Footer />
     </div>
   );
 };
+export default Notifications;

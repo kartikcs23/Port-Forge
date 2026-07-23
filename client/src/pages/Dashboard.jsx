@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
 import { ProjectCard } from '../components/ProjectCard';
 import { useNavigate } from 'react-router-dom';
 import { useAppUser } from '../hooks/useAppUser';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { useResume } from '../hooks/useResume';
+import { mergeAiRanking } from '../utils/aiRanking';
 import {
   Pencil,
   RefreshCw,
@@ -19,6 +20,7 @@ import {
   ChevronDown,
   ChevronUp,
   X,
+  Sparkles,
 } from 'lucide-react';
 
 export const Dashboard = () => {
@@ -29,11 +31,14 @@ export const Dashboard = () => {
     error,
     portfolio,
     projects,
+    aiRanking,
+    rankingLoading,
     fetchPortfolio,
     generatePortfolio,
     togglePublish,
     syncGithub,
     fetchProjects,
+    rankWithAI,
     togglePin,
     updateTheme,
   } = usePortfolio();
@@ -54,6 +59,10 @@ export const Dashboard = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const fileInputRef = useRef(null);
+  // Guards the auto-ranking effect below so it fires at most once per
+  // mount — the backend cache makes repeat calls cheap, but there's no
+  // reason to re-request on every projects-array change (e.g. pin/hide).
+  const hasAutoRanked = useRef(false);
 
   useEffect(() => {
     if (isLoaded) {
@@ -61,6 +70,17 @@ export const Dashboard = () => {
       fetchProjects();
     }
   }, [isLoaded, fetchPortfolio, fetchProjects]);
+
+  // Auto-run AI ranking once projects are loaded. If this profile has
+  // already been ranked and no repo has changed since, the backend serves
+  // the cached result instantly with no AI call — so it's always safe to
+  // call this rather than requiring a manual click.
+  useEffect(() => {
+    if (!hasAutoRanked.current && projects.length > 0 && !aiRanking) {
+      hasAutoRanked.current = true;
+      rankWithAI();
+    }
+  }, [projects, aiRanking, rankWithAI]);
 
   const handleSyncGithub = async () => {
     if (!githubLink) {
@@ -78,6 +98,18 @@ export const Dashboard = () => {
       setSyncStatus('error');
     }
   };
+
+  const handleRankWithAI = async () => {
+    setSyncStatus('ranking');
+    const result = await rankWithAI(githubLink || undefined);
+    setSyncStatus(result.success ? 'ranked' : 'error');
+    setTimeout(() => setSyncStatus(''), 3000);
+  };
+
+  // Merge the AI ranking's scores/tiers onto the synced project list and
+  // sort by them once available. Falls back to the existing (heuristic
+  // score) order from the backend until a ranking has been run.
+  const rankedProjects = useMemo(() => mergeAiRanking(projects, aiRanking), [projects, aiRanking]);
 
   const handleResumeUpload = async () => {
     if (!resumeFile) return;
@@ -164,7 +196,7 @@ export const Dashboard = () => {
                     placeholder="https://github.com/username"
                     value={githubLink}
                     onChange={(e) => setGithubLink(e.target.value)}
-                    className="w-full bg-background text-white border-2 border-border px-4 py-3 font-sans text-sm font-bold uppercase tracking-wide focus:outline-none focus:ring-none focus:bg-accent focus:text-white transition-colors"
+                    className="w-full bg-background text-white border-2 border-border px-4 py-3 font-sans text-sm font-bold tracking-wide focus:outline-none focus:ring-none focus:bg-accent focus:text-white transition-colors"
                   />
                   <button
                     onClick={handleSyncGithub}
@@ -174,11 +206,23 @@ export const Dashboard = () => {
                     {syncStatus === 'syncing-github' ? <RefreshCw className="w-4 h-4 animate-spin" /> : <span>⚙️</span>}
                     {syncStatus === 'syncing-github' ? 'SYNCING...' : 'SYNC GITHUB'}
                   </button>
+                  <button
+                    onClick={handleRankWithAI}
+                    disabled={rankingLoading || projects.length === 0}
+                    className={`w-full flex items-center justify-center gap-2 font-bold uppercase tracking-widest text-xs mt-2 py-3 border-2 border-border transition-transform hover:shadow-[4px_4px_0px_0px_#141822] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50 ${syncStatus === 'ranking' ? 'bg-primary text-white' : 'bg-accent text-white'}`}
+                  >
+                    {rankingLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                    {rankingLoading ? 'RANKING...' : 'RANK WITH AI'}
+                  </button>
+                  {projects.length === 0 && (
+                    <p className="text-[10px] font-bold uppercase tracking-widest mt-2 text-muted-foreground">Sync GitHub first</p>
+                  )}
                 </div>
                 <div className="pt-6 border-t-2 border-border border-dashed">
                   <span className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">STATUS LOGGER</span>
-                  {error && <div className="text-xs font-bold text-destructive uppercase bg-destructive/10 p-2 border-2 border-destructive mb-2">ERROR: {error}</div>}
+                  {error && <div className="text-xs font-bold text-destructive bg-destructive/10 p-2 border-2 border-destructive mb-2">Error: {error}</div>}
                   {syncStatus === 'success' && <div className="text-xs font-bold text-primary uppercase bg-primary/10 p-2 border-2 border-primary mb-2 shadow-[2px_2px_0px_0px_#141822]">SYNC SUCCESSFUL</div>}
+                  {syncStatus === 'ranked' && <div className="text-xs font-bold text-accent uppercase bg-accent/10 p-2 border-2 border-accent mb-2 shadow-[2px_2px_0px_0px_#141822]">AI RANKING COMPLETE{aiRanking?.cached ? ' (CACHED)' : ''}</div>}
                   {lastSynced && <div className="text-[10px] font-bold text-muted-foreground uppercase">LAST SYNC: {lastSynced}</div>}
                 </div>
               </div>
@@ -330,12 +374,19 @@ export const Dashboard = () => {
           </div>
 
           <div className="lg:col-span-8">
-            <h2 className="text-4xl md:text-5xl font-black font-display uppercase tracking-tighter mb-8 border-b-4 border-border pb-4">
-              Your Repositories
-            </h2>
+            <div className="flex items-center justify-between mb-8 border-b-4 border-border pb-4">
+              <h2 className="text-4xl md:text-5xl font-black font-display uppercase tracking-tighter">
+                Your Repositories
+              </h2>
+              {aiRanking && (
+                <span className="bg-accent text-white px-3 py-1 font-bold text-[10px] uppercase tracking-widest flex items-center gap-1 shrink-0">
+                  <Sparkles className="w-3 h-3" /> Ranked by AI
+                </span>
+              )}
+            </div>
 
             <div className="space-y-6">
-              {(projects || []).map((project) => (
+              {rankedProjects.map((project) => (
                 <ProjectCard
                   key={project.repoId || project._id}
                   project={project}

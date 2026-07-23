@@ -177,7 +177,11 @@ const getPublicPortfolio = async (req, res) => {
     const [user, profile, projects] = await Promise.all([
       User.findById(portfolio.userId),
       Profile.findOne({ userId: portfolio.userId }),
-      Project.find({ userId: portfolio.userId, hidden: { $ne: true } }).sort({ pinned: -1, score: -1 }).limit(8),
+      // Pinned projects lead, in the user's own chosen order (pinnedOrder) —
+      // that's the whole point of pinning: the user decides top-project
+      // order, not score or AI rank. Non-pinned projects fill remaining
+      // slots by score.
+      Project.find({ userId: portfolio.userId, hidden: { $ne: true } }).sort({ pinned: -1, pinnedOrder: 1, score: -1 }).limit(8),
     ]);
 
     res.status(200).json({

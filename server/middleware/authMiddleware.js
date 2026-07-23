@@ -3,11 +3,18 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const CLERK_ISSUER = process.env.CLERK_ISSUER;
-const JWT_SECRET = process.env.JWT_SECRET || 'placeholder';
+// No fallback default. A hardcoded default signing secret would be visible
+// to anyone reading this source file, making every locally-issued JWT
+// forgeable. If JWT_SECRET isn't configured, the local-JWT path below
+// simply never verifies anything — it fails closed, not open.
+const JWT_SECRET = process.env.JWT_SECRET;
 
 /**
- * protect — Express middleware that verifies either a local JWT or a Clerk session JWT.
- * On success, attaches the local user object to req.user.
+ * protect — Express middleware that verifies either a local JWT (from
+ * /api/auth/register|login) or a Clerk session JWT. On success, attaches
+ * the local user object to req.user. Always fails closed: a missing or
+ * invalid token is always rejected with 401, in every environment —
+ * there is no "no token → let them in anyway" fallback.
  */
 const protect = async (req, res, next) => {
   try {
@@ -19,10 +26,17 @@ const protect = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
     }
 
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'Not authorized — no token provided',
+      });
+    }
+
     let user = null;
 
-    if (token) {
-      // 1. Try local JWT token verification
+    // 1. Try local JWT token verification (only meaningful if JWT_SECRET is configured)
+    if (JWT_SECRET) {
       try {
         const decoded = jwt.verify(token, JWT_SECRET);
         if (decoded && decoded.id) {
@@ -31,48 +45,34 @@ const protect = async (req, res, next) => {
       } catch (localJwtError) {
         // Not a valid local JWT, will attempt Clerk verification below
       }
+    }
 
-      // 2. Try Clerk token verification if local JWT didn't match
-      if (!user && CLERK_ISSUER) {
-        try {
-          const payload = await verifyToken(token, { issuer: CLERK_ISSUER });
-          const clerkId = payload?.sub;
-          if (clerkId) {
-            user = await User.findOne({ clerkId });
-            if (!user) {
-              user = await User.create({
-                clerkId,
-                name: payload.name || 'Clerk User',
-                email: payload.email || `${clerkId}@clerk.local`,
-                password: 'clerk_placeholder_password_avoid_login',
-              });
-            }
+    // 2. Try Clerk token verification if local JWT didn't match
+    if (!user && CLERK_ISSUER) {
+      try {
+        const payload = await verifyToken(token, { issuer: CLERK_ISSUER });
+        const clerkId = payload?.sub;
+        if (clerkId) {
+          user = await User.findOne({ clerkId });
+          if (!user) {
+            user = await User.create({
+              clerkId,
+              name: payload.name || 'Clerk User',
+              email: payload.email || `${clerkId}@clerk.local`,
+              password: 'clerk_placeholder_password_avoid_login',
+            });
           }
-        } catch (clerkError) {
-          console.warn('Clerk token verification failed:', clerkError.message);
         }
+      } catch (clerkError) {
+        console.warn('Clerk token verification failed:', clerkError.message);
       }
     }
 
-    // 3. Development Fallback: If no token provided or verification fails, fallback to first user or create dev user
     if (!user) {
-      const isDev = process.env.NODE_ENV !== 'production';
-      if (!token && isDev) {
-        user = await User.findOne().sort({ createdAt: 1 });
-        if (!user) {
-          user = await User.create({
-            name: 'Local Dev User',
-            email: 'dev@portforge.local',
-            password: 'dev_password_placeholder',
-            role: 'admin',
-          });
-        }
-      } else {
-        return res.status(401).json({
-          success: false,
-          message: 'Not authorized — token is invalid or missing',
-        });
-      }
+      return res.status(401).json({
+        success: false,
+        message: 'Not authorized — token is invalid or expired',
+      });
     }
 
     req.user = user;

@@ -5,6 +5,22 @@ const getGithubToken = () =>
 
 const hasGithubToken = () => Boolean(getGithubToken());
 
+/**
+ * parseGithubUsername — Extracts a bare username from a GitHub profile URL
+ * or accepts a bare username as-is.
+ * @param {string} rawLink — e.g. "https://github.com/torvalds" or "torvalds"
+ * @returns {string} lowercase username, or '' if nothing usable was found
+ */
+const parseGithubUsername = (rawLink = '') => {
+  let username = rawLink.trim();
+  if (username.toLowerCase().includes('github.com/')) {
+    username = username.toLowerCase().split('github.com/')[1].split('/')[0];
+  } else if (username.includes('/')) {
+    username = username.split('/').pop() || username.split('/')[0];
+  }
+  return username.toLowerCase();
+};
+
 const buildGithubHeaders = (accept = 'application/vnd.github+json') => {
   const headers = { Accept: accept, 'User-Agent': 'PortForge' };
   const token = getGithubToken();
@@ -39,8 +55,88 @@ const fetchGitHubProfile = async (username) => {
   }
 };
 
+const fetchRepoLanguages = async (owner, repoName) => {
+  try {
+    const { data } = await axios.get(
+      `https://api.github.com/repos/${owner}/${repoName}/languages`,
+      { headers: buildGithubHeaders() }
+    );
+    return Object.entries(data || {})
+      .sort((a, b) => b[1] - a[1])
+      .map(([lang]) => lang);
+  } catch (error) {
+    if (error.response?.status === 403) {
+      console.warn(`GitHub rate limit hit while fetching languages for ${owner}/${repoName}.`);
+    }
+    return [];
+  }
+};
+
+const fetchRepoCommitCount = async (owner, repoName) => {
+  try {
+    const response = await axios.get(
+      `https://api.github.com/repos/${owner}/${repoName}/commits`,
+      {
+        headers: buildGithubHeaders(),
+        params: { per_page: 1 },
+      }
+    );
+
+    const linkHeader = response.headers?.link || '';
+    const match = linkHeader.match(/page=(\d+)>; rel="last"/);
+    if (match) {
+      return Number(match[1]);
+    }
+
+    if (Array.isArray(response.data)) {
+      return response.data.length;
+    }
+
+    return 0;
+  } catch (error) {
+    if (error.response?.status === 403) {
+      console.warn(`GitHub rate limit hit while fetching commits for ${owner}/${repoName}.`);
+    }
+    return 0;
+  }
+};
+
 /**
- * fetchGitHubRepos — Fetches all public repos for the given username.
+ * enrichRepoMeta — Fetches README + full language breakdown + commit count
+ * for a single repo, addressed by its actual owner (not necessarily the
+ * profile being synced — matters for repos the user collaborates on).
+ * Mutates and returns the given repo object.
+ */
+const enrichRepoMeta = async (owner, repo) => {
+  try {
+    const readmeRes = await axios.get(
+      `https://api.github.com/repos/${owner}/${repo.name}/readme`,
+      { headers: buildGithubHeaders('application/vnd.github.raw') }
+    );
+    repo.readme = readmeRes.data;
+    repo.readmeLength = readmeRes.data ? readmeRes.data.length : 0;
+  } catch (err) {
+    repo.readme = ''; // No readme or rate limited
+    repo.readmeLength = 0;
+  }
+
+  const [languages, totalCommits] = await Promise.all([
+    fetchRepoLanguages(owner, repo.name),
+    fetchRepoCommitCount(owner, repo.name),
+  ]);
+
+  if (languages.length > 0) {
+    repo.languages = languages;
+    repo.language = languages[0];
+  }
+
+  repo.totalCommits = totalCommits || 0;
+  return repo;
+};
+
+/**
+ * fetchGitHubRepos — Fetches all repos owned by the given username, fully
+ * enriched with README/languages/commit count.
  * @param {string} username — GitHub username
  */
 const fetchGitHubRepos = async (username) => {
@@ -60,6 +156,7 @@ const fetchGitHubRepos = async (username) => {
     const mappedRepos = repos.map((repo) => ({
       repoId: String(repo.id),
       name: repo.name,
+      ownerLogin: username,
       description: repo.description || '',
       stars: repo.stargazers_count || 0,
       forks: repo.forks_count || 0,
@@ -68,87 +165,13 @@ const fetchGitHubRepos = async (username) => {
       repoUrl: repo.html_url,
       isFork: !!repo.fork,
       isEmpty: Number(repo.size || 0) === 0,
+      isArchived: !!repo.archived,
       createdAt: repo.created_at,
       updatedAt: repo.updated_at,
       topics: repo.topics || [],
     }));
 
-    const fetchRepoLanguages = async (repoName) => {
-      try {
-        const { data } = await axios.get(
-          `https://api.github.com/repos/${username}/${repoName}/languages`,
-          { headers: buildGithubHeaders() }
-        );
-        return Object.entries(data || {})
-          .sort((a, b) => b[1] - a[1])
-          .map(([lang]) => lang);
-      } catch (error) {
-        if (error.response?.status === 403) {
-          console.warn(`GitHub rate limit hit while fetching languages for ${repoName}.`);
-        }
-        return [];
-      }
-    };
-
-    const fetchRepoCommitCount = async (repoName) => {
-      try {
-        const response = await axios.get(
-          `https://api.github.com/repos/${username}/${repoName}/commits`,
-          {
-            headers: buildGithubHeaders(),
-            params: { per_page: 1 },
-          }
-        );
-
-        const linkHeader = response.headers?.link || '';
-        const match = linkHeader.match(/page=(\d+)>; rel="last"/);
-        if (match) {
-          return Number(match[1]);
-        }
-
-        if (Array.isArray(response.data)) {
-          return response.data.length;
-        }
-
-        return 0;
-      } catch (error) {
-        if (error.response?.status === 403) {
-          console.warn(`GitHub rate limit hit while fetching commits for ${repoName}.`);
-        }
-        return 0;
-      }
-    };
-
-    // Fetch READMEs and enrich repo metadata concurrently
-    await Promise.all(
-      mappedRepos.map(async (repo) => {
-        try {
-          const readmeRes = await axios.get(
-            `https://api.github.com/repos/${username}/${repo.name}/readme`,
-            {
-              headers: buildGithubHeaders('application/vnd.github.raw'),
-            }
-          );
-          repo.readme = readmeRes.data;
-          repo.readmeLength = readmeRes.data ? readmeRes.data.length : 0;
-        } catch (err) {
-          repo.readme = ''; // No readme or rate limited
-          repo.readmeLength = 0;
-        }
-
-        const [languages, totalCommits] = await Promise.all([
-          fetchRepoLanguages(repo.name),
-          fetchRepoCommitCount(repo.name),
-        ]);
-
-        if (languages.length > 0) {
-          repo.languages = languages;
-          repo.language = languages[0];
-        }
-
-        repo.totalCommits = totalCommits || 0;
-      })
-    );
+    await Promise.all(mappedRepos.map((repo) => enrichRepoMeta(username, repo)));
 
     return mappedRepos;
   } catch (error) {
@@ -157,6 +180,114 @@ const fetchGitHubRepos = async (username) => {
     }
     throw error;
   }
+};
+
+/**
+ * fetchContributedRepos — Repos the user has committed to but does NOT own
+ * (i.e. collaborator contributions), via the same GraphQL data that powers
+ * the "Contributed to" section on a GitHub profile. Public repos only —
+ * this is meant to feed a public portfolio, never private repo data.
+ * @param {string} username — GitHub username
+ * @returns {Promise<Array>} lean repo objects (no README/full language
+ *   breakdown yet — call enrichRepoMeta(repo.ownerLogin, repo) for that)
+ */
+const fetchContributedRepos = async (username) => {
+  const token = getGithubToken();
+  if (!token || !username) return [];
+
+  try {
+    const { data } = await axios.post(
+      'https://api.github.com/graphql',
+      {
+        query: `
+          query($login: String!) {
+            user(login: $login) {
+              contributionsCollection {
+                commitContributionsByRepository(maxRepositories: 100) {
+                  contributions { totalCount }
+                  repository {
+                    databaseId
+                    name
+                    owner { login }
+                    description
+                    url
+                    isFork
+                    isArchived
+                    isPrivate
+                    stargazerCount
+                    forkCount
+                    diskUsage
+                    createdAt
+                    updatedAt
+                    primaryLanguage { name }
+                    repositoryTopics(first: 10) { nodes { topic { name } } }
+                  }
+                }
+              }
+            }
+          }
+        `,
+        variables: { login: username },
+      },
+      { headers: buildGithubHeaders('application/json') }
+    );
+
+    const edges = data?.data?.user?.contributionsCollection?.commitContributionsByRepository || [];
+    const lowerUsername = username.toLowerCase();
+
+    return edges
+      .filter((e) => e.repository && e.repository.owner?.login)
+      .filter((e) => e.repository.owner.login.toLowerCase() !== lowerUsername) // not their own repo
+      .filter((e) => !e.repository.isPrivate && !e.repository.isFork && !e.repository.isArchived)
+      .map((e) => {
+        const repo = e.repository;
+        return {
+          repoId: String(repo.databaseId),
+          name: repo.name,
+          ownerLogin: repo.owner.login,
+          description: repo.description || '',
+          stars: repo.stargazerCount || 0,
+          forks: repo.forkCount || 0,
+          language: repo.primaryLanguage?.name || '',
+          languages: repo.primaryLanguage?.name ? [repo.primaryLanguage.name] : [],
+          repoUrl: repo.url,
+          isFork: false,
+          isEmpty: false, // has commit contributions, so never empty
+          isArchived: false,
+          createdAt: repo.createdAt,
+          updatedAt: repo.updatedAt,
+          topics: (repo.repositoryTopics?.nodes || []).map((n) => n.topic.name),
+          sizeKb: repo.diskUsage || 0,
+          isCollaboration: true,
+          contributionCommits: e.contributions?.totalCount || 0,
+        };
+      });
+  } catch (error) {
+    console.warn('Failed to fetch contributed repos via GraphQL:', error.response?.data?.errors || error.message);
+    return [];
+  }
+};
+
+/**
+ * fetchAllUserRepos — Owned repos + repos the user collaborates on (has
+ * real commit contributions to but doesn't own), fully enriched and
+ * deduplicated by repoId. This is the "did they actually work on it" set —
+ * use this instead of fetchGitHubRepos wherever a complete contribution
+ * picture matters (syncing, AI ranking).
+ * @param {string} username — GitHub username
+ */
+const fetchAllUserRepos = async (username) => {
+  const [ownedRepos, contributedLean] = await Promise.all([
+    fetchGitHubRepos(username),
+    fetchContributedRepos(username),
+  ]);
+
+  const ownedIds = new Set(ownedRepos.map((r) => r.repoId));
+  const newContributed = contributedLean.filter((r) => !ownedIds.has(r.repoId));
+
+  await Promise.all(newContributed.map((repo) => enrichRepoMeta(repo.ownerLogin, repo)));
+
+  return [...ownedRepos, ...newContributed];
 };
 
 const decodeHtml = (value = '') =>
@@ -322,9 +453,15 @@ const fetchGitHubIssueStats = async (username) => {
 };
 
 module.exports = {
+  getGithubToken,
   hasGithubToken,
+  buildGithubHeaders,
+  parseGithubUsername,
   fetchGitHubProfile,
   fetchGitHubRepos,
+  fetchContributedRepos,
+  fetchAllUserRepos,
+  enrichRepoMeta,
   fetchGitHubContributions,
   fetchGitHubEvents,
   fetchGitHubIssueStats,

@@ -1,16 +1,8 @@
 import React from 'react';
 import { SignIn } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 
 export const Login = () => {
-  const navigate = useNavigate();
-
-  const handleDeveloperBypass = () => {
-    localStorage.setItem('isDeveloperMode', 'true');
-    window.location.href = '/dashboard';
-  };
-
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-accent selection:text-white border-t-0">
       <Navbar />
@@ -46,14 +38,6 @@ export const Login = () => {
               }}
             />
           </div>
-
-          {/* Developer Bypass Option */}
-          <button
-            onClick={handleDeveloperBypass}
-            className="btn-forge-primary w-full max-w-sm !py-3 !text-[11px] shadow-lg border-2 border-primary"
-          >
-            // BYPASS_AUTH_DEVELOPER_MODE
-          </button>
         </div>
       </div>
     </div>

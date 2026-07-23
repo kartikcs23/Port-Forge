@@ -1,4 +1,4 @@
-const { fetchGitHubProfile, fetchGitHubRepos } = require('../services/githubService');
+const { fetchGitHubProfile, fetchAllUserRepos, parseGithubUsername } = require('../services/githubService');
 const { fetchLinkedInProfile, parseLinkedInURL } = require('../services/linkedinService');
 const { scoreAndSort } = require('../services/scoringService');
 const Project = require('../models/Project');
@@ -15,12 +15,7 @@ const syncGithub = async (req, res) => {
       });
     }
 
-    let username = rawLink.trim();
-    if (username.toLowerCase().includes('github.com/')) {
-      username = username.toLowerCase().split('github.com/')[1].split('/')[0];
-    } else if (username.includes('/')) {
-        username = username.split('/').pop() || username.split('/')[0];
-    }
+    const username = parseGithubUsername(rawLink);
 
     if (!username) {
         return res.status(400).json({
@@ -29,10 +24,18 @@ const syncGithub = async (req, res) => {
         });
     }
 
-    const [githubProfile, githubRepos] = await Promise.all([
+    const [githubProfile, allGithubRepos] = await Promise.all([
       fetchGitHubProfile(username),
-      fetchGitHubRepos(username),
+      fetchAllUserRepos(username), // owned repos + repos they collaborate on
     ]);
+
+    // Only repos that represent the user's own contribution: exclude forks
+    // (commits belong to the upstream author), archived repos, and empty
+    // repos (nothing to show). Collaboration repos are already pre-filtered
+    // to public, non-fork, non-archived by fetchAllUserRepos.
+    const githubRepos = allGithubRepos.filter(
+      (repo) => !repo.isFork && !repo.isArchived && !repo.isEmpty
+    );
 
     const scoredRepos = await scoreAndSort(githubRepos);
 
@@ -58,6 +61,8 @@ const syncGithub = async (req, res) => {
             totalCommits: repo.totalCommits || 0,
             isFork: !!repo.isFork,
             isEmpty: !!repo.isEmpty,
+            isCollaboration: !!repo.isCollaboration,
+            contributionCommits: repo.contributionCommits || 0,
           },
         },
         upsert: true,

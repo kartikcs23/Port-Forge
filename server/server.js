@@ -19,6 +19,7 @@ const profileRoutes = require('./routes/profile');
 const adminRoutes = require('./routes/admin');
 const resumeRoutes = require('./routes/resume');
 const insightsRoutes = require('./routes/insights');
+const rankingRoutes = require('./routes/ranking');
 
 // Initialize Express app
 const app = express();
@@ -69,6 +70,20 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Limit the AI ranking endpoint — cache absorbs repeat requests, this just
+// guards against abuse driving up GitHub Models usage.
+const rankingLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  message: {
+    success: false,
+    data: null,
+    message: 'Too many ranking requests. Please try again after 15 minutes.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // ========================
 // Mount Routes
 // ========================
@@ -80,6 +95,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/resume', resumeRoutes);
 app.use('/api/insights', insightsRoutes);
+app.use('/api/ranking', rankingLimiter, rankingRoutes);
 
 // ========================
 // Health Check
