@@ -31,8 +31,16 @@ export const Navbar = () => {
   };
 
   const handleLogout = () => {
-    signOut(() => navigate('/'));
-    setMobileOpen(false);
+    const isDev = localStorage.getItem('isDeveloperMode') === 'true';
+    if (isDev) {
+      // Dev bypass mode — no real Clerk session, just clear the flag and go home
+      localStorage.removeItem('isDeveloperMode');
+      setMobileOpen(false);
+      navigate('/');
+    } else {
+      signOut(() => navigate('/'));
+      setMobileOpen(false);
+    }
   };
 
   const isActive = (path) => location.pathname === path;

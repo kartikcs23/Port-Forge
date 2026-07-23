@@ -18,6 +18,14 @@ const {
 // All admin routes require authentication and admin role
 // Note: Applying async middleware individually to each route
 
+// Check admin status endpoint (returns 200 OK for all authenticated users)
+router.get('/check', requireAuth, (req, res) => {
+  res.status(200).json({
+    success: true,
+    isAdmin: req.user?.role === 'admin'
+  });
+});
+
 // Dashboard stats
 router.get('/stats', requireAuth, requireAdmin, getAdminStats);
 

@@ -1,5 +1,6 @@
 const Profile = require('../models/Profile');
 const Project = require('../models/Project');
+const User = require('../models/User');
 
 /**
  * getMyProfile — Returns the authenticated user's profile.
@@ -11,8 +12,12 @@ const getMyProfile = async (req, res) => {
     let profile = await Profile.findOne({ userId: req.user._id });
 
     if (!profile) {
-      // Auto-create an empty profile
-      profile = await Profile.create({ userId: req.user._id });
+      // Auto-create a profile, seeding name & email from the User account
+      profile = await Profile.create({
+        userId: req.user._id,
+        name: req.user.name || '',
+        email: req.user.email || '',
+      });
     }
 
     res.status(200).json({
@@ -74,6 +79,15 @@ const updateProfile = async (req, res) => {
       { $set: updateData },
       { new: true, upsert: true }
     );
+
+    // Keep User model synced with name, avatar, email
+    const userUpdates = {};
+    if (name) userUpdates.name = name;
+    if (avatar) userUpdates.avatar = avatar;
+    if (email) userUpdates.email = email;
+    if (Object.keys(userUpdates).length > 0) {
+      await User.findByIdAndUpdate(req.user._id, { $set: userUpdates });
+    }
 
     res.status(200).json({
       success: true,

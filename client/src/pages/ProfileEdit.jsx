@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronUp, Eye, EyeOff, Plus, Save, Sparkles, Star, Trash2, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Eye, EyeOff, Plus, Save, Sparkles, Star, Trash2, X, Pencil } from 'lucide-react';
 import { useAppUser } from '../hooks/useAppUser';
 import { usePortfolio } from '../hooks/usePortfolio';
 import api from '../utils/axios';
@@ -121,7 +121,7 @@ const SuggestionChip = ({ label, value, onUse }) => {
 };
 
 /** Skills autocomplete — shows matching suggestions while typing */
-const SkillsAutocomplete = ({ value, onChange, extraSuggestions = [] }) => {
+const SkillsAutocomplete = ({ value, onChange, extraSuggestions = [], disabled }) => {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const inputRef = useRef(null);
@@ -145,6 +145,7 @@ const SkillsAutocomplete = ({ value, onChange, extraSuggestions = [] }) => {
   }, [query, allSkills, currentSkills]);
 
   const addSkill = (skill) => {
+    if (disabled) return;
     const next = [...currentSkills, skill].join(', ');
     onChange(next);
     setQuery('');
@@ -153,6 +154,7 @@ const SkillsAutocomplete = ({ value, onChange, extraSuggestions = [] }) => {
   };
 
   const removeSkill = (skill) => {
+    if (disabled) return;
     onChange(currentSkills.filter((s) => s !== skill).join(', '));
   };
 
@@ -164,9 +166,11 @@ const SkillsAutocomplete = ({ value, onChange, extraSuggestions = [] }) => {
           {currentSkills.map((skill) => (
             <span key={skill} className="inline-flex items-center gap-1 bg-accent/20 border border-accent/40 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-accent">
               {skill}
-              <button type="button" onClick={() => removeSkill(skill)} className="hover:text-white">
-                <X className="h-2.5 w-2.5" />
-              </button>
+              {!disabled && (
+                <button type="button" onClick={() => removeSkill(skill)} className="hover:text-white">
+                  <X className="h-2.5 w-2.5" />
+                </button>
+              )}
             </span>
           ))}
         </div>
@@ -177,7 +181,8 @@ const SkillsAutocomplete = ({ value, onChange, extraSuggestions = [] }) => {
           ref={inputRef}
           className={inputClass}
           value={query}
-          placeholder={currentSkills.length ? 'Type to add more skills…' : 'React, Node.js, MongoDB…'}
+          disabled={disabled}
+          placeholder={disabled ? '' : (currentSkills.length ? 'Type to add more skills…' : 'React, Node.js, MongoDB…')}
           onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
           onFocus={() => query && setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
@@ -219,7 +224,7 @@ const SkillsAutocomplete = ({ value, onChange, extraSuggestions = [] }) => {
  * Shows matching professional job titles from ROLE_TITLES as the user types.
  * Selecting a suggestion replaces the field value.
  */
-const RoleAutocomplete = ({ value, onChange, placeholder }) => {
+const RoleAutocomplete = ({ value, onChange, placeholder, disabled }) => {
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const inputRef = useRef(null);
@@ -234,13 +239,14 @@ const RoleAutocomplete = ({ value, onChange, placeholder }) => {
   }, [value]);
 
   const select = (title) => {
+    if (disabled) return;
     onChange(title);
     setOpen(false);
     inputRef.current?.focus();
   };
 
   const handleKeyDown = (e) => {
-    if (!open || !filtered.length) return;
+    if (disabled || !open || !filtered.length) return;
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setActiveIdx((i) => Math.min(i + 1, filtered.length - 1));
@@ -359,6 +365,7 @@ export const ProfileEdit = () => {
   };
 
   const [activeTab, setActiveTab] = useState('profile');
+  const [isEditing, setIsEditing] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingProjectId, setSavingProjectId] = useState(null);
   const [status, setStatus] = useState('');
@@ -531,11 +538,13 @@ export const ProfileEdit = () => {
         education: formData.education,
         links: formData.links,
       };
-
       const res = await api.put('/api/profile/update', payload);
-      // Show status but do NOT re-fetch — re-fetching would overwrite the current
-      // form state with the server response before the user is done editing.
-      setStatus(res.data.success ? '✅ Profile saved successfully.' : res.data.message);
+      if (res.data.success) {
+        setStatus('✅ Profile saved successfully.');
+        setIsEditing(false); // Lock the form after update
+      } else {
+        setStatus(res.data.message);
+      }
     } catch (err) {
       setStatus(err.response?.data?.message || err.message);
     } finally {
@@ -626,72 +635,75 @@ export const ProfileEdit = () => {
           <section className="bg-card border-2 border-border p-6 md:p-8 shadow-[8px_8px_0px_0px_#141822]">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <Field label="Display name">
-                <input className={inputClass} value={formData.name} onChange={(e) => updateField('name', e.target.value)} />
-                <SuggestionChip label="GitHub" value={!formData.name ? suggestions.name : ''} onUse={(v) => updateField('name', v)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.name} onChange={(e) => updateField('name', e.target.value)} />
+                {isEditing && <SuggestionChip label="GitHub" value={!formData.name ? suggestions.name : ''} onUse={(v) => updateField('name', v)} />}
               </Field>
               <Field label="Avatar URL">
-                <input className={inputClass} value={formData.avatar} onChange={(e) => updateField('avatar', e.target.value)} placeholder="https://..." />
-                <SuggestionChip label="GitHub avatar" value={!formData.avatar ? suggestions.avatar : ''} onUse={(v) => updateField('avatar', v)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.avatar} onChange={(e) => updateField('avatar', e.target.value)} placeholder="https://..." />
+                {isEditing && <SuggestionChip label="GitHub avatar" value={!formData.avatar ? suggestions.avatar : ''} onUse={(v) => updateField('avatar', v)} />}
               </Field>
               <Field label="Intro">
                 <RoleAutocomplete
                   value={formData.intro}
+                  disabled={!isEditing}
                   onChange={(v) => updateField('intro', v)}
                   placeholder="Full-stack developer..."
                 />
-                <SuggestionChip label="From bio" value={!formData.intro ? suggestions.intro : ''} onUse={(v) => updateField('intro', v)} />
+                {isEditing && <SuggestionChip label="From bio" value={!formData.intro ? suggestions.intro : ''} onUse={(v) => updateField('intro', v)} />}
               </Field>
               <Field label="Headline">
                 <RoleAutocomplete
                   value={formData.headline}
+                  disabled={!isEditing}
                   onChange={(v) => updateField('headline', v)}
                   placeholder="Cloud Engineer | AWS | DevOps"
                 />
-                <SuggestionChip label="LinkedIn" value={!formData.headline ? suggestions.headline : ''} onUse={(v) => updateField('headline', v)} />
+                {isEditing && <SuggestionChip label="LinkedIn" value={!formData.headline ? suggestions.headline : ''} onUse={(v) => updateField('headline', v)} />}
               </Field>
               <Field label="Location">
-                <input className={inputClass} value={formData.location} onChange={(e) => updateField('location', e.target.value)} />
-                <SuggestionChip label="GitHub" value={!formData.location ? suggestions.location : ''} onUse={(v) => updateField('location', v)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.location} onChange={(e) => updateField('location', e.target.value)} />
+                {isEditing && <SuggestionChip label="GitHub" value={!formData.location ? suggestions.location : ''} onUse={(v) => updateField('location', v)} />}
               </Field>
               <Field label="Email">
-                <input className={inputClass} type="email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} />
-                <SuggestionChip label="Account" value={!formData.email ? suggestions.email : ''} onUse={(v) => updateField('email', v)} />
+                <input disabled={!isEditing} className={inputClass} type="email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} />
+                {isEditing && <SuggestionChip label="Account" value={!formData.email ? suggestions.email : ''} onUse={(v) => updateField('email', v)} />}
               </Field>
               <Field label="Phone">
-                <input className={inputClass} value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} />
               </Field>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
               <Field label="GitHub URL">
-                <input className={inputClass} value={formData.links.github} onChange={(e) => updateLink('github', e.target.value)} />
-                <SuggestionChip label="Synced" value={!formData.links.github ? suggestions.github : ''} onUse={(v) => updateLink('github', v)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.links.github} onChange={(e) => updateLink('github', e.target.value)} />
+                {isEditing && <SuggestionChip label="Synced" value={!formData.links.github ? suggestions.github : ''} onUse={(v) => updateLink('github', v)} />}
               </Field>
               <Field label="LinkedIn URL">
-                <input className={inputClass} value={formData.links.linkedin} onChange={(e) => updateLink('linkedin', e.target.value)} />
-                <SuggestionChip label="Synced" value={!formData.links.linkedin ? suggestions.linkedin : ''} onUse={(v) => updateLink('linkedin', v)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.links.linkedin} onChange={(e) => updateLink('linkedin', e.target.value)} />
+                {isEditing && <SuggestionChip label="Synced" value={!formData.links.linkedin ? suggestions.linkedin : ''} onUse={(v) => updateLink('linkedin', v)} />}
               </Field>
               <Field label="Portfolio / personal site URL">
-                <input className={inputClass} value={formData.links.website} onChange={(e) => updateLink('website', e.target.value)} />
-                <SuggestionChip label="From profile" value={!formData.links.website ? suggestions.website : ''} onUse={(v) => updateLink('website', v)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.links.website} onChange={(e) => updateLink('website', e.target.value)} />
+                {isEditing && <SuggestionChip label="From profile" value={!formData.links.website ? suggestions.website : ''} onUse={(v) => updateLink('website', v)} />}
               </Field>
               <Field label="Twitter / X URL">
-                <input className={inputClass} value={formData.links.twitter} onChange={(e) => updateLink('twitter', e.target.value)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.links.twitter} onChange={(e) => updateLink('twitter', e.target.value)} />
               </Field>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-6">
               <Field label="Bio">
-                <textarea className={textareaClass} value={formData.bio} onChange={(e) => updateField('bio', e.target.value)} />
-                <SuggestionChip label="LinkedIn summary" value={!formData.bio ? suggestions.bio : ''} onUse={(v) => updateField('bio', v)} />
+                <textarea disabled={!isEditing} className={textareaClass} value={formData.bio} onChange={(e) => updateField('bio', e.target.value)} />
+                {isEditing && <SuggestionChip label="LinkedIn summary" value={!formData.bio ? suggestions.bio : ''} onUse={(v) => updateField('bio', v)} />}
               </Field>
               <Field label="Skills">
                 <SkillsAutocomplete
                   value={formData.skillsText}
+                  disabled={!isEditing}
                   onChange={(v) => updateField('skillsText', v)}
                   extraSuggestions={suggestions.liSkills || []}
                 />
-                {suggestions.liSkills?.length > 0 && !formData.skillsText && (
+                {isEditing && suggestions.liSkills?.length > 0 && !formData.skillsText && (
                   <button
                     type="button"
                     onClick={() => updateField('skillsText', suggestions.liSkills.join(', '))}
@@ -704,13 +716,29 @@ export const ProfileEdit = () => {
               </Field>
             </div>
 
-            <button
-              onClick={saveProfile}
-              disabled={savingProfile}
-              className="mt-8 inline-flex items-center gap-2 bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[5px_5px_0px_0px_#141822] disabled:opacity-50"
-            >
-              <Save className="h-4 w-4" /> {savingProfile ? 'Saving...' : 'Save Profile'}
-            </button>
+            <div className="mt-8 flex items-center gap-4 flex-wrap">
+              {isEditing ? (
+                <button
+                  onClick={saveProfile}
+                  disabled={savingProfile}
+                  className="inline-flex items-center gap-2 bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[5px_5px_0px_0px_#141822] disabled:opacity-50"
+                >
+                  <Save className="h-4 w-4" /> {savingProfile ? 'Saving...' : 'Save Profile'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => { setIsEditing(true); setStatus(''); }}
+                  className="inline-flex items-center gap-2 bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[5px_5px_0px_0px_#141822]"
+                >
+                  <Pencil className="h-4 w-4" /> Edit Profile
+                </button>
+              )}
+              {status && (
+                <span className="border-2 border-border bg-background px-4 py-3 text-xs font-bold uppercase tracking-widest text-accent shadow-[3px_3px_0px_0px_#141822]">
+                  {status}
+                </span>
+              )}
+            </div>
           </section>
         )}
 
@@ -721,6 +749,7 @@ export const ProfileEdit = () => {
               items={formData.experience}
               template={emptyExperience}
               fields={['role', 'company', 'startDate', 'endDate', 'description']}
+              disabled={!isEditing}
               onAdd={() => addListItem('experience', emptyExperience)}
               onRemove={(index) => removeListItem('experience', index)}
               onChange={(index, field, value) => updateListItem('experience', index, field, value)}
@@ -730,18 +759,33 @@ export const ProfileEdit = () => {
               items={formData.education}
               template={emptyEducation}
               fields={['institution', 'degree', 'field', 'year']}
+              disabled={!isEditing}
               onAdd={() => addListItem('education', emptyEducation)}
               onRemove={(index) => removeListItem('education', index)}
               onChange={(index, field, value) => updateListItem('education', index, field, value)}
             />
-            <div className="lg:col-span-2">
-              <button
-                onClick={saveProfile}
-                disabled={savingProfile}
-                className="inline-flex items-center gap-2 bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[5px_5px_0px_0px_#141822] disabled:opacity-50"
-              >
-                <Save className="h-4 w-4" /> {savingProfile ? 'Saving...' : 'Save Timeline'}
-              </button>
+            <div className="lg:col-span-2 flex items-center gap-4 flex-wrap">
+              {isEditing ? (
+                <button
+                  onClick={saveProfile}
+                  disabled={savingProfile}
+                  className="inline-flex items-center gap-2 bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[5px_5px_0px_0px_#141822] disabled:opacity-50"
+                >
+                  <Save className="h-4 w-4" /> {savingProfile ? 'Saving...' : 'Save Timeline'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => { setIsEditing(true); setStatus(''); }}
+                  className="inline-flex items-center gap-2 bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[5px_5px_0px_0px_#141822]"
+                >
+                  <Pencil className="h-4 w-4" /> Edit Timeline
+                </button>
+              )}
+              {status && (
+                <span className="border-2 border-border bg-background px-4 py-3 text-xs font-bold uppercase tracking-widest text-accent shadow-[3px_3px_0px_0px_#141822]">
+                  {status}
+                </span>
+              )}
             </div>
           </section>
         )}
@@ -903,13 +947,15 @@ export const ProfileEdit = () => {
   );
 };
 
-const TimelineEditor = ({ title, items, fields, onAdd, onRemove, onChange }) => (
+const TimelineEditor = ({ title, items, fields, disabled, onAdd, onRemove, onChange }) => (
   <div className="bg-card border-2 border-border p-6 shadow-[8px_8px_0px_0px_#141822]">
     <div className="mb-5 flex items-center justify-between border-b-2 border-border pb-3">
       <h2 className="text-2xl font-black uppercase tracking-tight">{title}</h2>
-      <button onClick={onAdd} className="inline-flex items-center gap-2 bg-accent px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white">
-        <Plus className="h-3 w-3" /> Add
-      </button>
+      {!disabled && (
+        <button onClick={onAdd} className="inline-flex items-center gap-2 bg-accent px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white">
+          <Plus className="h-3 w-3" /> Add
+        </button>
+      )}
     </div>
 
     <div className="space-y-5">
@@ -920,17 +966,19 @@ const TimelineEditor = ({ title, items, fields, onAdd, onRemove, onChange }) => 
         <div key={index} className="border-2 border-border bg-background p-4">
           <div className="mb-3 flex items-center justify-between">
             <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Entry {index + 1}</span>
-            <button onClick={() => onRemove(index)} className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-accent">
-              <Trash2 className="h-3 w-3" /> Remove
-            </button>
+            {!disabled && (
+              <button onClick={() => onRemove(index)} className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-accent">
+                <Trash2 className="h-3 w-3" /> Remove
+              </button>
+            )}
           </div>
           <div className="grid grid-cols-1 gap-3">
             {fields.map((field) => (
               <Field key={field} label={field.replace(/([A-Z])/g, ' $1')}>
                 {field === 'description' ? (
-                  <textarea className={textareaClass} value={item[field] || ''} onChange={(e) => onChange(index, field, e.target.value)} />
+                  <textarea disabled={disabled} className={textareaClass} value={item[field] || ''} onChange={(e) => onChange(index, field, e.target.value)} />
                 ) : (
-                  <input className={inputClass} value={item[field] || ''} onChange={(e) => onChange(index, field, e.target.value)} />
+                  <input disabled={disabled} className={inputClass} value={item[field] || ''} onChange={(e) => onChange(index, field, e.target.value)} />
                 )}
               </Field>
             ))}
