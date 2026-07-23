@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppUser } from '../hooks/useAppUser';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { useResume } from '../hooks/useResume';
+import api from '../utils/axios';
 import {
   Pencil,
   RefreshCw,
@@ -59,6 +60,13 @@ export const Dashboard = () => {
     if (isLoaded) {
       fetchPortfolio();
       fetchProjects();
+      // Pre-populate the GitHub link input from the saved profile
+      api.get('/api/profile/me').then((res) => {
+        if (res.data.success) {
+          const savedGithub = res.data.data.profile?.links?.github || '';
+          if (savedGithub) setGithubLink(savedGithub);
+        }
+      }).catch(() => {});
     }
   }, [isLoaded, fetchPortfolio, fetchProjects]);
 

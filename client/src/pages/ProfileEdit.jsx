@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Plus, Save, Star, Trash2 } from 'lucide-react';
+import { Eye, EyeOff, Plus, Save, Star, Trash2, Pencil } from 'lucide-react';
 import { useAppUser } from '../hooks/useAppUser';
 import { usePortfolio } from '../hooks/usePortfolio';
 import api from '../utils/axios';
@@ -33,6 +33,7 @@ export const ProfileEdit = () => {
   } = usePortfolio();
 
   const [activeTab, setActiveTab] = useState('profile');
+  const [isEditing, setIsEditing] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingProjectId, setSavingProjectId] = useState(null);
   const [status, setStatus] = useState('');
@@ -167,7 +168,12 @@ export const ProfileEdit = () => {
       };
 
       const res = await api.put('/api/profile/update', payload);
-      setStatus(res.data.success ? 'Profile saved.' : res.data.message);
+      if (res.data.success) {
+        setStatus('Profile saved & updated successfully!');
+        setIsEditing(false); // Lock the form after update
+      } else {
+        setStatus(res.data.message);
+      }
     } catch (err) {
       setStatus(err.response?.data?.message || err.message);
     } finally {
@@ -258,52 +264,52 @@ export const ProfileEdit = () => {
           <section className="bg-card border-2 border-border p-6 md:p-8 shadow-[8px_8px_0px_0px_#141822]">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <Field label="Display name">
-                <input className={inputClass} value={formData.name} onChange={(e) => updateField('name', e.target.value)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.name} onChange={(e) => updateField('name', e.target.value)} />
               </Field>
               <Field label="Avatar URL">
-                <input className={inputClass} value={formData.avatar} onChange={(e) => updateField('avatar', e.target.value)} placeholder="https://..." />
+                <input disabled={!isEditing} className={inputClass} value={formData.avatar} onChange={(e) => updateField('avatar', e.target.value)} placeholder="https://..." />
               </Field>
               <Field label="Intro">
-                <input className={inputClass} value={formData.intro} onChange={(e) => updateField('intro', e.target.value)} placeholder="Full-stack developer..." />
+                <input disabled={!isEditing} className={inputClass} value={formData.intro} onChange={(e) => updateField('intro', e.target.value)} placeholder="Full-stack developer..." />
               </Field>
               <Field label="Headline">
-                <input className={inputClass} value={formData.headline} onChange={(e) => updateField('headline', e.target.value)} placeholder="React, Node, AI systems" />
+                <input disabled={!isEditing} className={inputClass} value={formData.headline} onChange={(e) => updateField('headline', e.target.value)} placeholder="React, Node, AI systems" />
               </Field>
               <Field label="Location">
-                <input className={inputClass} value={formData.location} onChange={(e) => updateField('location', e.target.value)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.location} onChange={(e) => updateField('location', e.target.value)} />
               </Field>
               <Field label="Email">
-                <input className={inputClass} type="email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} />
+                <input disabled={!isEditing} className={inputClass} type="email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} />
               </Field>
               <Field label="Phone">
-                <input className={inputClass} value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} />
               </Field>
               <Field label="Website">
-                <input className={inputClass} value={formData.website} onChange={(e) => updateField('website', e.target.value)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.website} onChange={(e) => updateField('website', e.target.value)} />
               </Field>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
               <Field label="GitHub URL">
-                <input className={inputClass} value={formData.links.github} onChange={(e) => updateLink('github', e.target.value)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.links.github} onChange={(e) => updateLink('github', e.target.value)} />
               </Field>
               <Field label="LinkedIn URL">
-                <input className={inputClass} value={formData.links.linkedin} onChange={(e) => updateLink('linkedin', e.target.value)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.links.linkedin} onChange={(e) => updateLink('linkedin', e.target.value)} />
               </Field>
               <Field label="Portfolio / personal site URL">
-                <input className={inputClass} value={formData.links.website} onChange={(e) => updateLink('website', e.target.value)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.links.website} onChange={(e) => updateLink('website', e.target.value)} />
               </Field>
               <Field label="Twitter / X URL">
-                <input className={inputClass} value={formData.links.twitter} onChange={(e) => updateLink('twitter', e.target.value)} />
+                <input disabled={!isEditing} className={inputClass} value={formData.links.twitter} onChange={(e) => updateLink('twitter', e.target.value)} />
               </Field>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-6">
               <Field label="Bio">
-                <textarea className={textareaClass} value={formData.bio} onChange={(e) => updateField('bio', e.target.value)} />
+                <textarea disabled={!isEditing} className={textareaClass} value={formData.bio} onChange={(e) => updateField('bio', e.target.value)} />
               </Field>
               <Field label="Skills, comma separated">
-                <textarea className={textareaClass} value={formData.skillsText} onChange={(e) => updateField('skillsText', e.target.value)} placeholder="React, Node.js, MongoDB, Tailwind..." />
+                <textarea disabled={!isEditing} className={textareaClass} value={formData.skillsText} onChange={(e) => updateField('skillsText', e.target.value)} placeholder="React, Node.js, MongoDB, Tailwind..." />
               </Field>
             </div>
 
@@ -315,13 +321,29 @@ export const ProfileEdit = () => {
               ))}
             </div>
 
-            <button
-              onClick={saveProfile}
-              disabled={savingProfile}
-              className="mt-8 inline-flex items-center gap-2 bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[5px_5px_0px_0px_#141822] disabled:opacity-50"
-            >
-              <Save className="h-4 w-4" /> {savingProfile ? 'Saving...' : 'Save Profile'}
-            </button>
+            <div className="mt-8 flex items-center gap-4 flex-wrap">
+              {isEditing ? (
+                <button
+                  onClick={saveProfile}
+                  disabled={savingProfile}
+                  className="inline-flex items-center gap-2 bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[5px_5px_0px_0px_#141822] disabled:opacity-50"
+                >
+                  <Save className="h-4 w-4" /> {savingProfile ? 'Saving...' : 'Save Profile'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => { setIsEditing(true); setStatus(''); }}
+                  className="inline-flex items-center gap-2 bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[5px_5px_0px_0px_#141822]"
+                >
+                  <Pencil className="h-4 w-4" /> Edit Profile
+                </button>
+              )}
+              {status && (
+                <span className="border-2 border-border bg-background px-4 py-3 text-xs font-bold uppercase tracking-widest text-accent shadow-[3px_3px_0px_0px_#141822]">
+                  {status}
+                </span>
+              )}
+            </div>
           </section>
         )}
 
@@ -332,6 +354,7 @@ export const ProfileEdit = () => {
               items={formData.experience}
               template={emptyExperience}
               fields={['role', 'company', 'startDate', 'endDate', 'description']}
+              disabled={!isEditing}
               onAdd={() => addListItem('experience', emptyExperience)}
               onRemove={(index) => removeListItem('experience', index)}
               onChange={(index, field, value) => updateListItem('experience', index, field, value)}
@@ -341,18 +364,33 @@ export const ProfileEdit = () => {
               items={formData.education}
               template={emptyEducation}
               fields={['institution', 'degree', 'field', 'year']}
+              disabled={!isEditing}
               onAdd={() => addListItem('education', emptyEducation)}
               onRemove={(index) => removeListItem('education', index)}
               onChange={(index, field, value) => updateListItem('education', index, field, value)}
             />
-            <div className="lg:col-span-2">
-              <button
-                onClick={saveProfile}
-                disabled={savingProfile}
-                className="inline-flex items-center gap-2 bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[5px_5px_0px_0px_#141822] disabled:opacity-50"
-              >
-                <Save className="h-4 w-4" /> {savingProfile ? 'Saving...' : 'Save Timeline'}
-              </button>
+            <div className="lg:col-span-2 flex items-center gap-4 flex-wrap">
+              {isEditing ? (
+                <button
+                  onClick={saveProfile}
+                  disabled={savingProfile}
+                  className="inline-flex items-center gap-2 bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[5px_5px_0px_0px_#141822] disabled:opacity-50"
+                >
+                  <Save className="h-4 w-4" /> {savingProfile ? 'Saving...' : 'Save Timeline'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => { setIsEditing(true); setStatus(''); }}
+                  className="inline-flex items-center gap-2 bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[5px_5px_0px_0px_#141822]"
+                >
+                  <Pencil className="h-4 w-4" /> Edit Timeline
+                </button>
+              )}
+              {status && (
+                <span className="border-2 border-border bg-background px-4 py-3 text-xs font-bold uppercase tracking-widest text-accent shadow-[3px_3px_0px_0px_#141822]">
+                  {status}
+                </span>
+              )}
             </div>
           </section>
         )}
@@ -428,13 +466,15 @@ export const ProfileEdit = () => {
   );
 };
 
-const TimelineEditor = ({ title, items, fields, onAdd, onRemove, onChange }) => (
+const TimelineEditor = ({ title, items, fields, disabled, onAdd, onRemove, onChange }) => (
   <div className="bg-card border-2 border-border p-6 shadow-[8px_8px_0px_0px_#141822]">
     <div className="mb-5 flex items-center justify-between border-b-2 border-border pb-3">
       <h2 className="text-2xl font-black uppercase tracking-tight">{title}</h2>
-      <button onClick={onAdd} className="inline-flex items-center gap-2 bg-accent px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white">
-        <Plus className="h-3 w-3" /> Add
-      </button>
+      {!disabled && (
+        <button onClick={onAdd} className="inline-flex items-center gap-2 bg-accent px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white">
+          <Plus className="h-3 w-3" /> Add
+        </button>
+      )}
     </div>
 
     <div className="space-y-5">
@@ -445,17 +485,19 @@ const TimelineEditor = ({ title, items, fields, onAdd, onRemove, onChange }) => 
         <div key={index} className="border-2 border-border bg-background p-4">
           <div className="mb-3 flex items-center justify-between">
             <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Entry {index + 1}</span>
-            <button onClick={() => onRemove(index)} className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-accent">
-              <Trash2 className="h-3 w-3" /> Remove
-            </button>
+            {!disabled && (
+              <button onClick={() => onRemove(index)} className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-accent">
+                <Trash2 className="h-3 w-3" /> Remove
+              </button>
+            )}
           </div>
           <div className="grid grid-cols-1 gap-3">
             {fields.map((field) => (
               <Field key={field} label={field.replace(/([A-Z])/g, ' $1')}>
                 {field === 'description' ? (
-                  <textarea className={textareaClass} value={item[field] || ''} onChange={(e) => onChange(index, field, e.target.value)} />
+                  <textarea disabled={disabled} className={textareaClass} value={item[field] || ''} onChange={(e) => onChange(index, field, e.target.value)} />
                 ) : (
-                  <input className={inputClass} value={item[field] || ''} onChange={(e) => onChange(index, field, e.target.value)} />
+                  <input disabled={disabled} className={inputClass} value={item[field] || ''} onChange={(e) => onChange(index, field, e.target.value)} />
                 )}
               </Field>
             ))}

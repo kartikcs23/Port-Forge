@@ -18,11 +18,10 @@ export const useAdmin = () => {
       }
 
       try {
-        // Try to access admin stats - if successful, user is admin
-        const response = await api.get('/api/admin/stats');
-        setIsAdmin(response.status === 200);
+        // Query admin status endpoint cleanly
+        const response = await api.get('/api/admin/check');
+        setIsAdmin(response.data?.isAdmin === true);
       } catch (error) {
-        // If 403 or other error, user is not admin
         setIsAdmin(false);
       } finally {
         setLoading(false);
