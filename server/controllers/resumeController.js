@@ -217,6 +217,41 @@ const extractEducation = (lines) => {
 };
 
 /**
+ * Extract achievements / certifications / awards.
+ */
+const extractAchievements = (lines) => {
+  const achIdx = lines.findIndex((l) =>
+    /^(achievements|certifications|awards|honors)/i.test(l)
+  );
+  if (achIdx === -1) return [];
+
+  const achievements = [];
+  let i = achIdx + 1;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    if (
+      /^(work experience|experience|skills|projects|education|languages)/i.test(
+        line
+      )
+    )
+      break;
+
+    const yearMatch = line.match(/\b(19|20)\d{2}\b/);
+    if (line.length > 3 && line.length < 150) {
+      achievements.push({
+        title: line.replace(/\b(19|20)\d{2}\b/g, '').trim(),
+        year: yearMatch ? yearMatch[0] : '',
+        description: '',
+      });
+    }
+    i++;
+  }
+
+  return achievements.slice(0, 5);
+};
+
+/**
  * Extract the candidate's name — usually the very first prominent line.
  */
 const extractName = (lines) => {
@@ -285,6 +320,7 @@ const uploadResume = async (req, res) => {
       skills:     extractSkills(cleaned),
       experience: extractExperience(lines),
       education:  extractEducation(lines),
+      achievements: extractAchievements(lines),
       links:      extractLinks(cleaned),
     };
 
@@ -308,6 +344,7 @@ const uploadResume = async (req, res) => {
     profile.skills     = mergeArray(profile.skills, extracted.skills);
     profile.experience = mergeArray(profile.experience, extracted.experience);
     profile.education  = mergeArray(profile.education,  extracted.education);
+    profile.achievements = mergeArray(profile.achievements, extracted.achievements);
 
     // Merge links sub-object
     profile.links = {
@@ -325,7 +362,7 @@ const uploadResume = async (req, res) => {
         extracted,   // raw extracted data for the frontend preview
         profile,     // full updated profile
       },
-      message: `Resume parsed successfully. Found ${extracted.skills.length} skills, ${extracted.experience.length} experience entries, ${extracted.education.length} education entries.`,
+      message: `Resume parsed successfully. Found ${extracted.skills.length} skills, ${extracted.experience.length} experience entries, ${extracted.education.length} education entries, and ${extracted.achievements.length} achievements.`,
     });
   } catch (err) {
     console.error('Resume upload error:', err.message);

@@ -57,6 +57,7 @@ const updateProfile = async (req, res) => {
       education,
       skills,
       links,
+      achievements,
     } = req.body;
 
     const updateData = {};
@@ -73,6 +74,7 @@ const updateProfile = async (req, res) => {
     if (education !== undefined) updateData.education = education;
     if (skills !== undefined) updateData.skills = skills;
     if (links !== undefined) updateData.links = links;
+    if (achievements !== undefined) updateData.achievements = achievements;
 
     const profile = await Profile.findOneAndUpdate(
       { userId: req.user._id },

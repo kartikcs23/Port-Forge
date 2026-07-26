@@ -64,6 +64,14 @@ const profileSchema = new mongoose.Schema(
         degree: { type: String, default: '' },
         field: { type: String, default: '' },
         year: { type: String, default: '' },
+        description: { type: String, default: '' },
+      },
+    ],
+    achievements: [
+      {
+        title: { type: String, default: '' },
+        year: { type: String, default: '' },
+        description: { type: String, default: '' },
       },
     ],
     skills: {
