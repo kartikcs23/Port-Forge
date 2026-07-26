@@ -36,26 +36,6 @@ cd server && npm install
 cd ../client && npm install
 ```
 
-### 2. Configure environment variables
-
-**`server/.env`** (see `server/.env.example`):
-```env
-PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/portforge
-CLIENT_URL=http://localhost:5173
-JWT_SECRET=a-long-random-string
-GEMINI_API_KEY=your_gemini_api_key_here
-CLERK_ISSUER=https://your-instance.clerk.accounts.dev
-GITHUB_TOKEN=your_github_personal_access_token
-```
-`CLERK_ISSUER` is the domain segment of your Clerk publishable key (`pk_test_<base64>` — decode the base64 to find it). `GITHUB_TOKEN` needs no special scopes; it's used for both the GitHub REST/GraphQL APIs and GitHub Models AI inference.
-
-**`client/.env`** (see `client/.env.example`):
-```env
-VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_clerk_publishable_key
-VITE_API_URL=http://localhost:5000
-```
-
 ### 3. Run it
 
 **Terminal 1 — backend:**
@@ -82,7 +62,7 @@ Visit `http://localhost:5173`.
 
 ## 📦 Deployment
 
-- **Backend**: includes a `Procfile` (`web: node server.js`) and a pinned Node engine — deploys cleanly to Render, Railway, Heroku, or similar. Set `CLIENT_URL` to your deployed frontend's origin.
+- **Backend**: includes a `Profile` (`web: node server.js`) and a pinned Node engine — deploys cleanly to Render, Railway, Heroku, or similar. Set `CLIENT_URL` to your deployed frontend's origin.
 - **Frontend**: includes `vercel.json` and a `_redirects` file for SPA routing on Vercel/Netlify. Set `VITE_API_URL` to your deployed backend at build time (Vite bakes env vars in at build, not runtime).
 
 ## 📄 License
