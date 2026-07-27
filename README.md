@@ -65,6 +65,4 @@ Visit `http://localhost:5173`.
 - **Backend**: includes a `Profile` (`web: node server.js`) and a pinned Node engine — deploys cleanly to Render, Railway, Heroku, or similar. Set `CLIENT_URL` to your deployed frontend's origin.
 - **Frontend**: includes `vercel.json` and a `_redirects` file for SPA routing on Vercel/Netlify. Set `VITE_API_URL` to your deployed backend at build time (Vite bakes env vars in at build, not runtime).
 
-## 📄 License
 
-MIT
