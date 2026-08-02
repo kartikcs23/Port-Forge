@@ -101,6 +101,18 @@ const rankRepositories = async (req, res) => {
     });
   } catch (error) {
     console.error('Repository ranking error:', error.message);
+
+    // A transient upstream outage (e.g. a GitHub Models "brownout") isn't
+    // something a retry-right-now or an error banner helps with — degrade
+    // to showing repos unranked instead of failing the whole request.
+    if (error.transient) {
+      return res.status(200).json({
+        success: true,
+        data: { featured_projects: [], recommended_projects: [], hidden_projects: [], cached: false, aiUnavailable: true },
+        message: 'AI ranking is temporarily unavailable (GitHub service outage) — showing your repositories unranked for now.',
+      });
+    }
+
     res.status(500).json({
       success: false,
       data: null,

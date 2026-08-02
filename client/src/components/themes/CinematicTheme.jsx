@@ -95,9 +95,16 @@ export const CinematicTheme = ({ rootUser, profile, repos = [] }) => {
   const avatar = profile?.avatarUrl || profile?.avatar || '';
 
   const skills = (profile?.skills?.length ? profile.skills : DEFAULT_SKILLS).slice(0, 8);
-  const achievements = profile?.achievements?.length
-    ? profile.achievements.slice(0, 2).map((a, i) => ({ ...DEFAULT_ACHIEVEMENTS[i], title: a.title || a }))
-    : DEFAULT_ACHIEVEMENTS;
+  // This chapter's visuals are built around exactly two plaques (see the
+  // ch3Achv* refs below, which index achievements[0] and achievements[1]
+  // unconditionally) — always produce exactly two entries, filling any
+  // missing slot with the decorative default rather than leaving it
+  // undefined and crashing the render.
+  const realAchievementTitles = (profile?.achievements || []).filter((a) => a?.title).map((a) => a.title);
+  const achievements = DEFAULT_ACHIEVEMENTS.map((def, i) => ({
+    ...def,
+    title: realAchievementTitles[i] || def.title,
+  }));
   const hobbies = profile?.hobbies?.length ? profile.hobbies.slice(0, 9) : DEFAULT_HOBBIES;
 
   const projects = (repos.length ? repos : DEFAULT_PROJECTS).slice(0, 4);

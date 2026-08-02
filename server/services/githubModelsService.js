@@ -139,7 +139,18 @@ const requestRanking = async (repos, token) => {
     if (status === 429) {
       throw new Error('GitHub Models rate limit hit. Try again later.');
     }
-    throw new Error(err.response?.data?.error?.message || err.message || 'GitHub Models request failed');
+    const upstreamMessage = err.response?.data?.error?.message || err.message || 'GitHub Models request failed';
+    // GitHub runs scheduled "brownouts" (temporary planned outages) as an
+    // advance-warning period before retiring a Models API — this is not a
+    // bug in our request, and it isn't worth retrying immediately. Mark it
+    // so the caller can degrade gracefully (unranked repos) instead of
+    // surfacing a scary error for something outside our control.
+    if (status === 503 || status === 502 || status === 504 || /brownout|temporarily unavailable/i.test(upstreamMessage)) {
+      const transientError = new Error(upstreamMessage);
+      transientError.transient = true;
+      throw transientError;
+    }
+    throw new Error(upstreamMessage);
   }
 
   const content = response.data?.choices?.[0]?.message?.content;

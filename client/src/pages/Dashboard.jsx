@@ -346,12 +346,12 @@ export const Dashboard = () => {
                         <input
                           type="text"
                           readOnly
-                          value={`portforge.app/${portfolio.slug}`}
+                          value={`${window.location.host}/${portfolio.slug}`}
                           className="bg-transparent border-none focus:outline-none focus:ring-0 flex-1 text-xs font-sans truncate py-1 selection:bg-accent min-w-0 text-white"
                         />
                         <button
                           onClick={() => {
-                            navigator.clipboard.writeText(`portforge.app/${portfolio.slug}`);
+                            navigator.clipboard.writeText(`${window.location.host}/${portfolio.slug}`);
                             setSyncStatus('success');
                             setTimeout(() => setSyncStatus(''), 2000);
                           }}
@@ -386,14 +386,19 @@ export const Dashboard = () => {
               <h2 className="text-4xl md:text-5xl font-black font-display uppercase tracking-tighter">
                 Your Repositories
               </h2>
-              {aiRanking && (
+              {aiRanking && !aiRanking.aiUnavailable && (
                 <span className="bg-accent text-white px-3 py-1 font-bold text-[10px] uppercase tracking-widest flex items-center gap-1 shrink-0">
                   <Sparkles className="w-3 h-3" /> Ranked by AI
                 </span>
               )}
+              {aiRanking?.aiUnavailable && (
+                <span className="border-2 border-border bg-card text-muted-foreground px-3 py-1 font-bold text-[10px] uppercase tracking-widest shrink-0">
+                  AI ranking unavailable — showing unranked
+                </span>
+              )}
             </div>
 
-            <div className="space-y-6 max-h-[900px] overflow-y-auto pr-3 scrollbar-brutalist">
+            <div className="space-y-6 max-h-[1200px] overflow-y-auto pr-3 pt-2 scrollbar-brutalist">
               {rankedProjects.map((project) => (
                 <ProjectCard
                   key={project.repoId || project._id}

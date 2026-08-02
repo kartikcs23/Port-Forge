@@ -383,7 +383,6 @@ export const ProfileEdit = () => {
     website: '',
     avatar: '',
     skillsText: '',
-    resumeUrl: '',
     cgpa: '',
     leetcode: '',
     hobbiesText: '',
@@ -425,7 +424,6 @@ export const ProfileEdit = () => {
         website: profile.website || '',
         avatar: profile.avatar || profile.avatarUrl || '',
         skillsText: (profile.skills || []).join(', '),
-        resumeUrl: profile.resumeUrl || '',
         cgpa: profile.cgpa || '',
         leetcode: profile.leetcode || '',
         hobbiesText: (profile.hobbies || []).join(', '),
@@ -544,7 +542,6 @@ export const ProfileEdit = () => {
         email: formData.email,
         phone: formData.phone,
         website: formData.website,
-        resumeUrl: formData.resumeUrl,
         cgpa: formData.cgpa,
         leetcode: formData.leetcode,
         hobbies: formData.hobbiesText.split(',').map((hobby) => hobby.trim()).filter(Boolean),
@@ -698,10 +695,6 @@ export const ProfileEdit = () => {
                 <input disabled={!isEditing} className={inputClass} value={formData.links.linkedin} onChange={(e) => updateLink('linkedin', e.target.value)} />
                 {isEditing && <SuggestionChip label="Synced" value={!formData.links.linkedin ? suggestions.linkedin : ''} onUse={(v) => updateLink('linkedin', v)} />}
               </Field>
-              <Field label="Portfolio / personal site URL">
-                <input disabled={!isEditing} className={inputClass} value={formData.links.website} onChange={(e) => updateLink('website', e.target.value)} />
-                {isEditing && <SuggestionChip label="From profile" value={!formData.links.website ? suggestions.website : ''} onUse={(v) => updateLink('website', v)} />}
-              </Field>
               <Field label="Twitter / X URL">
                 <input disabled={!isEditing} className={inputClass} value={formData.links.twitter} onChange={(e) => updateLink('twitter', e.target.value)} />
               </Field>
@@ -737,9 +730,6 @@ export const ProfileEdit = () => {
                 Portfolio extras — used by some themes (Professional, Egyptian, Medical, Cinematic)
               </p>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <Field label="Resume PDF URL">
-                  <input disabled={!isEditing} className={inputClass} value={formData.resumeUrl} onChange={(e) => updateField('resumeUrl', e.target.value)} placeholder="https://..." />
-                </Field>
                 <Field label="CGPA">
                   <input disabled={!isEditing} className={inputClass} value={formData.cgpa} onChange={(e) => updateField('cgpa', e.target.value)} placeholder="8.5 / 10" />
                 </Field>
@@ -901,7 +891,7 @@ export const ProfileEdit = () => {
 
             {projects.length > 0 && (
               <p className="pt-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                All projects {aiRanking ? '· sorted by AI ranking as a starting point' : ''}
+                All projects {aiRanking && !aiRanking.aiUnavailable ? '· sorted by AI ranking as a starting point' : ''}
               </p>
             )}
 
