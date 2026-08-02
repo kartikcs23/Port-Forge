@@ -31,16 +31,29 @@ import { CinematicPreview } from './pages/CinematicPreview';
 // this import and the route below out of the shipped bundle entirely).
 import { DevTesting } from './pages/DevTesting';
 
-const AuthGate = ({ children }) => (
-  <>
-    <SignedIn>
-      {children}
-    </SignedIn>
-    <SignedOut>
-      <RedirectToSignIn redirectUrl="/login" />
-    </SignedOut>
-  </>
-);
+// Dev-only escape hatch: if a local JWT (from the dev-login flow on
+// /dev-testing) is sitting in localStorage, treat the route as authenticated
+// without going through Clerk's hosted sign-in. `import.meta.env.DEV` is
+// statically false in production builds, so this whole branch — including
+// the localStorage read — is tree-shaken out of the shipped bundle, same as
+// the /dev-testing route below. The backend still independently verifies
+// this token via `protect` on every request; this only changes what the
+// client-side route renders, never what the server accepts.
+const AuthGate = ({ children }) => {
+  if (import.meta.env.DEV && localStorage.getItem('authToken')) {
+    return children;
+  }
+  return (
+    <>
+      <SignedIn>
+        {children}
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn redirectUrl="/login" />
+      </SignedOut>
+    </>
+  );
+};
 
 function App() {
   const isRootPath = window.location.pathname === '/';
@@ -90,28 +103,18 @@ function App() {
         <Route
           path="/insights"
           element={
-            <>
-              <SignedIn>
-                <Insights />
-              </SignedIn>
-              <SignedOut>
-                <RedirectToSignIn redirectUrl="/login" />
-              </SignedOut>
-            </>
+            <AuthGate>
+              <Insights />
+            </AuthGate>
           }
         />
 
         <Route
           path="/resume"
           element={
-            <>
-              <SignedIn>
-                <ResumeCreator />
-              </SignedIn>
-              <SignedOut>
-                <RedirectToSignIn redirectUrl="/login" />
-              </SignedOut>
-            </>
+            <AuthGate>
+              <ResumeCreator />
+            </AuthGate>
           }
         />
 

@@ -53,6 +53,10 @@ const updateProfile = async (req, res) => {
       email,
       phone,
       website,
+      resumeUrl,
+      cgpa,
+      leetcode,
+      hobbies,
       experience,
       education,
       skills,
@@ -70,6 +74,10 @@ const updateProfile = async (req, res) => {
     if (email !== undefined) updateData.email = email;
     if (phone !== undefined) updateData.phone = phone;
     if (website !== undefined) updateData.website = website;
+    if (resumeUrl !== undefined) updateData.resumeUrl = resumeUrl;
+    if (cgpa !== undefined) updateData.cgpa = cgpa;
+    if (leetcode !== undefined) updateData.leetcode = leetcode;
+    if (hobbies !== undefined) updateData.hobbies = hobbies;
     if (experience !== undefined) updateData.experience = experience;
     if (education !== undefined) updateData.education = education;
     if (skills !== undefined) updateData.skills = skills;

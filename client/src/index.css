@@ -364,3 +364,26 @@ input::placeholder, textarea::placeholder {
 @keyframes projectOrbit {
   to { transform: rotate(360deg); }
 }
+
+.scrollbar-brutalist {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--accent)) hsl(var(--card));
+}
+
+.scrollbar-brutalist::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scrollbar-brutalist::-webkit-scrollbar-track {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+}
+
+.scrollbar-brutalist::-webkit-scrollbar-thumb {
+  background: hsl(var(--accent));
+  border: 1px solid hsl(var(--border));
+}
+
+.scrollbar-brutalist::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
+}

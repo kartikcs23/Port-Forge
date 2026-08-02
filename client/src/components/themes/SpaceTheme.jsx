@@ -124,6 +124,7 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
   const skills = profile?.skills || [];
   const experience = profile?.experience || [];
   const education = profile?.education || [];
+  const achievements = profile?.achievements || [];
   const links = profile?.links || {};
   const avatar = profile?.avatarUrl || profile?.avatar || '';
 
@@ -762,6 +763,46 @@ export const SpaceTheme = ({ rootUser, profile, repos = [] }) => {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </motion.section>
+      )}
+
+      {/* ═══════════════════════════════════════════════
+          05. ACHIEVEMENTS — Swipe reveal
+      ═══════════════════════════════════════════════ */}
+      {achievements.length > 0 && (
+        <motion.section
+          id="achievements"
+          className="relative z-10 py-48 px-6 md:px-12"
+          style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+          initial={{ opacity: 0, x: -100 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="max-w-7xl mx-auto">
+            <SectionHeader label="05 // Achievements" title="Mission Log" subtitle="Recognitions, wins, and certifications along the way" />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {achievements.map((ach, i) => (
+                <HUDCard key={i} className="p-8 hover:-translate-y-1">
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <h3 className="text-xl font-bold leading-tight">{ach.title}</h3>
+                    {ach.year && (
+                      <span className="shrink-0 font-mono text-[11px] tracking-[0.3em] uppercase font-black px-3 py-1"
+                            style={{ background: 'rgba(34,211,238,0.1)', color: '#22d3ee', border: '1px solid rgba(34,211,238,0.2)' }}>
+                        {ach.year}
+                      </span>
+                    )}
+                  </div>
+                  {ach.description && (
+                    <p className="leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)', fontSize: '15px' }}>
+                      {ach.description}
+                    </p>
+                  )}
+                </HUDCard>
+              ))}
             </div>
           </div>
         </motion.section>

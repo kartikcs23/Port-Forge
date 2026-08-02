@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import api from '../utils/axios';
 import { BrutalistTheme } from '../components/themes/BrutalistTheme';
 import { EgyptianTheme } from '../components/themes/EgyptianTheme';
 import { SpaceTheme } from '../components/themes/SpaceTheme';
@@ -77,6 +78,7 @@ const mapGithubRepos = (repos) =>
     }));
 
 export const DevTesting = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState(() => localStorage.getItem(LS_KEY) || '');
   const [token, setToken] = useState(() => localStorage.getItem(LS_KEY_TOKEN) || '');
   const [themeKey, setThemeKey] = useState('cinematic');
@@ -85,6 +87,39 @@ export const DevTesting = () => {
   const [rateLimit, setRateLimit] = useState(null);
   const [profile, setProfile] = useState(null);
   const [repos, setRepos] = useState([]);
+  const [devLoginBusy, setDevLoginBusy] = useState(false);
+  const [devLoginError, setDevLoginError] = useState('');
+  const devLoggedIn = !!localStorage.getItem('authToken');
+
+  // Real backend session for a fixed local test account — lets you click
+  // through the actual Dashboard/Profile/Resume pages against the live
+  // API without going through Clerk's hosted sign-in each time. Issues a
+  // normally-verified local JWT (server/controllers/authController.js
+  // devLogin, 404s outside development) — not an auth bypass, just a
+  // fast way to obtain a real credential locally.
+  const handleDevLogin = async () => {
+    setDevLoginBusy(true);
+    setDevLoginError('');
+    try {
+      const res = await api.post('/api/auth/dev-login');
+      if (res.data.success) {
+        localStorage.setItem('authToken', res.data.data.token);
+        navigate('/dashboard');
+      } else {
+        setDevLoginError(res.data.message || 'Dev login failed');
+      }
+    } catch (err) {
+      setDevLoginError(err.response?.data?.message || err.message);
+    } finally {
+      setDevLoginBusy(false);
+    }
+  };
+
+  const handleDevLogout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    window.location.reload();
+  };
 
   const fetchGithub = async (name, tok) => {
     if (!name.trim()) return;
@@ -157,7 +192,27 @@ export const DevTesting = () => {
       <div style={{ width: '100%', maxWidth: 420, textAlign: 'center' }}>
         <div style={{ fontSize: 11, letterSpacing: '0.3em', color: '#f472b6', marginBottom: 8 }}>DEV-ONLY · NOT SHIPPED TO PRODUCTION</div>
         <h1 style={{ fontSize: 24, fontWeight: 900, marginBottom: 24 }}>Testing Mode</h1>
-        <p style={{ fontSize: 13, opacity: 0.6, marginBottom: 24 }}>Enter a real GitHub username to preview any theme with live data (fetched client-side).</p>
+
+        <div style={{ border: '1px solid #333', borderRadius: 8, padding: 16, marginBottom: 24, textAlign: 'left' }}>
+          <div style={{ fontSize: 11, letterSpacing: '0.2em', color: '#22d3ee', marginBottom: 8 }}>REAL BACKEND SESSION</div>
+          <p style={{ fontSize: 12, opacity: 0.6, marginBottom: 12, lineHeight: 1.5 }}>
+            Log into a fixed local test account to click through the actual Dashboard, Profile, and Resume pages against the live API — no Clerk sign-in needed.
+          </p>
+          {devLoggedIn ? (
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <span style={{ fontSize: 12, color: '#4ade80' }}>✓ Signed in as dev@portforge.local</span>
+              <button onClick={handleDevLogout} style={{ background: 'transparent', color: '#ef4444', border: '1px solid #ef4444', borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontSize: 12 }}>Log out</button>
+              <Link to="/dashboard" style={{ color: '#22d3ee', fontSize: 12 }}>Go to Dashboard →</Link>
+            </div>
+          ) : (
+            <button onClick={handleDevLogin} disabled={devLoginBusy} style={{ background: '#22d3ee', color: '#0a0a0f', border: 'none', borderRadius: 6, padding: '10px 18px', fontWeight: 700, cursor: 'pointer', opacity: devLoginBusy ? 0.6 : 1 }}>
+            {devLoginBusy ? 'Logging in…' : 'Dev Login →'}
+            </button>
+          )}
+          {devLoginError && <div style={{ fontSize: 12, color: '#ef4444', marginTop: 8 }}>{devLoginError}</div>}
+        </div>
+
+        <p style={{ fontSize: 13, opacity: 0.6, marginBottom: 24 }}>Or enter a real GitHub username to preview any theme with live data (fetched client-side), no login needed.</p>
         <form onSubmit={(e) => { e.preventDefault(); fetchGithub(username, token); }} style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
           <div style={{ display: 'flex', gap: 8 }}>
             <input

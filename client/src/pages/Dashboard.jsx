@@ -393,7 +393,7 @@ export const Dashboard = () => {
               )}
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-6 max-h-[900px] overflow-y-auto pr-3 scrollbar-brutalist">
               {rankedProjects.map((project) => (
                 <ProjectCard
                   key={project.repoId || project._id}

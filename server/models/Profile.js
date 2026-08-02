@@ -49,6 +49,22 @@ const profileSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    resumeUrl: {
+      type: String,
+      default: '',
+    },
+    cgpa: {
+      type: String,
+      default: '',
+    },
+    leetcode: {
+      type: String,
+      default: '',
+    },
+    hobbies: {
+      type: [String],
+      default: [],
+    },
     experience: [
       {
         company: { type: String, default: '' },

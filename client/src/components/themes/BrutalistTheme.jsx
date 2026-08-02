@@ -66,6 +66,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
   const skills = profile?.skills || [];
   const experience = profile?.experience || [];
   const education = profile?.education || [];
+  const achievements = profile?.achievements || [];
   const links = profile?.links || {};
   const avatar = profile?.avatarUrl || profile?.avatar || '';
 
@@ -559,6 +560,40 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
                   </div>
                   {exp.description && (
                     <p className="text-white/60 font-bold leading-relaxed text-lg">{exp.description}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.section>
+      )}
+
+      {/* ══════════════════════════════════════
+          05B. ACHIEVEMENTS — Page Swipe Reveal
+      ══════════════════════════════════════ */}
+      {achievements.length > 0 && (
+        <motion.section
+          id="achievements"
+          className="relative z-10 py-32 border-b-[6px] border-ink bg-white"
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+        >
+          <div className="max-w-7xl mx-auto px-6 md:px-12">
+            <SectionStamp color="bg-accent text-white" rotate="-rotate-1">Achievements</SectionStamp>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {achievements.map((ach, i) => (
+                <div key={i} className="border-[4px] border-ink p-8 bg-zinc-100 shadow-[8px_8px_0_0_#111]">
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div className="font-black text-xl uppercase tracking-tight leading-tight text-ink">{ach.title}</div>
+                    {ach.year && (
+                      <span className="shrink-0 bg-ink text-white px-3 py-1 font-black text-xs uppercase tracking-widest shadow-[3px_3px_0_0_#0055FF]">{ach.year}</span>
+                    )}
+                  </div>
+                  {ach.description && (
+                    <p className="font-bold text-sm text-ink/60 leading-relaxed">{ach.description}</p>
                   )}
                 </div>
               ))}

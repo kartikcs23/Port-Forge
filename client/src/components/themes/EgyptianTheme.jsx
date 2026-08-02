@@ -68,6 +68,7 @@ export const EgyptianTheme = ({ rootUser, profile, repos = [] }) => {
   const education  = profile?.education  || [];
   const links      = profile?.links      || {};
   const resumeUrl  = profile?.resumeUrl  || '/resume.pdf';
+  const achievements = profile?.achievements || [];
 
   /* skills shown in orbiting crystals — pad/truncate to 8 */
   const crystalSkills = [...skills];
@@ -94,8 +95,10 @@ export const EgyptianTheme = ({ rootUser, profile, repos = [] }) => {
         : 'My scrolls hold many works: data platforms, ML models and tools forged with Python and modern stacks.',
     },
     {
-      key: 'cert', num: '4', label: 'Certifications', title: 'CERTIFICATIONS',
-      text: 'The temple walls bear my marks: certifications in cloud architecture and the disciplined arts of the craft.',
+      key: 'cert', num: '4', label: 'Achievements', title: 'ACHIEVEMENTS',
+      text: achievements.length > 0
+        ? `The temple walls bear my marks: ${achievements.slice(0, 3).map(a => a.title).join('; ')}${achievements.length > 3 ? `, and ${achievements.length - 3} more` : ''}.`
+        : 'The temple walls bear my marks: certifications in cloud architecture and the disciplined arts of the craft.',
     },
     {
       key: 'skl', num: '5', label: 'Skills', title: 'SKILLS',

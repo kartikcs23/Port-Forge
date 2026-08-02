@@ -190,4 +190,62 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe };
+/**
+ * devLogin — Dev-only convenience login. Finds-or-creates a single fixed
+ * local test account and returns a normally-issued, normally-verified JWT
+ * for it — the exact same token shape and the exact same `protect`
+ * middleware verification path as a real register/login. This exists only
+ * so local development doesn't require going through Clerk's hosted sign-in
+ * every time; it does not change what counts as a valid token or add any
+ * "no token → let them in" exception anywhere.
+ *
+ * Hard-gated to non-production: returns 404 (route doesn't appear to exist)
+ * whenever NODE_ENV === 'production', checked at request time rather than
+ * relying on the route simply not being registered.
+ *
+ * Route: POST /api/auth/dev-login
+ */
+const DEV_USER_EMAIL = 'dev@portforge.local';
+
+const devLogin = async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ success: false, data: null, message: 'Not found' });
+  }
+
+  try {
+    let user = await User.findOne({ email: DEV_USER_EMAIL });
+    if (!user) {
+      user = await User.create({
+        name: 'Dev User',
+        email: DEV_USER_EMAIL,
+        password: require('crypto').randomBytes(24).toString('hex'),
+      });
+    }
+
+    const token = generateToken(user._id);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+          plan: user.plan,
+        },
+        token,
+      },
+      message: 'Dev login successful',
+    });
+  } catch (error) {
+    console.error('Dev login error:', error.message);
+    res.status(500).json({
+      success: false,
+      data: null,
+      message: 'Server error during dev login',
+    });
+  }
+};
+
+module.exports = { register, login, getMe, devLogin };

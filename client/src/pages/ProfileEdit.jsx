@@ -90,7 +90,8 @@ const ROLE_TITLES = [
 ];
 
 const emptyExperience = { company: '', role: '', startDate: '', endDate: '', description: '' };
-const emptyEducation = { institution: '', degree: '', field: '', year: '' };
+const emptyEducation = { institution: '', degree: '', field: '', year: '', description: '' };
+const emptyAchievement = { title: '', year: '', description: '' };
 
 const Field = ({ label, children }) => (
   <label className="block space-y-1.5">
@@ -382,8 +383,13 @@ export const ProfileEdit = () => {
     website: '',
     avatar: '',
     skillsText: '',
+    resumeUrl: '',
+    cgpa: '',
+    leetcode: '',
+    hobbiesText: '',
     experience: [],
     education: [],
+    achievements: [],
     links: {
       github: '',
       linkedin: '',
@@ -419,8 +425,13 @@ export const ProfileEdit = () => {
         website: profile.website || '',
         avatar: profile.avatar || profile.avatarUrl || '',
         skillsText: (profile.skills || []).join(', '),
+        resumeUrl: profile.resumeUrl || '',
+        cgpa: profile.cgpa || '',
+        leetcode: profile.leetcode || '',
+        hobbiesText: (profile.hobbies || []).join(', '),
         experience: profile.experience?.length ? profile.experience : [],
         education: profile.education?.length ? profile.education : [],
+        achievements: profile.achievements?.length ? profile.achievements : [],
         links: {
           github: profile.links?.github || '',
           linkedin: profile.links?.linkedin || '',
@@ -533,9 +544,14 @@ export const ProfileEdit = () => {
         email: formData.email,
         phone: formData.phone,
         website: formData.website,
+        resumeUrl: formData.resumeUrl,
+        cgpa: formData.cgpa,
+        leetcode: formData.leetcode,
+        hobbies: formData.hobbiesText.split(',').map((hobby) => hobby.trim()).filter(Boolean),
         skills: formData.skillsText.split(',').map((skill) => skill.trim()).filter(Boolean),
         experience: formData.experience,
         education: formData.education,
+        achievements: formData.achievements.filter((a) => a.title?.trim()),
         links: formData.links,
       };
       const res = await api.put('/api/profile/update', payload);
@@ -716,6 +732,26 @@ export const ProfileEdit = () => {
               </Field>
             </div>
 
+            <div className="mt-8 border-t-2 border-border pt-6">
+              <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                Portfolio extras — used by some themes (Professional, Egyptian, Medical, Cinematic)
+              </p>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <Field label="Resume PDF URL">
+                  <input disabled={!isEditing} className={inputClass} value={formData.resumeUrl} onChange={(e) => updateField('resumeUrl', e.target.value)} placeholder="https://..." />
+                </Field>
+                <Field label="CGPA">
+                  <input disabled={!isEditing} className={inputClass} value={formData.cgpa} onChange={(e) => updateField('cgpa', e.target.value)} placeholder="8.5 / 10" />
+                </Field>
+                <Field label="LeetCode handle or stat">
+                  <input disabled={!isEditing} className={inputClass} value={formData.leetcode} onChange={(e) => updateField('leetcode', e.target.value)} placeholder="500+ solved" />
+                </Field>
+                <Field label="Hobbies (comma separated)">
+                  <input disabled={!isEditing} className={inputClass} value={formData.hobbiesText} onChange={(e) => updateField('hobbiesText', e.target.value)} placeholder="Photography, Chess, Hiking" />
+                </Field>
+              </div>
+            </div>
+
             <div className="mt-8 flex items-center gap-4 flex-wrap">
               {isEditing ? (
                 <button
@@ -758,12 +794,24 @@ export const ProfileEdit = () => {
               title="Education"
               items={formData.education}
               template={emptyEducation}
-              fields={['institution', 'degree', 'field', 'year']}
+              fields={['institution', 'degree', 'field', 'year', 'description']}
               disabled={!isEditing}
               onAdd={() => addListItem('education', emptyEducation)}
               onRemove={(index) => removeListItem('education', index)}
               onChange={(index, field, value) => updateListItem('education', index, field, value)}
             />
+            <div className="lg:col-span-2">
+              <TimelineEditor
+                title="Achievements"
+                items={formData.achievements}
+                template={emptyAchievement}
+                fields={['title', 'year', 'description']}
+                disabled={!isEditing}
+                onAdd={() => addListItem('achievements', emptyAchievement)}
+                onRemove={(index) => removeListItem('achievements', index)}
+                onChange={(index, field, value) => updateListItem('achievements', index, field, value)}
+              />
+            </div>
             <div className="lg:col-span-2 flex items-center gap-4 flex-wrap">
               {isEditing ? (
                 <button
