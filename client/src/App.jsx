@@ -18,6 +18,7 @@ import { Notifications } from './pages/Notifications';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { Insights } from './pages/Insights';
 import { ResumeCreator } from './pages/ResumeCreator';
+import { CandidateAnalysis } from './pages/CandidateAnalysis';
 import { EgyptianPreview } from './pages/EgyptianPreview';
 import { EgyptianEditor } from './pages/EgyptianEditor';
 import { ThemeEditor } from './pages/ThemeEditor';
@@ -69,6 +70,7 @@ function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/analyze" element={<CandidateAnalysis />} />
         <Route
           path="/dashboard"
           element={
