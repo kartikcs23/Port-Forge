@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
 import { useInsights } from '../hooks/useInsights';
 import { Loader3D } from '../components/Loader3D';
 import { ContributionHeatmap } from '../components/ContributionHeatmap';
@@ -441,6 +442,8 @@ export const Insights = () => {
           </section>
         )}
       </main>
+
+      <Footer />
     </div>
   );
 };

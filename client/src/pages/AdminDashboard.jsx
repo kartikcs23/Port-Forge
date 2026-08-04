@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
 import { useAppUser } from '../hooks/useAppUser';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../hooks/useAdmin';
@@ -876,6 +877,8 @@ export const AdminDashboard = () => {
           )}
         </AnimatePresence>
       </div>
+
+      <Footer />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Download, Pencil } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
 import { usePortfolio } from '../hooks/usePortfolio';
 import api from '../utils/axios';
 import { ClassicTemplate } from '../components/resumeTemplates/ClassicTemplate';
@@ -244,6 +245,10 @@ export const ResumeCreator = () => {
           </>
         )}
       </main>
+
+      <div className="no-print">
+        <Footer />
+      </div>
     </div>
   );
 };

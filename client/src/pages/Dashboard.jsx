@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
 import { ProjectCard } from '../components/ProjectCard';
 import { useNavigate } from 'react-router-dom';
 import { useAppUser } from '../hooks/useAppUser';
@@ -421,6 +422,8 @@ export const Dashboard = () => {
           </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 };

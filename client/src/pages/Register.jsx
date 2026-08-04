@@ -1,6 +1,7 @@
 import React from 'react';
 import { SignUp } from '@clerk/clerk-react';
 import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
 
 export const Register = () => {
   return (
@@ -39,6 +40,8 @@ export const Register = () => {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };

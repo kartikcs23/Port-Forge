@@ -1,6 +1,7 @@
 import React from 'react';
 import { SignIn } from '@clerk/clerk-react';
 import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
 
 export const Login = () => {
   return (
@@ -40,6 +41,8 @@ export const Login = () => {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };

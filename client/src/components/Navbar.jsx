@@ -94,14 +94,13 @@ export const Navbar = () => {
             onClick={handleLogoClick}
             className="flex items-center space-x-3 font-display font-black text-xl hover:opacity-95 transition-opacity group"
           >
-            <div className="w-8 h-8 bg-primary border border-border flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(255,255,255,0.1)] group-hover:shadow-[3px_3px_0px_0px_#eb3b3b] transition-all">
-              <svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M8.4 0.5 0 12.4h5.1l-1.6 5.1L12.4 9.3H7.3z"
-                  fill="white"
-                />
-              </svg>
-            </div>
+            <img
+              src="/logo-mark.png"
+              alt="PortForge"
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded-md shadow-[3px_3px_0px_0px_rgba(255,255,255,0.1)] group-hover:shadow-[3px_3px_0px_0px_#eb3b3b] transition-all"
+            />
             <span className="text-white tracking-tighter uppercase font-black text-2xl">
               Port<span className="text-primary">Forge</span>
             </span>

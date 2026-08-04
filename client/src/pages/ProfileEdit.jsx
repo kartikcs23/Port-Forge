@@ -5,6 +5,7 @@ import { useAppUser } from '../hooks/useAppUser';
 import { usePortfolio } from '../hooks/usePortfolio';
 import api from '../utils/axios';
 import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
 import { mergeAiRanking } from '../utils/aiRanking';
 
 // Portfolio themes feature a "top 3" project slot — keep in sync with the
@@ -981,11 +982,13 @@ export const ProfileEdit = () => {
           </section>
         )}
       </main>
+
+      <Footer />
     </div>
   );
 };
 
-const TimelineEditor = ({ title, items, fields, disabled, onAdd, onRemove, onChange }) => (
+const TimelineEditor =({ title, items, fields, disabled, onAdd, onRemove, onChange }) => (
   <div className="bg-card border-2 border-border p-6 shadow-[8px_8px_0px_0px_#141822]">
     <div className="mb-5 flex items-center justify-between border-b-2 border-border pb-3">
       <h2 className="text-2xl font-black uppercase tracking-tight">{title}</h2>
