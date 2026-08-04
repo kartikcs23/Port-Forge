@@ -20,6 +20,7 @@ const adminRoutes = require('./routes/admin');
 const resumeRoutes = require('./routes/resume');
 const insightsRoutes = require('./routes/insights');
 const rankingRoutes = require('./routes/ranking');
+const analysisRoutes = require('./routes/analysis');
 
 // Initialize Express app
 const app = express();
@@ -84,6 +85,19 @@ const rankingLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Limit the candidate analysis endpoint to 10 requests per 15 minutes per IP
+const analyzeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  message: {
+    success: false,
+    data: null,
+    message: 'Too many analysis requests. Please try again after 15 minutes.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // ========================
 // Mount Routes
 // ========================
@@ -96,10 +110,18 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/resume', resumeRoutes);
 app.use('/api/insights', insightsRoutes);
 app.use('/api/ranking', rankingLimiter, rankingRoutes);
+app.use('/api/analyze', analyzeLimiter, analysisRoutes);
 
 // ========================
 // Health Check
 // ========================
+
+/**
+ * GET /api/health → { status: 'ok' }
+ */
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 /**
  * GET / — Simple health check endpoint.

@@ -65,10 +65,12 @@ export const Navbar = () => {
     { to: '/profile-edit', label: 'Profile'   },
     { to: '/insights',     label: 'Insights'  },
     { to: '/resume',       label: 'Resume'    },
+    { to: '/analyze',      label: 'Analysis'  },
     { to: '/notifications',label: 'Alerts'    },
   ];
 
   const publicLinks = [
+    { to: '/analyze',       label: 'Analysis' },
     { to: '/about',         label: 'About'   },
     { to: '/contact',       label: 'Contact' },
     { to: '/faq',           label: 'FAQ'     },
@@ -80,7 +82,7 @@ export const Navbar = () => {
       initial={{ y: -80 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed top-0 inset-x-0 z-50 bg-card/90 backdrop-blur-md border-b-2 border-border shadow-md"
+      className="fixed top-0 inset-x-0 z-50 bg-card/90 backdrop-blur-md border-b-2 border-border shadow-md no-print"
     >
       {/* Top stripe */}
       <div className="h-1 stripe-bg w-full" />
