@@ -62,6 +62,16 @@ export const EgyptianTheme = ({ rootUser, profile, repos = [] }) => {
   const name       = profile?.name       || rootUser?.name || 'Developer';
   const headline   = profile?.headline   || 'Computer Science · Data & AI';
   const bio        = profile?.bio        || 'Building pipelines, models and interfaces from raw data. Send word, and I shall answer.';
+  // The guardian's info panel is a fixed-height sticky scene shared with the
+  // cat mascot and contact cards below it — an untruncated long-form bio can
+  // run to 10+ lines and push everything else off-screen (vertically
+  // centered content overflows both top and bottom). Cap it at a sentence
+  // boundary so the panel's height stays predictable regardless of how much
+  // the user wrote in their bio.
+  const GUARDIAN_BIO_LIMIT = 260;
+  const guardianBio = bio.length <= GUARDIAN_BIO_LIMIT
+    ? bio
+    : `${bio.slice(0, bio.lastIndexOf(' ', GUARDIAN_BIO_LIMIT))}…`;
   const email      = profile?.email      || rootUser?.email || '';
   const skills     = (profile?.skills    || []).slice(0, 8);
   const experience = profile?.experience || [];
@@ -1065,15 +1075,15 @@ export const EgyptianTheme = ({ rootUser, profile, repos = [] }) => {
           {/* Info panel */}
           <div id="pe-info" style={{
             position: 'absolute', left: '6vw', top: '50%',
-            transform: 'translateY(-50%)', width: 'min(440px,42vw)',
+            transform: 'translateY(-50%)', width: 'min(480px,44vw)',
             opacity: 0, willChange: 'opacity,transform',
           }}>
             <div style={{ fontFamily: PIX, fontSize: 12, color: CYAN, letterSpacing: 2 }}>CHAPTER V</div>
             <div style={{ fontSize: 'clamp(24px,3vw,40px)', fontWeight: 700, color: GOLD, margin: '10px 0 18px', textShadow: '4px 4px 0 #0c0904' }}>
               SEEK THE GUARDIAN
             </div>
-            <div style={{ fontSize: 20, lineHeight: 1.55, color: '#e6dcc4' }}>
-              {bio}
+            <div style={{ fontSize: 18, lineHeight: 1.55, color: '#e6dcc4' }}>
+              {guardianBio}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginTop: 26 }}>
               {contacts.map((c, i) => (
