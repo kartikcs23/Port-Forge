@@ -3,7 +3,13 @@ const Profile = require('../models/Profile');
 const Project = require('../models/Project');
 const User = require('../models/User');
 const { findSimilarDevelopers } = require('../linkedin-ml/src/similarity');
-const { fetchGitHubContributions } = require('../services/githubService');
+const { fetchGitHubContributions, parseGithubUsername } = require('../services/githubService');
+
+const slugify = (value) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 /**
  * generateSlug — Creates a URL-friendly slug from the user's name.
@@ -11,14 +17,7 @@ const { fetchGitHubContributions } = require('../services/githubService');
  * @param {string} name — user's display name
  * @returns {string} unique slug
  */
-const generateSlug = (name) => {
-  const base = name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-  const suffix = Math.random().toString(36).substring(2, 6);
-  return `${base}-${suffix}`;
-};
+const generateSlug = (name) => `${slugify(name)}-${Math.random().toString(36).substring(2, 6)}`;
 
 /**
  * generatePortfolio — Creates a new portfolio for the authenticated user,
@@ -39,13 +38,25 @@ const generatePortfolio = async (req, res) => {
       });
     }
 
-    // Generate a unique slug
-    let slug = generateSlug(req.user.name);
+    // Prefer the user's actual GitHub username for the public URL — far more
+    // meaningful than a Clerk-issued display name like "Clerk User", and
+    // GitHub usernames are already globally unique so the slug can be clean
+    // (no random suffix) in the common case. Falls back to the name-based
+    // slug (which does need a suffix, since names collide) if GitHub hasn't
+    // been synced yet.
+    const profile = await Profile.findOne({ userId: req.user._id });
+    const githubUsername = parseGithubUsername(profile?.links?.github || '');
+    const baseSlug = githubUsername ? slugify(githubUsername) : null;
 
-    // Ensure slug is unique (retry if collision)
+    let slug = baseSlug || generateSlug(req.user.name);
+
+    // Ensure slug is unique (retry if collision — appends a random suffix
+    // either way once the clean base is taken)
     let slugExists = await Portfolio.findOne({ slug });
     while (slugExists) {
-      slug = generateSlug(req.user.name);
+      slug = baseSlug
+        ? `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`
+        : generateSlug(req.user.name);
       slugExists = await Portfolio.findOne({ slug });
     }
 
