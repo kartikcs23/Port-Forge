@@ -4,6 +4,38 @@ const { scoreAndSort } = require('../services/scoringService');
 const Project = require('../models/Project');
 const Profile = require('../models/Profile');
 const User = require('../models/User');
+const Portfolio = require('../models/Portfolio');
+
+const slugify = (value) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+/**
+ * syncPortfolioSlug — Keeps an existing portfolio's public URL in step with
+ * the GitHub username it was synced from, so the "Live URL" shown on the
+ * dashboard doesn't stay stuck on a stale/old slug (e.g. a Clerk-name-based
+ * one from before a username was known) after a (re-)sync.
+ * No-op if the user has no portfolio yet, or the slug already matches.
+ */
+const syncPortfolioSlug = async (userId, githubUsername) => {
+  const base = slugify(githubUsername);
+  if (!base) return;
+
+  const portfolio = await Portfolio.findOne({ userId });
+  if (!portfolio || portfolio.slug === base) return;
+
+  let candidate = base;
+  let existing = await Portfolio.findOne({ slug: candidate, userId: { $ne: userId } });
+  while (existing) {
+    candidate = `${base}-${Math.random().toString(36).substring(2, 6)}`;
+    existing = await Portfolio.findOne({ slug: candidate, userId: { $ne: userId } });
+  }
+
+  portfolio.slug = candidate;
+  await portfolio.save();
+};
 
 const syncGithub = async (req, res) => {
   try {
@@ -102,6 +134,8 @@ const syncGithub = async (req, res) => {
         avatar: githubProfile.avatar,
       });
     }
+
+    await syncPortfolioSlug(req.user._id, username);
 
     res.status(200).json({
       success: true,
