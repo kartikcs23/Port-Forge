@@ -42,10 +42,14 @@ const useContactForm = () => {
 };
 
 /* ── BRUTALIST SECTION STAMP ── */
-const SectionStamp = ({ children, color = 'bg-white', rotate = '-rotate-1', extraClass = '' }) => (
+// `color` sets the stamp's background; `textColor` must be passed explicitly
+// to match it (a bare <h2> here would otherwise inherit the app's global
+// `h1-h6 { color: white }` rule regardless of what background it sits on —
+// invisible on the default light "bg-white" stamp).
+const SectionStamp = ({ children, color = 'bg-white', textColor = 'text-ink', rotate = '-rotate-1', extraClass = '' }) => (
   <div className="relative inline-block mb-16">
     <div className={`${color} border-[6px] border-ink px-10 py-5 shadow-[10px_10px_0px_0px_#111] relative z-10 ${rotate} ${extraClass}`}>
-      <h2 className="text-5xl md:text-6xl font-black uppercase tracking-tighter leading-none">{children}</h2>
+      <h2 className={`text-5xl md:text-6xl font-black uppercase tracking-tighter leading-none ${textColor}`}>{children}</h2>
     </div>
   </div>
 );
@@ -189,7 +193,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
               </div>
 
               {/* Name */}
-              <h1 className="text-7xl md:text-[10rem] font-black uppercase tracking-tighter leading-[0.82] break-words brutalist-glitch"
+              <h1 className="text-7xl md:text-[10rem] font-black uppercase tracking-tighter leading-[0.82] break-words brutalist-glitch text-ink"
                   data-text={name}>
                 {name}
               </h1>
@@ -332,7 +336,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
       >
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="flex items-start justify-between flex-wrap gap-8 mb-12">
-            <SectionStamp color="bg-accent text-white" rotate="rotate-1" extraClass="text-white">
+            <SectionStamp color="bg-accent text-white" textColor="text-white" rotate="rotate-1" extraClass="text-white">
               <span className="text-white">Projects_DB</span>
             </SectionStamp>
             <span className="font-black text-xs uppercase tracking-[0.5em] opacity-30 self-center">TOTAL_{repos.length}</span>
@@ -372,7 +376,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
                     <ProjectVisual repo={repo} theme="brutalist" compact />
                   </div>
 
-                  <h3 className="text-3xl font-black uppercase tracking-tight mb-4 group-hover:text-accent transition-colors leading-[0.9]">
+                  <h3 className="text-3xl font-black uppercase tracking-tight mb-4 text-ink group-hover:text-accent transition-colors leading-[0.9]">
                     {repo.name}
                   </h3>
                   <p className="text-base font-bold text-ink/60 leading-relaxed flex-grow mb-8 line-clamp-4">
@@ -486,7 +490,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
         transition={{ duration: 0.7, ease: "easeOut" }}
       >
         <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <SectionStamp color="bg-accent text-white" rotate="rotate-1">Skills_Stack</SectionStamp>
+          <SectionStamp color="bg-accent text-white" textColor="text-white" rotate="rotate-1">Skills_Stack</SectionStamp>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -498,7 +502,11 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
                 {/* Header */}
                 <div className={`${cat.accent} border-b-[6px] border-ink px-8 py-5 flex items-center gap-4`}>
                   <span className="text-2xl font-black">{cat.icon}</span>
-                  <h3 className="font-black text-xl uppercase tracking-tighter">{cat.label}</h3>
+                  {/* Bare heading tags inherit the app's global white h1-h6
+                      rule regardless of background — must set color explicitly
+                      here since this card's bg (and required text color) is
+                      chosen per-category, not always white-on-dark. */}
+                  <h3 className={`font-black text-xl uppercase tracking-tighter ${cat.accent.includes('text-ink') ? 'text-ink' : 'text-white'}`}>{cat.label}</h3>
                 </div>
                 {/* Items */}
                 <div className="p-6 space-y-3">
@@ -581,7 +589,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
           transition={{ duration: 0.7, ease: "easeOut" }}
         >
           <div className="max-w-7xl mx-auto px-6 md:px-12">
-            <SectionStamp color="bg-accent text-white" rotate="-rotate-1">Achievements</SectionStamp>
+            <SectionStamp color="bg-accent text-white" textColor="text-white" rotate="-rotate-1">Achievements</SectionStamp>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {achievements.map((ach, i) => (
@@ -617,7 +625,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-12 border-[6px] border-ink p-12 bg-white shadow-[14px_14px_0_0_#111]">
             <div>
               <div className="font-black text-[10px] uppercase tracking-[0.6em] text-accent mb-3">Credentials_File</div>
-              <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none">Download<br/>Resume_</h2>
+              <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none text-ink">Download<br/>Resume_</h2>
             </div>
             <a href="/resume.pdf" download
                className="bg-ink text-white border-[4px] border-ink px-12 py-6 font-black text-sm uppercase tracking-[0.4em] shadow-[8px_8px_0px_0px_rgba(17,17,17,0.85)] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all no-underline flex items-center gap-4">
@@ -640,7 +648,7 @@ export const BrutalistTheme = ({ rootUser, profile, repos = [] }) => {
         transition={{ duration: 0.7, ease: "easeOut" }}
       >
         <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <SectionStamp color="bg-accent text-white" rotate="rotate-1">
+          <SectionStamp color="bg-accent text-white" textColor="text-white" rotate="rotate-1">
             <span className="text-white">Contact_Me</span>
           </SectionStamp>
 
