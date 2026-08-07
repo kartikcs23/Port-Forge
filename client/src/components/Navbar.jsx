@@ -79,7 +79,14 @@ export const Navbar = () => {
 
   return (
     <motion.nav
-      initial={{ y: -80 }}
+      // `initial={false}` renders directly in the `animate` end-state (y: 0,
+      // fully visible) instead of starting at y:-80 and depending on the
+      // mount animation to bring it into view. Dashboard mounts several
+      // API calls at once (profile, projects, auto AI-ranking) — on a
+      // slower device that can delay this animation long enough that the
+      // nav appears stuck off-screen. Site navigation shouldn't be able to
+      // end up invisible just because an entrance flourish didn't fire.
+      initial={false}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="fixed top-0 inset-x-0 z-50 bg-card/90 backdrop-blur-md border-b-2 border-border shadow-md no-print"
