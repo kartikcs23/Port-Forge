@@ -521,7 +521,13 @@ export const EgyptianTheme = ({ rootUser, profile, repos = [] }) => {
       const e4 = ease(p4);
       const catEl = document.getElementById('pe-cat');
       if (catEl) {
-        const scale = lerp(1.5, 0.62, e4);
+        // The cat's base box is a fixed 300x300px — at the desktop scale
+        // range (1.5 -> 0.62) it can run ~450px wide, wider than an entire
+        // phone screen. Narrow the scale range on small viewports so it
+        // never dominates (or gets clipped by the section's overflow:hidden)
+        // while leaving desktop's range untouched.
+        const narrow = window.innerWidth < 640;
+        const scale = narrow ? lerp(0.85, 0.42, e4) : lerp(1.5, 0.62, e4);
         const tx = lerp(0, Math.min(window.innerWidth * 0.30, 360), e4);
         catEl.style.transform = `translate(calc(-50% + ${tx}px), -50%) scale(${scale})`;
       }
@@ -1075,7 +1081,8 @@ export const EgyptianTheme = ({ rootUser, profile, repos = [] }) => {
           {/* Info panel */}
           <div id="pe-info" style={{
             position: 'absolute', left: '6vw', top: '50%',
-            transform: 'translateY(-50%)', width: 'min(480px,44vw)',
+            transform: 'translateY(-50%)', width: 'clamp(240px,44vw,480px)',
+            maxWidth: 'calc(100vw - 12vw)',
             opacity: 0, willChange: 'opacity,transform',
           }}>
             <div style={{ fontFamily: PIX, fontSize: 12, color: CYAN, letterSpacing: 2 }}>CHAPTER V</div>
