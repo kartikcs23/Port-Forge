@@ -60,6 +60,7 @@ export const Dashboard = () => {
   const [resumeFile, setResumeFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showLiteThemes, setShowLiteThemes] = useState(false);
   const fileInputRef = useRef(null);
   // Guards the auto-ranking effect below so it fires at most once per
   // mount — the backend cache makes repeat calls cheap, but there's no
@@ -308,40 +309,86 @@ export const Dashboard = () => {
                   <Clapperboard className={`w-5 h-5 ${portfolio?.theme === 'cinematic' ? 'text-white' : 'text-accent'}`} />
                 </button>
 
-                {/* 15 Professional Lite Themes — collapsible */}
-                {[
-                  { key: 'terminal',    label: 'Terminal',    sub: 'Shell' },
-                  { key: 'swiss',       label: 'Swiss',       sub: 'Grid' },
-                  { key: 'journal',     label: 'Journal',     sub: 'Academic' },
-                  { key: 'blueprint',   label: 'Blueprint',   sub: 'Technical' },
-                  { key: 'gazette',     label: 'Gazette',     sub: 'Broadsheet' },
-                  { key: 'bento',       label: 'Bento',       sub: 'Cards' },
-                  { key: 'glass',       label: 'Glass',       sub: 'Frosted' },
-                  { key: 'timeline',    label: 'Timeline',    sub: 'Chrono' },
-                  { key: 'letterpress', label: 'Letterpress', sub: 'Kraft' },
-                  { key: 'neon',        label: 'Neon',        sub: 'Syntax' },
-                  { key: 'origami',     label: 'Origami',     sub: 'Folds' },
-                  { key: 'executive',   label: 'Executive',   sub: 'Navy/Gold' },
-                  { key: 'notion',      label: 'Notion',      sub: 'Wiki' },
-                  { key: 'zine',        label: 'Zine',        sub: 'Collage' },
-                  { key: 'retro',       label: 'Retro',       sub: '8-Bit' },
-                ].map(({ key, label, sub }) => (
-                  <button
-                    key={key}
-                    onClick={() => updateTheme(key)}
-                    className={`p-4 border-2 flex items-center justify-between ${portfolio?.theme === key ? 'border-accent bg-accent text-white shadow-[4px_4px_0px_0px_#141822] translate-x-[-2px] translate-y-[-2px]' : 'border-border bg-background hover:bg-secondary/50 text-foreground'}`}
-                  >
-                    <div className="text-left">
-                      <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">{sub}</span>
-                      <span className="block text-sm font-bold uppercase mt-1">{label}</span>
-                    </div>
-                  </button>
-                ))}
+                {/* View More button */}
+                <button
+                  onClick={() => setShowLiteThemes(true)}
+                  className="p-4 border-2 border-dashed border-border bg-background hover:bg-secondary/50 text-foreground flex items-center justify-between"
+                >
+                  <div className="text-left">
+                    <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">15+ STYLES</span>
+                    <span className="block text-sm font-bold uppercase mt-1">View More</span>
+                  </div>
+                  <span className="text-accent font-black text-lg">→</span>
+                </button>
               </div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-6 text-center">
                 Select your digital signature
               </p>
             </div>
+
+            {/* Lite Themes Modal */}
+            {showLiteThemes && (
+              <div
+                className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+                onClick={(e) => { if (e.target === e.currentTarget) setShowLiteThemes(false); }}
+              >
+                <div className="bg-card border-2 border-border shadow-[8px_8px_0px_0px_#141822] w-full max-w-lg max-h-[85vh] flex flex-col">
+                  {/* Header */}
+                  <div className="flex items-center gap-3 p-5 border-b-2 border-border flex-shrink-0">
+                    <button
+                      onClick={() => setShowLiteThemes(false)}
+                      className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      ← Back
+                    </button>
+                    <div className="flex-1 text-center">
+                      <h3 className="text-sm font-black uppercase tracking-widest">Professional Themes</h3>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">15 styles for college students</p>
+                    </div>
+                    <div className="w-12" />
+                  </div>
+
+                  {/* Scrollable theme list */}
+                  <div className="overflow-y-auto flex-1 p-4 grid grid-cols-1 gap-3">
+                    {[
+                      { key: 'terminal',    label: 'Terminal',    sub: 'Shell Session' },
+                      { key: 'swiss',       label: 'Swiss',       sub: 'Grid / Helvetica' },
+                      { key: 'journal',     label: 'Journal',     sub: 'Academic Paper' },
+                      { key: 'blueprint',   label: 'Blueprint',   sub: 'Technical Drawing' },
+                      { key: 'gazette',     label: 'Gazette',     sub: 'Broadsheet' },
+                      { key: 'bento',       label: 'Bento',       sub: 'Card Grid' },
+                      { key: 'glass',       label: 'Glass',       sub: 'Frosted Glass' },
+                      { key: 'timeline',    label: 'Timeline',    sub: 'Chronological' },
+                      { key: 'letterpress', label: 'Letterpress', sub: 'Kraft Paper' },
+                      { key: 'neon',        label: 'Neon',        sub: 'Syntax Colors' },
+                      { key: 'origami',     label: 'Origami',     sub: 'Geometric Folds' },
+                      { key: 'executive',   label: 'Executive',   sub: 'Navy & Gold' },
+                      { key: 'notion',      label: 'Notion',      sub: 'Wiki / Docs' },
+                      { key: 'zine',        label: 'Zine',        sub: 'Collage / Punk' },
+                      { key: 'retro',       label: 'Retro',       sub: '8-Bit / Pixel' },
+                    ].map(({ key, label, sub }) => (
+                      <button
+                        key={key}
+                        onClick={() => { updateTheme(key); setShowLiteThemes(false); }}
+                        className={`p-4 border-2 flex items-center justify-between transition-all ${
+                          portfolio?.theme === key
+                            ? 'border-accent bg-accent text-white shadow-[4px_4px_0px_0px_#141822] translate-x-[-2px] translate-y-[-2px]'
+                            : 'border-border bg-background hover:bg-secondary/50 text-foreground'
+                        }`}
+                      >
+                        <div className="text-left">
+                          <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">{sub}</span>
+                          <span className="block text-sm font-bold uppercase mt-1">{label}</span>
+                        </div>
+                        {portfolio?.theme === key && (
+                          <span className="text-xs font-black uppercase tracking-widest opacity-80">Active</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="bg-card border-2 border-border shadow-[6px_6px_0px_0px_#141822] p-6 transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_#141822]">
               <h2 className="text-2xl font-black font-display uppercase tracking-tighter mb-6 border-b-2 border-border pb-2">
