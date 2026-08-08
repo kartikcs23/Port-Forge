@@ -3,116 +3,134 @@ import { motion } from 'framer-motion';
 import { useThemeData } from './useThemeData';
 
 const Reveal = ({ children, delay = 0 }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: '-60px' }}
-    transition={{ duration: 0.5, delay }}
-  >
-    {children}
-  </motion.div>
+  <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}>{children}</motion.div>
 );
 
-const glass = {
-  background: 'rgba(255,255,255,0.12)',
-  backdropFilter: 'blur(16px)',
-  WebkitBackdropFilter: 'blur(16px)',
-  border: '1px solid rgba(255,255,255,0.2)',
-  borderRadius: 16,
-};
+const glass = (alpha = 0.12, blur = 18) => ({
+  background: `rgba(255,255,255,${alpha})`,
+  backdropFilter: `blur(${blur}px)`,
+  WebkitBackdropFilter: `blur(${blur}px)`,
+  border: '1px solid rgba(255,255,255,0.22)',
+  borderRadius: 20,
+});
+
+const Blob = ({ style }) => (
+  <div style={{ position: 'fixed', borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none', ...style }} />
+);
 
 export const GlassTheme = ({ rootUser, profile, repos }) => {
   const d = useThemeData(rootUser, profile, repos);
-  const sans = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+  const sans = "system-ui,-apple-system,'Segoe UI',sans-serif";
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      fontFamily: sans,
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 40%, #f093fb 100%)',
-      color: '#fff',
-      padding: '48px 20px 80px',
-    }}>
-      {/* Decorative blobs */}
-      <div style={{ position: 'fixed', top: '-10%', left: '-5%', width: 500, height: 500, background: 'rgba(255,255,255,0.06)', borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none' }} />
-      <div style={{ position: 'fixed', bottom: '-10%', right: '-5%', width: 600, height: 600, background: 'rgba(255,255,255,0.06)', borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none' }} />
+    <div style={{ minHeight: '100vh', fontFamily: sans, background: 'linear-gradient(135deg,#0f0524 0%,#1a0533 30%,#0a1628 70%,#04111f 100%)', color: '#fff', padding: '48px 20px 80px', position: 'relative', overflow: 'hidden' }}>
 
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 820, margin: '0 auto' }}>
+      {/* Background blobs */}
+      <Blob style={{ width: 600, height: 600, top: '-15%', left: '-10%', background: 'radial-gradient(circle, rgba(167,139,250,0.5), transparent 70%)' }} />
+      <Blob style={{ width: 500, height: 500, top: '20%', right: '-8%', background: 'radial-gradient(circle, rgba(56,189,248,0.4), transparent 70%)' }} />
+      <Blob style={{ width: 400, height: 400, bottom: '10%', left: '20%', background: 'radial-gradient(circle, rgba(244,114,182,0.35), transparent 70%)' }} />
+      <Blob style={{ width: 300, height: 300, bottom: '-5%', right: '15%', background: 'radial-gradient(circle, rgba(52,211,153,0.3), transparent 70%)' }} />
+
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: 860, margin: '0 auto' }}>
+
+        {/* Hero card */}
         <Reveal>
-          <div style={{ ...glass, padding: '36px 32px', marginBottom: 20, textAlign: 'center' }}>
-            {d.avatar && (
-              <img src={d.avatar} alt={d.name} style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.4)', marginBottom: 16, objectFit: 'cover' }} />
+          <motion.div whileHover={{ scale: 1.01 }} transition={{ duration: 0.3 }} style={{ ...glass(0.14, 24), padding: '40px 36px', marginBottom: 20, textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+            {/* Inner shine */}
+            <div style={{ position: 'absolute', top: 0, left: '-50%', width: '200%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)' }} />
+
+            {d.avatar ? (
+              <img src={d.avatar} alt={d.name} style={{ width: 88, height: 88, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.4)', marginBottom: 18, objectFit: 'cover', display: 'block', margin: '0 auto 18px', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }} />
+            ) : (
+              <div style={{ width: 88, height: 88, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.4)', marginBottom: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, margin: '0 auto 18px' }}>
+                {d.name[0]}
+              </div>
             )}
-            <h1 style={{ fontSize: 'clamp(28px,5vw,48px)', fontWeight: 700, margin: '0 0 8px', letterSpacing: '-0.02em' }}>{d.name}</h1>
-            <p style={{ fontSize: 16, opacity: 0.85, margin: 0 }}>{d.headline}{d.location ? ` · ${d.location}` : ''}</p>
-          </div>
-        </Reveal>
+            <h1 style={{ fontSize: 'clamp(28px,5vw,52px)', fontWeight: 700, margin: '0 0 10px', letterSpacing: '-0.02em', lineHeight: 1.05 }}>{d.name}</h1>
+            <p style={{ fontSize: 16, opacity: 0.75, margin: '0 0 20px' }}>{d.headline}{d.location ? ` · ${d.location}` : ''}</p>
 
-        <Reveal delay={0.06}>
-          <div style={{ ...glass, padding: '24px 28px', marginBottom: 20 }}>
-            <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.65, marginBottom: 10 }}>About</div>
-            <p style={{ fontSize: 15, lineHeight: 1.75, margin: 0, opacity: 0.9 }}>{d.bio}</p>
-          </div>
-        </Reveal>
-
-        <Reveal delay={0.08}>
-          <div style={{ ...glass, padding: '24px 28px', marginBottom: 20 }}>
-            <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.65, marginBottom: 14 }}>Skills</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {d.skills.map((s) => (
-                <span key={s} style={{ background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 99, padding: '5px 14px', fontSize: 13 }}>{s}</span>
+            {/* Contact pills */}
+            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 8 }}>
+              {d.contacts.map((c) => (
+                <motion.a key={c.label} href={c.href} whileHover={{ scale: 1.05, background: 'rgba(255,255,255,0.25)' }} style={{ ...glass(0.16, 8), borderRadius: 99, padding: '6px 18px', fontSize: 12, color: '#fff', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, transition: 'background 0.2s' }}>
+                  {c.label === 'Email' ? '✉️' : c.label === 'GitHub' ? '🐙' : c.label === 'LinkedIn' ? '💼' : '🌐'}
+                  {c.value}
+                </motion.a>
               ))}
+            </div>
+          </motion.div>
+        </Reveal>
+
+        {/* About */}
+        <Reveal delay={0.06}>
+          <div style={{ ...glass(0.1, 16), padding: '24px 28px', marginBottom: 20 }}>
+            <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.5, marginBottom: 12 }}>About</div>
+            <p style={{ fontSize: 15, lineHeight: 1.8, margin: 0, opacity: 0.9 }}>{d.bio}</p>
+          </div>
+        </Reveal>
+
+        {/* Skills */}
+        <Reveal delay={0.08}>
+          <div style={{ ...glass(0.1, 16), padding: '24px 28px', marginBottom: 20 }}>
+            <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.5, marginBottom: 16 }}>Stack</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {d.skills.map((s, i) => {
+                const colors = ['rgba(167,139,250,0.3)', 'rgba(56,189,248,0.3)', 'rgba(244,114,182,0.3)', 'rgba(52,211,153,0.3)', 'rgba(251,191,36,0.3)'];
+                return (
+                  <motion.span key={s} whileHover={{ scale: 1.08 }} style={{ background: colors[i % colors.length], border: '1px solid rgba(255,255,255,0.25)', borderRadius: 99, padding: '6px 16px', fontSize: 13, fontWeight: 500, backdropFilter: 'blur(8px)', cursor: 'default' }}>
+                    {s}
+                  </motion.span>
+                );
+              })}
             </div>
           </div>
         </Reveal>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16, marginBottom: 20 }}>
+        {/* Projects grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(250px,1fr))', gap: 16, marginBottom: 20 }}>
           {d.projects.map((p, i) => (
             <Reveal key={p.id} delay={0.1 + i * 0.04}>
-              <a href={p.url} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block', height: '100%' }}>
-                <div style={{ ...glass, padding: '20px 22px', height: '100%', boxSizing: 'border-box', transition: 'background 0.2s', cursor: 'pointer' }}>
-                  <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>{p.name}</div>
-                  <div style={{ fontSize: 12, opacity: 0.6, marginBottom: 8 }}>{p.language} · ★{p.stars}</div>
-                  <p style={{ fontSize: 13, opacity: 0.8, margin: 0, lineHeight: 1.5 }}>{p.description}</p>
-                </div>
-              </a>
+              <motion.a href={p.url} target="_blank" rel="noreferrer" whileHover={{ y: -6, boxShadow: '0 24px 60px rgba(0,0,0,0.4)' }} style={{ ...glass(0.1, 14), padding: '22px 22px', display: 'block', textDecoration: 'none', color: '#fff', transition: 'box-shadow 0.25s', cursor: 'pointer', height: '100%', boxSizing: 'border-box', position: 'relative', overflow: 'hidden' }}>
+                {/* Top shimmer */}
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent)' }} />
+                <div style={{ fontSize: 10, opacity: 0.5, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.15em' }}>{p.language} · ★{p.stars}</div>
+                <div style={{ fontWeight: 700, fontSize: 17, marginBottom: 8, lineHeight: 1.2 }}>{p.name}</div>
+                <p style={{ fontSize: 13, opacity: 0.7, margin: 0, lineHeight: 1.6 }}>{p.description}</p>
+                <div style={{ marginTop: 14, fontSize: 11, opacity: 0.5 }}>View project →</div>
+              </motion.a>
             </Reveal>
           ))}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        {/* Bottom row */}
+        <div style={{ display: 'grid', gridTemplateColumns: d.achievements.length > 0 ? '1fr 1fr' : '1fr', gap: 16 }}>
           {(d.experience.length > 0 || d.education.length > 0) && (
             <Reveal delay={0.14}>
-              <div style={{ ...glass, padding: '24px 28px' }}>
-                <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.65, marginBottom: 14 }}>Experience</div>
+              <div style={{ ...glass(0.1, 16), padding: '24px 28px' }}>
+                <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.5, marginBottom: 16 }}>Journey</div>
                 {[...d.experience, ...d.education].map((item, i) => (
-                  <div key={i} style={{ marginBottom: 12 }}>
-                    <div style={{ fontWeight: 600, fontSize: 14 }}>{item.role || item.degree}</div>
-                    <div style={{ fontSize: 12, opacity: 0.7 }}>{item.company || item.institution}</div>
-                    <div style={{ fontSize: 11, opacity: 0.5 }}>{item.startDate || item.year}{item.endDate ? `–${item.endDate}` : ''}</div>
+                  <div key={i} style={{ marginBottom: 16, paddingBottom: 16, borderBottom: i < d.experience.length + d.education.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none' }}>
+                    <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>{item.role || item.degree}</div>
+                    <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 2 }}>{item.company || item.institution}</div>
+                    <div style={{ fontSize: 11, opacity: 0.4 }}>{item.startDate || item.year}{item.endDate ? `–${item.endDate}` : ''}</div>
                   </div>
                 ))}
               </div>
             </Reveal>
           )}
-          <Reveal delay={0.16}>
-            <div style={{ ...glass, padding: '24px 28px' }}>
-              <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.65, marginBottom: 14 }}>Connect</div>
-              {d.contacts.map((c) => (
-                <a key={c.label} href={c.href} style={{ display: 'block', color: '#fff', fontSize: 14, marginBottom: 10, textDecoration: 'none', opacity: 0.85 }}>
-                  <span style={{ opacity: 0.6 }}>{c.label}: </span>{c.value}
-                </a>
-              ))}
-              {d.achievements.length > 0 && (
-                <>
-                  <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.65, margin: '16px 0 10px' }}>Achievements</div>
-                  {d.achievements.slice(0, 3).map((a, i) => (
-                    <div key={i} style={{ fontSize: 13, opacity: 0.8, marginBottom: 6 }}>{a.title} <span style={{ opacity: 0.5 }}>{a.year}</span></div>
-                  ))}
-                </>
-              )}
-            </div>
-          </Reveal>
+          {d.achievements.length > 0 && (
+            <Reveal delay={0.16}>
+              <div style={{ ...glass(0.1, 16), padding: '24px 28px' }}>
+                <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.5, marginBottom: 16 }}>Achievements</div>
+                {d.achievements.map((a, i) => (
+                  <div key={i} style={{ marginBottom: 14, paddingBottom: 14, borderBottom: i < d.achievements.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none' }}>
+                    <div style={{ fontSize: 14, fontWeight: 500 }}>✨ {a.title}</div>
+                    <div style={{ fontSize: 12, opacity: 0.5, marginTop: 2 }}>{a.year}</div>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          )}
         </div>
       </div>
     </div>

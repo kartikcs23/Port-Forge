@@ -2,129 +2,183 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useThemeData } from './useThemeData';
 
-const NAVY = '#0a1628';
-const GOLD = '#c9a84c';
-const LIGHT_GOLD = '#e8c97e';
-const CARD = '#0f2040';
-const MUTED = '#7a9bb5';
+const E = { navy: '#06111f', mid: '#0d1f35', card: '#102035', gold: '#c9a84c', goldLight: '#e8c97e', goldDim: '#8a7035', muted: '#6a8aaa', text: '#d8e8f0', white: '#f0f8ff' };
 
 const Reveal = ({ children, delay = 0 }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 16 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: '-60px' }}
-    transition={{ duration: 0.5, delay }}
-  >
-    {children}
-  </motion.div>
+  <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.55, delay }}>{children}</motion.div>
 );
 
-const Divider = () => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '28px 0' }}>
-    <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${GOLD}66)` }} />
-    <div style={{ width: 6, height: 6, background: GOLD, transform: 'rotate(45deg)' }} />
-    <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${GOLD}66)` }} />
+const GoldRule = () => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 0, margin: '28px 0' }}>
+    <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${E.goldDim})` }} />
+    <div style={{ padding: '0 12px', display: 'flex', gap: 4 }}>
+      <div style={{ width: 4, height: 4, background: E.gold, transform: 'rotate(45deg)' }} />
+      <div style={{ width: 6, height: 6, background: E.gold, transform: 'rotate(45deg)' }} />
+      <div style={{ width: 4, height: 4, background: E.gold, transform: 'rotate(45deg)' }} />
+    </div>
+    <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${E.goldDim})` }} />
   </div>
 );
 
+const Monogram = ({ name }) => {
+  const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  return (
+    <div style={{ position: 'relative', width: 100, height: 100, margin: '0 auto' }}>
+      <svg viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+        <circle cx="50" cy="50" r="48" fill="none" stroke={E.goldDim} strokeWidth="1" />
+        <circle cx="50" cy="50" r="42" fill="none" stroke={E.gold} strokeWidth="0.5" strokeDasharray="4 4" />
+        {[0, 45, 90, 135, 180, 225, 270, 315].map(a => {
+          const rad = a * Math.PI / 180;
+          const x = 50 + 45 * Math.cos(rad);
+          const y = 50 + 45 * Math.sin(rad);
+          return <circle key={a} cx={x} cy={y} r="1.5" fill={E.gold} />;
+        })}
+      </svg>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Georgia', serif", fontSize: 28, fontWeight: 400, color: E.gold, letterSpacing: '0.1em' }}>
+        {initials}
+      </div>
+    </div>
+  );
+};
+
 export const ExecutiveTheme = ({ rootUser, profile, repos }) => {
   const d = useThemeData(rootUser, profile, repos);
-  const serif = "'Georgia', 'Times New Roman', serif";
-  const sans = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+  const serif = "'Georgia','Times New Roman',serif";
+  const sans = "system-ui,-apple-system,'Segoe UI',sans-serif";
 
   return (
-    <div style={{ background: NAVY, color: '#e8f0f8', fontFamily: sans, minHeight: '100vh' }}>
+    <div style={{ background: E.navy, color: E.text, fontFamily: sans, minHeight: '100vh' }}>
 
-      {/* Header */}
-      <div style={{ background: `linear-gradient(135deg, #0a1628 0%, #0f2040 60%, #152a50 100%)`, borderBottom: `1px solid ${GOLD}44`, padding: '64px 24px 48px' }}>
-        <div style={{ maxWidth: 860, margin: '0 auto', textAlign: 'center' }}>
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <div style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: GOLD, marginBottom: 18, fontFamily: serif }}>Portfolio</div>
-            {d.avatar && (
-              <img src={d.avatar} alt={d.name} style={{ width: 90, height: 90, borderRadius: '50%', border: `3px solid ${GOLD}`, marginBottom: 20, objectFit: 'cover', display: 'block', marginLeft: 'auto', marginRight: 'auto' }} />
-            )}
-            <h1 style={{ fontSize: 'clamp(28px,5vw,52px)', fontWeight: 300, margin: '0 0 10px', fontFamily: serif, letterSpacing: '0.05em', color: '#fff' }}>{d.name}</h1>
-            <div style={{ fontSize: 14, color: GOLD, letterSpacing: '0.15em', textTransform: 'uppercase' }}>{d.headline}{d.location ? ` · ${d.location}` : ''}</div>
-          </motion.div>
-        </div>
-      </div>
+      {/* Gold top stripe */}
+      <div style={{ height: 3, background: `linear-gradient(to right, transparent, ${E.gold}, ${E.gold}, transparent)` }} />
 
-      <div style={{ maxWidth: 860, margin: '0 auto', padding: '48px 24px 80px' }}>
+      {/* Letterhead hero */}
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '56px 40px 0' }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 32, alignItems: 'center', marginBottom: 40 }}>
+            {/* Left — contact */}
+            <div style={{ fontSize: 12, color: E.muted, lineHeight: 2, textAlign: 'right' }}>
+              {d.contacts.slice(0, 2).map((c) => (
+                <a key={c.label} href={c.href} style={{ display: 'block', color: E.muted, textDecoration: 'none' }}>
+                  <span style={{ color: E.goldDim, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{c.label}: </span>
+                  {c.value}
+                </a>
+              ))}
+            </div>
 
-        <Reveal>
-          <p style={{ fontSize: 17, lineHeight: 1.8, color: '#b8cfe0', textAlign: 'center', maxWidth: 620, margin: '0 auto', fontFamily: serif, fontStyle: 'italic' }}>{d.bio}</p>
+            {/* Center — monogram */}
+            <div style={{ textAlign: 'center' }}>
+              <Monogram name={d.name} />
+              <div style={{ marginTop: 12, height: 1, background: E.goldDim, width: 120, margin: '12px auto 0' }} />
+            </div>
+
+            {/* Right — contact */}
+            <div style={{ fontSize: 12, color: E.muted, lineHeight: 2 }}>
+              {d.contacts.slice(2).map((c) => (
+                <a key={c.label} href={c.href} style={{ display: 'block', color: E.muted, textDecoration: 'none' }}>
+                  <span style={{ color: E.goldDim, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{c.label}: </span>
+                  {c.value}
+                </a>
+              ))}
+              {d.location && (
+                <div><span style={{ color: E.goldDim, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Location: </span>{d.location}</div>
+              )}
+            </div>
+          </div>
+
+          {/* Name & title */}
+          <div style={{ textAlign: 'center', marginBottom: 8 }}>
+            <h1 style={{ fontFamily: serif, fontSize: 'clamp(32px,5vw,56px)', fontWeight: 400, margin: 0, letterSpacing: '0.12em', color: E.white, textTransform: 'uppercase' }}>{d.name}</h1>
+            <div style={{ fontFamily: sans, fontSize: 12, letterSpacing: '0.3em', textTransform: 'uppercase', color: E.gold, marginTop: 10 }}>{d.headline}</div>
+          </div>
+        </motion.div>
+
+        <GoldRule />
+
+        {/* Executive summary */}
+        <Reveal delay={0.05}>
+          <div style={{ maxWidth: 680, margin: '0 auto 0', textAlign: 'center' }}>
+            <div style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: E.gold, marginBottom: 16 }}>Executive Summary</div>
+            <p style={{ fontFamily: serif, fontSize: 17, lineHeight: 1.85, color: E.text, fontStyle: 'italic', margin: 0 }}>{d.bio}</p>
+          </div>
         </Reveal>
 
-        <Divider />
+        <GoldRule />
 
-        <Reveal delay={0.05}>
-          <div>
-            <div style={{ fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', color: GOLD, marginBottom: 18, textAlign: 'center' }}>Core Competencies</div>
+        {/* Competencies */}
+        <Reveal delay={0.08}>
+          <div style={{ marginBottom: 0 }}>
+            <div style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: E.gold, marginBottom: 20, textAlign: 'center' }}>Core Competencies</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10 }}>
               {d.skills.map((s) => (
-                <span key={s} style={{ fontSize: 13, border: `1px solid ${GOLD}66`, padding: '6px 18px', color: LIGHT_GOLD, letterSpacing: '0.05em' }}>{s}</span>
+                <div key={s} style={{ border: `1px solid ${E.goldDim}`, padding: '8px 20px', fontSize: 12, color: E.goldLight, letterSpacing: '0.08em', position: 'relative' }}>
+                  {/* Corner accents */}
+                  <span style={{ position: 'absolute', top: -2, left: -2, width: 6, height: 6, borderTop: `1px solid ${E.gold}`, borderLeft: `1px solid ${E.gold}` }} />
+                  <span style={{ position: 'absolute', top: -2, right: -2, width: 6, height: 6, borderTop: `1px solid ${E.gold}`, borderRight: `1px solid ${E.gold}` }} />
+                  <span style={{ position: 'absolute', bottom: -2, left: -2, width: 6, height: 6, borderBottom: `1px solid ${E.gold}`, borderLeft: `1px solid ${E.gold}` }} />
+                  <span style={{ position: 'absolute', bottom: -2, right: -2, width: 6, height: 6, borderBottom: `1px solid ${E.gold}`, borderRight: `1px solid ${E.gold}` }} />
+                  {s}
+                </div>
               ))}
             </div>
           </div>
         </Reveal>
 
-        <Divider />
+        <GoldRule />
 
-        <Reveal delay={0.08}>
-          <div style={{ fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', color: GOLD, marginBottom: 20, textAlign: 'center' }}>Selected Works</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 16 }}>
-            {d.projects.map((p, i) => (
-              <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }}>
-                <a href={p.url} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block', height: '100%' }}>
-                  <div style={{ background: CARD, border: `1px solid ${GOLD}33`, padding: '24px 22px', height: '100%', boxSizing: 'border-box', transition: 'border-color 0.2s', cursor: 'pointer' }}>
-                    <div style={{ fontSize: 10, color: GOLD, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 8 }}>{p.language} · ★ {p.stars}</div>
-                    <div style={{ fontWeight: 600, fontSize: 16, color: '#fff', marginBottom: 10, fontFamily: serif }}>{p.name}</div>
-                    <p style={{ fontSize: 13, color: MUTED, lineHeight: 1.6, margin: 0 }}>{p.description}</p>
-                  </div>
-                </a>
-              </motion.div>
-            ))}
+        {/* Selected Works */}
+        <Reveal delay={0.1}>
+          <div style={{ marginBottom: 0 }}>
+            <div style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: E.gold, marginBottom: 24, textAlign: 'center' }}>Selected Works</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
+              {d.projects.map((p, i) => (
+                <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}>
+                  <a href={p.url} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', display: 'block' }}>
+                    <div style={{ background: E.card, border: `1px solid ${E.goldDim}44`, padding: '22px 20px', position: 'relative', overflow: 'hidden', cursor: 'pointer', transition: 'border-color 0.2s' }}>
+                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(to right, transparent, ${E.gold}88, transparent)` }} />
+                      <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: E.gold, marginBottom: 10 }}>{p.language || 'Project'} · ★ {p.stars}</div>
+                      <div style={{ fontFamily: serif, fontSize: 18, color: E.white, marginBottom: 10, fontWeight: 400 }}>{p.name}</div>
+                      <p style={{ fontSize: 13, color: E.muted, lineHeight: 1.65, margin: 0 }}>{p.description}</p>
+                    </div>
+                  </a>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </Reveal>
 
-        <Divider />
+        <GoldRule />
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+        {/* Experience + Achievements */}
+        <div style={{ display: 'grid', gridTemplateColumns: d.achievements.length > 0 ? '3fr 2fr' : '1fr', gap: 48, paddingBottom: 60 }}>
           {(d.experience.length > 0 || d.education.length > 0) && (
-            <Reveal delay={0.1}>
-              <div style={{ fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', color: GOLD, marginBottom: 16 }}>Experience</div>
-              {[...d.experience, ...d.education].map((item, i) => (
-                <div key={i} style={{ marginBottom: 16, paddingBottom: 16, borderBottom: i < d.experience.length + d.education.length - 1 ? `1px solid ${GOLD}22` : 'none' }}>
-                  <div style={{ fontWeight: 600, fontSize: 14, color: '#e8f0f8', fontFamily: serif }}>{item.role || item.degree}</div>
-                  <div style={{ fontSize: 13, color: GOLD, marginTop: 2 }}>{item.company || item.institution}</div>
-                  <div style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>{item.startDate || item.year}{item.endDate ? `–${item.endDate}` : ''}</div>
+            <Reveal delay={0.12}>
+              <div style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: E.gold, marginBottom: 20 }}>Professional History</div>
+              {[...d.experience, ...d.education].map((item, i, arr) => (
+                <div key={i} style={{ paddingBottom: 20, marginBottom: 20, borderBottom: i < arr.length - 1 ? `1px solid ${E.goldDim}33` : 'none' }}>
+                  <div style={{ fontFamily: serif, fontSize: 17, color: E.white, marginBottom: 4 }}>{item.role || item.degree}</div>
+                  <div style={{ fontSize: 13, color: E.gold, marginBottom: 4 }}>{item.company || item.institution}</div>
+                  <div style={{ fontSize: 11, color: E.muted }}>{item.startDate || item.year}{item.endDate ? ` – ${item.endDate}` : ''}</div>
                 </div>
               ))}
             </Reveal>
           )}
-          <Reveal delay={0.12}>
-            {d.achievements.length > 0 && (
-              <>
-                <div style={{ fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', color: GOLD, marginBottom: 16 }}>Honours</div>
-                {d.achievements.map((a, i) => (
-                  <div key={i} style={{ marginBottom: 14, paddingBottom: 14, borderBottom: i < d.achievements.length - 1 ? `1px solid ${GOLD}22` : 'none' }}>
-                    <div style={{ fontSize: 14, color: '#e8f0f8', fontFamily: serif }}>{a.title}</div>
-                    <div style={{ fontSize: 11, color: GOLD }}>{a.year}</div>
-                  </div>
-                ))}
-              </>
-            )}
-            <div style={{ marginTop: d.achievements.length ? 24 : 0 }}>
-              <div style={{ fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', color: GOLD, marginBottom: 14 }}>Contact</div>
-              {d.contacts.map((c) => (
-                <a key={c.label} href={c.href} style={{ display: 'block', color: LIGHT_GOLD, fontSize: 13, marginBottom: 8, textDecoration: 'none' }}>
-                  {c.label}: <span style={{ color: '#b8cfe0' }}>{c.value}</span>
-                </a>
+          {d.achievements.length > 0 && (
+            <Reveal delay={0.14}>
+              <div style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: E.gold, marginBottom: 20 }}>Honours</div>
+              {d.achievements.map((a, i, arr) => (
+                <div key={i} style={{ paddingBottom: 16, marginBottom: 16, borderBottom: i < arr.length - 1 ? `1px solid ${E.goldDim}33` : 'none' }}>
+                  <div style={{ fontFamily: serif, fontSize: 15, color: E.white, marginBottom: 2 }}>{a.title}</div>
+                  <div style={{ fontSize: 11, color: E.gold }}>{a.year}</div>
+                </div>
               ))}
-            </div>
-          </Reveal>
+            </Reveal>
+          )}
         </div>
       </div>
+
+      {/* Gold bottom stripe */}
+      <div style={{ height: 3, background: `linear-gradient(to right, transparent, ${E.gold}, ${E.gold}, transparent)` }} />
     </div>
   );
 };
