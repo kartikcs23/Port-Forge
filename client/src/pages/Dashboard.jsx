@@ -348,8 +348,8 @@ export const Dashboard = () => {
                     <div className="w-12" />
                   </div>
 
-                  {/* Scrollable theme list */}
-                  <div className="overflow-y-auto flex-1 p-4 grid grid-cols-1 gap-3">
+                  {/* Scrollable theme grid */}
+                  <div className="overflow-y-auto flex-1 p-4 grid grid-cols-2 gap-3">
                     {[
                       { key: 'terminal',    label: 'Terminal',    sub: 'Shell Session' },
                       { key: 'swiss',       label: 'Swiss',       sub: 'Grid / Helvetica' },
