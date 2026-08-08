@@ -7,15 +7,50 @@ import { SpaceTheme } from '../components/themes/SpaceTheme';
 import { MedicalTheme } from '../components/themes/MedicalTheme';
 import { ProfessionalTheme } from '../components/themes/ProfessionalTheme';
 import { CinematicTheme } from '../components/themes/CinematicTheme';
+import { TerminalTheme } from '../components/themes/lite/TerminalTheme';
+import { SwissTheme } from '../components/themes/lite/SwissTheme';
+import { JournalTheme } from '../components/themes/lite/JournalTheme';
+import { BlueprintTheme } from '../components/themes/lite/BlueprintTheme';
+import { GazetteTheme } from '../components/themes/lite/GazetteTheme';
+import { BentoTheme } from '../components/themes/lite/BentoTheme';
+import { GlassTheme } from '../components/themes/lite/GlassTheme';
+import { TimelineTheme } from '../components/themes/lite/TimelineTheme';
+import { LetterpressTheme } from '../components/themes/lite/LetterpressTheme';
+import { NeonTheme } from '../components/themes/lite/NeonTheme';
+import { OrigamiTheme } from '../components/themes/lite/OrigamiTheme';
+import { ExecutiveTheme } from '../components/themes/lite/ExecutiveTheme';
+import { NotionTheme } from '../components/themes/lite/NotionTheme';
+import { ZineTheme } from '../components/themes/lite/ZineTheme';
+import { RetroTheme } from '../components/themes/lite/RetroTheme';
 
 const THEMES = [
-  { key: 'brutalist',    label: 'Architect',  sub: 'Brutalist',  Component: BrutalistTheme },
-  { key: 'egyptian',     label: 'Luxor',      sub: 'Egyptian',   Component: EgyptianTheme },
-  { key: 'space',        label: 'Nebula',     sub: 'Space',      Component: SpaceTheme },
-  { key: 'medical',      label: 'Asclepius',  sub: 'Medical',    Component: MedicalTheme },
-  { key: 'professional', label: 'Professional', sub: 'Editorial', Component: ProfessionalTheme },
-  { key: 'cinematic',    label: 'Sakura Journey', sub: 'Cinematic', Component: CinematicTheme },
+  { key: 'brutalist',    label: 'Architect',       sub: 'Brutalist',   Component: BrutalistTheme },
+  { key: 'egyptian',     label: 'Luxor',           sub: 'Egyptian',    Component: EgyptianTheme },
+  { key: 'space',        label: 'Nebula',          sub: 'Space',       Component: SpaceTheme },
+  { key: 'medical',      label: 'Asclepius',       sub: 'Medical',     Component: MedicalTheme },
+  { key: 'professional', label: 'Professional',    sub: 'Editorial',   Component: ProfessionalTheme },
+  { key: 'cinematic',    label: 'Sakura Journey',  sub: 'Cinematic',   Component: CinematicTheme },
 ];
+
+const LITE_THEMES = [
+  { key: 'terminal',    label: 'Terminal',    sub: 'Shell Session',   Component: TerminalTheme },
+  { key: 'swiss',       label: 'Swiss',       sub: 'Grid / Helvetica',Component: SwissTheme },
+  { key: 'journal',     label: 'Journal',     sub: 'Academic Paper',  Component: JournalTheme },
+  { key: 'blueprint',   label: 'Blueprint',   sub: 'Technical Draw',  Component: BlueprintTheme },
+  { key: 'gazette',     label: 'Gazette',     sub: 'Broadsheet',      Component: GazetteTheme },
+  { key: 'bento',       label: 'Bento',       sub: 'Card Grid',       Component: BentoTheme },
+  { key: 'glass',       label: 'Glass',       sub: 'Frosted Glass',   Component: GlassTheme },
+  { key: 'timeline',    label: 'Timeline',    sub: 'Chronological',   Component: TimelineTheme },
+  { key: 'letterpress', label: 'Letterpress', sub: 'Kraft Paper',     Component: LetterpressTheme },
+  { key: 'neon',        label: 'Neon',        sub: 'Syntax Colors',   Component: NeonTheme },
+  { key: 'origami',     label: 'Origami',     sub: 'Geometric Folds', Component: OrigamiTheme },
+  { key: 'executive',   label: 'Executive',   sub: 'Navy & Gold',     Component: ExecutiveTheme },
+  { key: 'notion',      label: 'Notion',      sub: 'Wiki / Docs',     Component: NotionTheme },
+  { key: 'zine',        label: 'Zine',        sub: 'Collage / Punk',  Component: ZineTheme },
+  { key: 'retro',       label: 'Retro',       sub: '8-Bit / Pixel',   Component: RetroTheme },
+];
+
+const ALL_THEMES = [...THEMES, ...LITE_THEMES];
 
 const defaultProfile = {
   name: '', headline: '', bio: '', intro: '', email: '', location: '', avatarUrl: '',
@@ -70,7 +105,7 @@ export const ThemeEditor = () => {
 
   const switchTab = (t) => { setTab(t); window.scrollTo(0, 0); };
 
-  const activeTheme = THEMES.find((t) => t.key === themeKey);
+  const activeTheme = ALL_THEMES.find((t) => t.key === themeKey) || ALL_THEMES[0];
   const ActiveComponent = activeTheme.Component;
 
   if (tab === 'preview') {
@@ -82,9 +117,16 @@ export const ThemeEditor = () => {
             onChange={(e) => setThemeKey(e.target.value)}
             className="bg-background border-2 border-border text-foreground text-xs font-bold uppercase px-3 py-2 focus:outline-none focus:border-accent"
           >
-            {THEMES.map((t) => (
-              <option key={t.key} value={t.key}>{t.label} · {t.sub}</option>
-            ))}
+            <optgroup label="Flagship Themes">
+              {THEMES.map((t) => (
+                <option key={t.key} value={t.key}>{t.label} · {t.sub}</option>
+              ))}
+            </optgroup>
+            <optgroup label="Professional Themes">
+              {LITE_THEMES.map((t) => (
+                <option key={t.key} value={t.key}>{t.label} · {t.sub}</option>
+              ))}
+            </optgroup>
           </select>
           <button
             onClick={() => switchTab('edit')}
@@ -120,17 +162,38 @@ export const ThemeEditor = () => {
         </div>
 
         {/* Theme picker */}
-        <div className="max-w-4xl mx-auto px-6 pb-5 flex gap-2 flex-wrap">
-          {THEMES.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setThemeKey(t.key)}
-              className={`px-3 py-2 border-2 text-left ${themeKey === t.key ? 'border-accent bg-accent text-white' : 'border-border bg-background hover:bg-secondary/50 text-foreground'}`}
-            >
-              <span className="block text-[9px] font-black uppercase tracking-widest opacity-60">{t.sub}</span>
-              <span className="block text-xs font-bold uppercase mt-0.5">{t.label}</span>
-            </button>
-          ))}
+        <div className="max-w-4xl mx-auto px-6 pb-5">
+          <div className="flex gap-2 flex-wrap mb-2">
+            {THEMES.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setThemeKey(t.key)}
+                className={`px-3 py-2 border-2 text-left ${themeKey === t.key ? 'border-accent bg-accent text-white' : 'border-border bg-background hover:bg-secondary/50 text-foreground'}`}
+              >
+                <span className="block text-[9px] font-black uppercase tracking-widest opacity-60">{t.sub}</span>
+                <span className="block text-xs font-bold uppercase mt-0.5">{t.label}</span>
+              </button>
+            ))}
+          </div>
+          <details className="group">
+            <summary className="cursor-pointer text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground list-none flex items-center gap-1 mb-2">
+              <span className="group-open:hidden">▶</span>
+              <span className="hidden group-open:inline">▼</span>
+              15+ Professional Themes
+            </summary>
+            <div className="flex gap-2 flex-wrap pt-1">
+              {LITE_THEMES.map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => setThemeKey(t.key)}
+                  className={`px-3 py-2 border-2 text-left ${themeKey === t.key ? 'border-accent bg-accent text-white' : 'border-border bg-background hover:bg-secondary/50 text-foreground'}`}
+                >
+                  <span className="block text-[9px] font-black uppercase tracking-widest opacity-60">{t.sub}</span>
+                  <span className="block text-xs font-bold uppercase mt-0.5">{t.label}</span>
+                </button>
+              ))}
+            </div>
+          </details>
         </div>
       </div>
 

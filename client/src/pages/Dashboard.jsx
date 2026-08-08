@@ -307,6 +307,36 @@ export const Dashboard = () => {
                   </div>
                   <Clapperboard className={`w-5 h-5 ${portfolio?.theme === 'cinematic' ? 'text-white' : 'text-accent'}`} />
                 </button>
+
+                {/* 15 Professional Lite Themes — collapsible */}
+                {[
+                  { key: 'terminal',    label: 'Terminal',    sub: 'Shell' },
+                  { key: 'swiss',       label: 'Swiss',       sub: 'Grid' },
+                  { key: 'journal',     label: 'Journal',     sub: 'Academic' },
+                  { key: 'blueprint',   label: 'Blueprint',   sub: 'Technical' },
+                  { key: 'gazette',     label: 'Gazette',     sub: 'Broadsheet' },
+                  { key: 'bento',       label: 'Bento',       sub: 'Cards' },
+                  { key: 'glass',       label: 'Glass',       sub: 'Frosted' },
+                  { key: 'timeline',    label: 'Timeline',    sub: 'Chrono' },
+                  { key: 'letterpress', label: 'Letterpress', sub: 'Kraft' },
+                  { key: 'neon',        label: 'Neon',        sub: 'Syntax' },
+                  { key: 'origami',     label: 'Origami',     sub: 'Folds' },
+                  { key: 'executive',   label: 'Executive',   sub: 'Navy/Gold' },
+                  { key: 'notion',      label: 'Notion',      sub: 'Wiki' },
+                  { key: 'zine',        label: 'Zine',        sub: 'Collage' },
+                  { key: 'retro',       label: 'Retro',       sub: '8-Bit' },
+                ].map(({ key, label, sub }) => (
+                  <button
+                    key={key}
+                    onClick={() => updateTheme(key)}
+                    className={`p-4 border-2 flex items-center justify-between ${portfolio?.theme === key ? 'border-accent bg-accent text-white shadow-[4px_4px_0px_0px_#141822] translate-x-[-2px] translate-y-[-2px]' : 'border-border bg-background hover:bg-secondary/50 text-foreground'}`}
+                  >
+                    <div className="text-left">
+                      <span className="block text-[10px] font-black uppercase tracking-widest opacity-60">{sub}</span>
+                      <span className="block text-sm font-bold uppercase mt-1">{label}</span>
+                    </div>
+                  </button>
+                ))}
               </div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-6 text-center">
                 Select your digital signature

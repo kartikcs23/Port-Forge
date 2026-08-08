@@ -9,6 +9,22 @@ import { SpaceTheme } from '../components/themes/SpaceTheme';
 import { MedicalTheme } from '../components/themes/MedicalTheme';
 import { ProfessionalTheme } from '../components/themes/ProfessionalTheme';
 import { CinematicTheme } from '../components/themes/CinematicTheme';
+// Lite themes
+import { TerminalTheme } from '../components/themes/lite/TerminalTheme';
+import { SwissTheme } from '../components/themes/lite/SwissTheme';
+import { JournalTheme } from '../components/themes/lite/JournalTheme';
+import { BlueprintTheme } from '../components/themes/lite/BlueprintTheme';
+import { GazetteTheme } from '../components/themes/lite/GazetteTheme';
+import { BentoTheme } from '../components/themes/lite/BentoTheme';
+import { GlassTheme } from '../components/themes/lite/GlassTheme';
+import { TimelineTheme } from '../components/themes/lite/TimelineTheme';
+import { LetterpressTheme } from '../components/themes/lite/LetterpressTheme';
+import { NeonTheme } from '../components/themes/lite/NeonTheme';
+import { OrigamiTheme } from '../components/themes/lite/OrigamiTheme';
+import { ExecutiveTheme } from '../components/themes/lite/ExecutiveTheme';
+import { NotionTheme } from '../components/themes/lite/NotionTheme';
+import { ZineTheme } from '../components/themes/lite/ZineTheme';
+import { RetroTheme } from '../components/themes/lite/RetroTheme';
 import { Loader3D } from '../components/Loader3D';
 
 export const Portfolio = () => {
@@ -90,20 +106,30 @@ export const Portfolio = () => {
   };
 
   const renderTheme = () => {
+    const props = { rootUser, profile, repos };
     switch (activeTheme) {
-      case 'space':
-        return <SpaceTheme rootUser={rootUser} profile={profile} repos={repos} />;
-      case 'egyptian':
-        return <EgyptianTheme rootUser={rootUser} profile={profile} repos={repos} />;
-      case 'medical':
-        return <MedicalTheme rootUser={rootUser} profile={profile} repos={repos} />;
-      case 'professional':
-        return <ProfessionalTheme rootUser={rootUser} profile={profile} repos={repos} />;
-      case 'cinematic':
-        return <CinematicTheme rootUser={rootUser} profile={profile} repos={repos} />;
+      case 'space':        return <SpaceTheme {...props} />;
+      case 'egyptian':     return <EgyptianTheme {...props} />;
+      case 'medical':      return <MedicalTheme {...props} />;
+      case 'professional': return <ProfessionalTheme {...props} />;
+      case 'cinematic':    return <CinematicTheme {...props} />;
+      case 'terminal':     return <TerminalTheme {...props} />;
+      case 'swiss':        return <SwissTheme {...props} />;
+      case 'journal':      return <JournalTheme {...props} />;
+      case 'blueprint':    return <BlueprintTheme {...props} />;
+      case 'gazette':      return <GazetteTheme {...props} />;
+      case 'bento':        return <BentoTheme {...props} />;
+      case 'glass':        return <GlassTheme {...props} />;
+      case 'timeline':     return <TimelineTheme {...props} />;
+      case 'letterpress':  return <LetterpressTheme {...props} />;
+      case 'neon':         return <NeonTheme {...props} />;
+      case 'origami':      return <OrigamiTheme {...props} />;
+      case 'executive':    return <ExecutiveTheme {...props} />;
+      case 'notion':       return <NotionTheme {...props} />;
+      case 'zine':         return <ZineTheme {...props} />;
+      case 'retro':        return <RetroTheme {...props} />;
       case 'brutalist':
-      default:
-        return <BrutalistTheme rootUser={rootUser} profile={profile} repos={repos} />;
+      default:             return <BrutalistTheme {...props} />;
     }
   };
 
